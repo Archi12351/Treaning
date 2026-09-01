@@ -47,6 +47,27 @@ export function ProgressScreen({ nav }: { nav: (r: Route) => void }) {
           <Stat label="🗣️ Диалогов" value={`${progress.conversationsDone.length}/${CONVERSATIONS.length}`} />
         </div>
 
+        <div className="rounded-2xl bg-slate-900 p-4">
+          <p className="text-sm font-semibold text-slate-200">📲 Установить приложение</p>
+          <a
+            href="deutsch-a1-c2.apk"
+            download
+            className="mt-3 flex items-center justify-between rounded-xl bg-emerald-500 px-3.5 py-2.5"
+          >
+            <span className="text-sm font-semibold text-emerald-950">Скачать APK для Android</span>
+            <span className="text-emerald-950">⬇︎</span>
+          </a>
+          <p className="mt-2 text-[11px] leading-relaxed text-slate-500">
+            После скачивания разрешите «Установку из неизвестных источников» —
+            это не магазин приложений, поэтому Android спросит подтверждение.
+          </p>
+          <p className="mt-3 text-[11px] leading-relaxed text-slate-500">
+            <span className="font-semibold text-slate-400">На iPhone:</span> откройте
+            эту страницу в Safari → кнопка «Поделиться» → «На экран «Домой»» —
+            приложение появится как обычная иконка.
+          </p>
+        </div>
+
         <button
           onClick={() => nav({ name: "settings" })}
           className="flex w-full items-center justify-between rounded-2xl bg-slate-900 p-4 text-left"
