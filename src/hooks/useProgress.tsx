@@ -42,6 +42,7 @@ interface ProgressState {
   mySalaryEur: number | null;
   userAvatar: string;
   chaptersRead: string[];
+  ttsVoiceURI: string;
 }
 
 const defaultState: ProgressState = {
@@ -68,6 +69,7 @@ const defaultState: ProgressState = {
   mySalaryEur: null,
   userAvatar: "🙂",
   chaptersRead: [],
+  ttsVoiceURI: "",
 };
 
 function loadState(): ProgressState {
@@ -110,6 +112,7 @@ interface ProgressApi extends ProgressState {
   setMySalaryEur: (value: number | null) => void;
   setUserAvatar: (emoji: string) => void;
   markChapterRead: (chapterId: string) => void;
+  setTtsVoiceURI: (voiceURI: string) => void;
 }
 
 const ProgressContext = createContext<ProgressApi | null>(null);
@@ -266,6 +269,10 @@ export function ProgressProvider({ children }: { children: ReactNode }) {
     );
   }, []);
 
+  const setTtsVoiceURI = useCallback((voiceURI: string) => {
+    setState((s) => ({ ...s, ttsVoiceURI: voiceURI }));
+  }, []);
+
   const value = useMemo<ProgressApi>(
     () => ({
       ...state,
@@ -290,6 +297,7 @@ export function ProgressProvider({ children }: { children: ReactNode }) {
       setMySalaryEur,
       setUserAvatar,
       markChapterRead,
+      setTtsVoiceURI,
     }),
     [
       state,
@@ -314,6 +322,7 @@ export function ProgressProvider({ children }: { children: ReactNode }) {
       setMySalaryEur,
       setUserAvatar,
       markChapterRead,
+      setTtsVoiceURI,
     ],
   );
 

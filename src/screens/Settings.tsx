@@ -3,6 +3,7 @@ import type { Route } from "../App";
 import { TopBar } from "../components/TopBar";
 import { useProgress } from "../hooks/useProgress";
 import { useReminderPermission } from "../hooks/useReminders";
+import { useGermanVoices, useTextToSpeech } from "../hooks/useSpeech";
 import { hasAIBackend } from "../utils/aiBackend";
 
 const MODELS = [
@@ -33,6 +34,8 @@ export function Settings({ nav }: { nav: (r: Route) => void }) {
   const [saved, setSaved] = useState(false);
   const [geminiSaved, setGeminiSaved] = useState(false);
   const { supported: notifSupported, permission, requestPermission } = useReminderPermission();
+  const germanVoices = useGermanVoices();
+  const { speak } = useTextToSpeech();
 
   const save = () => {
     progress.setApiKey(draft.trim());
@@ -104,6 +107,51 @@ export function Settings({ nav }: { nav: (r: Route) => void }) {
               </button>
             ))}
           </div>
+        </div>
+
+        <div className="rounded-2xl bg-slate-900 p-4">
+          <p className="text-sm font-semibold text-slate-200">🔊 Голос озвучивания</p>
+          <p className="mt-1 text-xs leading-relaxed text-slate-500">
+            Список голосов зависит от вашего телефона и браузера. Если голосов
+            мало или только один — на Android можно установить дополнительные
+            в Настройках → Языки и ввод → Синтез речи → Google → Установить
+            голосовые данные.
+          </p>
+          {germanVoices.length === 0 ? (
+            <p className="mt-3 text-xs text-amber-400">
+              Немецкие голоса не найдены на этом устройстве.
+            </p>
+          ) : (
+            <div className="mt-3 space-y-2">
+              <button
+                onClick={() => progress.setTtsVoiceURI("")}
+                className={`w-full rounded-lg border px-3 py-2.5 text-left text-sm ${
+                  progress.ttsVoiceURI === ""
+                    ? "accent-ring accent-soft-bg border"
+                    : "border-slate-700 bg-slate-800/40 text-slate-200"
+                }`}
+              >
+                Автоматически (лучший из доступных)
+              </button>
+              {germanVoices.map((v) => (
+                <button
+                  key={v.voiceURI}
+                  onClick={() => {
+                    progress.setTtsVoiceURI(v.voiceURI);
+                    speak("Hallo, so klingt diese Stimme.");
+                  }}
+                  className={`flex w-full items-center justify-between rounded-lg border px-3 py-2.5 text-left text-sm ${
+                    progress.ttsVoiceURI === v.voiceURI
+                      ? "accent-ring accent-soft-bg border"
+                      : "border-slate-700 bg-slate-800/40 text-slate-200"
+                  }`}
+                >
+                  <span className="truncate">{v.name}</span>
+                  <span className="shrink-0 pl-2 text-[11px] text-slate-500">🔊</span>
+                </button>
+              ))}
+            </div>
+          )}
         </div>
 
         <div className="rounded-2xl bg-slate-900 p-4">

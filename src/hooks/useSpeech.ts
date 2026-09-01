@@ -1,36 +1,66 @@
 import { useCallback, useEffect, useRef, useState } from "react";
+import { useProgress } from "./useProgress";
 
-let cachedVoice: SpeechSynthesisVoice | null = null;
-let voicesLoaded = false;
+let allVoices: SpeechSynthesisVoice[] = [];
 
-function pickGermanVoice(): SpeechSynthesisVoice | null {
-  if (cachedVoice) return cachedVoice;
-  const voices = window.speechSynthesis?.getVoices() ?? [];
-  const de = voices.filter((v) => v.lang?.toLowerCase().startsWith("de"));
-  cachedVoice =
-    de.find((v) => /google/i.test(v.name)) ??
-    de.find((v) => v.lang === "de-DE") ??
-    de[0] ??
-    null;
-  return cachedVoice;
+function loadVoices(): SpeechSynthesisVoice[] {
+  allVoices = window.speechSynthesis?.getVoices() ?? [];
+  return allVoices;
+}
+
+export function germanVoices(): SpeechSynthesisVoice[] {
+  return allVoices.filter((v) => v.lang?.toLowerCase().startsWith("de"));
+}
+
+// Low-quality/robotic engines tend to advertise themselves this way; steer
+// the default pick away from them when a better German voice is available.
+const LOW_QUALITY_NAME = /compact|espeak|pico/i;
+
+function pickBestGermanVoice(): SpeechSynthesisVoice | null {
+  const de = germanVoices();
+  const good = de.filter((v) => !LOW_QUALITY_NAME.test(v.name));
+  const pool = good.length > 0 ? good : de;
+  return (
+    pool.find((v) => /google/i.test(v.name) && v.lang === "de-DE") ??
+    pool.find((v) => /google/i.test(v.name)) ??
+    pool.find((v) => v.lang === "de-DE") ??
+    pool[0] ??
+    null
+  );
+}
+
+// Lets Settings show the list of German voices actually installed on this
+// device/browser and re-renders once the OS reports them (can arrive async).
+export function useGermanVoices() {
+  const [voices, setVoices] = useState<SpeechSynthesisVoice[]>([]);
+  const supported = typeof window !== "undefined" && "speechSynthesis" in window;
+
+  useEffect(() => {
+    if (!supported) return;
+    const update = () => {
+      loadVoices();
+      setVoices(germanVoices());
+    };
+    update();
+    window.speechSynthesis.addEventListener("voiceschanged", update);
+    return () => window.speechSynthesis.removeEventListener("voiceschanged", update);
+  }, [supported]);
+
+  return voices;
 }
 
 export function useTextToSpeech() {
   const supported =
     typeof window !== "undefined" && "speechSynthesis" in window;
   const [speaking, setSpeaking] = useState(false);
+  const progress = useProgress();
 
   useEffect(() => {
     if (!supported) return;
-    const load = () => {
-      voicesLoaded = true;
-      cachedVoice = null;
-      pickGermanVoice();
-    };
-    window.speechSynthesis.addEventListener("voiceschanged", load);
-    load();
+    loadVoices();
+    window.speechSynthesis.addEventListener("voiceschanged", loadVoices);
     return () =>
-      window.speechSynthesis.removeEventListener("voiceschanged", load);
+      window.speechSynthesis.removeEventListener("voiceschanged", loadVoices);
   }, [supported]);
 
   const speak = useCallback(
@@ -40,14 +70,17 @@ export function useTextToSpeech() {
       const utter = new SpeechSynthesisUtterance(text);
       utter.lang = "de-DE";
       utter.rate = rate;
-      const voice = pickGermanVoice();
+      const chosen = progress.ttsVoiceURI
+        ? germanVoices().find((v) => v.voiceURI === progress.ttsVoiceURI)
+        : null;
+      const voice = chosen ?? pickBestGermanVoice();
       if (voice) utter.voice = voice;
       utter.onstart = () => setSpeaking(true);
       utter.onend = () => setSpeaking(false);
       utter.onerror = () => setSpeaking(false);
       window.speechSynthesis.speak(utter);
     },
-    [supported],
+    [supported, progress.ttsVoiceURI],
   );
 
   const stop = useCallback(() => {
@@ -56,7 +89,7 @@ export function useTextToSpeech() {
     setSpeaking(false);
   }, [supported]);
 
-  return { supported, speaking, speak, stop, voicesReady: voicesLoaded };
+  return { supported, speaking, speak, stop };
 }
 
 type SpeechRecognitionCtor = new () => SpeechRecognition;
