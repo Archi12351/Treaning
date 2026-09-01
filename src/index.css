@@ -2,6 +2,40 @@
 
 :root {
   color-scheme: dark;
+  --accent: #10b981;
+  --accent-light: #34d399;
+  --accent-ink: #022c22;
+  --accent-soft: rgba(16, 185, 129, 0.15);
+  --accent-glow: rgba(16, 185, 129, 0.2);
+}
+
+[data-theme="indigo"] {
+  --accent: #6366f1;
+  --accent-light: #818cf8;
+  --accent-ink: #1e1b4b;
+  --accent-soft: rgba(99, 102, 241, 0.15);
+  --accent-glow: rgba(99, 102, 241, 0.2);
+}
+[data-theme="rose"] {
+  --accent: #f43f5e;
+  --accent-light: #fb7185;
+  --accent-ink: #4c0519;
+  --accent-soft: rgba(244, 63, 94, 0.15);
+  --accent-glow: rgba(244, 63, 94, 0.2);
+}
+[data-theme="amber"] {
+  --accent: #f59e0b;
+  --accent-light: #fbbf24;
+  --accent-ink: #451a03;
+  --accent-soft: rgba(245, 158, 11, 0.15);
+  --accent-glow: rgba(245, 158, 11, 0.2);
+}
+[data-theme="sky"] {
+  --accent: #0ea5e9;
+  --accent-light: #38bdf8;
+  --accent-ink: #082f49;
+  --accent-soft: rgba(14, 165, 233, 0.15);
+  --accent-glow: rgba(14, 165, 233, 0.2);
 }
 
 html, body, #root {
@@ -58,4 +92,25 @@ html, body, #root {
 }
 .recording-pulse {
   animation: pulse-ring 1.5s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+}
+
+/* Accent theme helpers — swap brand color via [data-theme] without touching semantic
+   (correct/incorrect) colors elsewhere, which must always stay green/red. */
+.accent-text {
+  color: var(--accent);
+}
+.accent-bg {
+  background-color: var(--accent);
+  color: var(--accent-ink);
+}
+.accent-soft-bg {
+  background-color: var(--accent-soft);
+  color: var(--accent);
+}
+.accent-gradient {
+  background-image: linear-gradient(to right, var(--accent), var(--accent-light));
+  color: var(--accent-ink);
+}
+.accent-ring {
+  border-color: var(--accent);
 }

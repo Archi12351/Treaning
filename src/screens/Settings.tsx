@@ -2,6 +2,7 @@ import { useState } from "react";
 import type { Route } from "../App";
 import { TopBar } from "../components/TopBar";
 import { useProgress } from "../hooks/useProgress";
+import { useReminderPermission } from "../hooks/useReminders";
 
 const MODELS = [
   { id: "claude-opus-5", label: "Claude Opus 5", note: "Самый умный, дороже и чуть медленнее" },
@@ -9,10 +10,19 @@ const MODELS = [
   { id: "claude-haiku-4-5", label: "Claude Haiku 4.5", note: "Самый быстрый и дешёвый" },
 ];
 
+const THEMES: { id: string; label: string; swatch: string }[] = [
+  { id: "emerald", label: "Изумрудный", swatch: "#10b981" },
+  { id: "indigo", label: "Индиго", swatch: "#6366f1" },
+  { id: "rose", label: "Розовый", swatch: "#f43f5e" },
+  { id: "amber", label: "Янтарный", swatch: "#f59e0b" },
+  { id: "sky", label: "Небесный", swatch: "#0ea5e9" },
+];
+
 export function Settings({ nav }: { nav: (r: Route) => void }) {
   const progress = useProgress();
   const [draft, setDraft] = useState(progress.apiKey);
   const [saved, setSaved] = useState(false);
+  const { supported: notifSupported, permission, requestPermission } = useReminderPermission();
 
   const save = () => {
     progress.setApiKey(draft.trim());
@@ -20,17 +30,86 @@ export function Settings({ nav }: { nav: (r: Route) => void }) {
     setTimeout(() => setSaved(false), 1500);
   };
 
+  const toggleReminders = async () => {
+    if (!progress.remindersEnabled) {
+      const granted = await requestPermission();
+      if (granted) progress.setRemindersEnabled(true);
+    } else {
+      progress.setRemindersEnabled(false);
+    }
+  };
+
   return (
     <div>
-      <TopBar title="Настройки AI-собеседника" onBack={() => nav({ name: "progress" })} />
+      <TopBar title="Настройки" onBack={() => nav({ name: "progress" })} />
       <div className="space-y-5 px-4 py-4">
+        <div className="rounded-2xl bg-slate-900 p-4">
+          <p className="text-sm font-semibold text-slate-200">🎨 Внешний вид</p>
+          <p className="mt-1 text-xs text-slate-500">Цвет акцента приложения</p>
+          <div className="mt-3 grid grid-cols-5 gap-2">
+            {THEMES.map((t) => (
+              <button
+                key={t.id}
+                onClick={() => progress.setAccentTheme(t.id)}
+                className="flex flex-col items-center gap-1.5"
+                aria-label={t.label}
+              >
+                <span
+                  className="h-9 w-9 rounded-full border-2"
+                  style={{
+                    backgroundColor: t.swatch,
+                    borderColor: progress.accentTheme === t.id ? "#e5e7eb" : "transparent",
+                  }}
+                />
+                <span className="text-[10px] text-slate-500">{t.label}</span>
+              </button>
+            ))}
+          </div>
+        </div>
+
+        <div className="rounded-2xl bg-slate-900 p-4">
+          <div className="flex items-center justify-between">
+            <div className="pr-3">
+              <p className="text-sm font-semibold text-slate-200">🔔 Напоминания</p>
+              <p className="mt-1 text-xs leading-relaxed text-slate-500">
+                Вечернее уведомление, если вы ещё не позанимались сегодня.
+                Работает, пока приложение открыто в браузере/на телефоне —
+                без своего сервера нет настоящих push-уведомлений при полностью
+                закрытом приложении.
+              </p>
+              {!notifSupported && (
+                <p className="mt-1 text-xs text-amber-400">Браузер не поддерживает уведомления.</p>
+              )}
+              {notifSupported && permission === "denied" && (
+                <p className="mt-1 text-xs text-amber-400">
+                  Уведомления заблокированы в настройках браузера.
+                </p>
+              )}
+            </div>
+            <button
+              onClick={toggleReminders}
+              disabled={!notifSupported || permission === "denied"}
+              className={`h-7 w-12 shrink-0 rounded-full transition-colors disabled:opacity-30 ${
+                progress.remindersEnabled ? "accent-bg" : "bg-slate-700"
+              }`}
+            >
+              <span
+                className="block h-5 w-5 rounded-full bg-white transition-transform"
+                style={{
+                  transform: progress.remindersEnabled ? "translateX(22px)" : "translateX(4px)",
+                }}
+              />
+            </button>
+          </div>
+        </div>
+
         <div className="rounded-2xl bg-slate-900 p-4">
           <p className="text-sm font-semibold text-slate-200">Ключ Anthropic API</p>
           <p className="mt-1 text-xs leading-relaxed text-slate-500">
             Приложение полностью работает в браузере, без своего сервера — поэтому
             для живого AI-собеседника нужен ваш собственный ключ Claude API.
             Получить его можно на{" "}
-            <span className="text-emerald-400">console.anthropic.com</span>.
+            <span className="accent-text">console.anthropic.com</span>.
             Ключ хранится только в памяти этого браузера (localStorage) и
             никуда, кроме api.anthropic.com, не отправляется.
           </p>
@@ -39,7 +118,7 @@ export function Settings({ nav }: { nav: (r: Route) => void }) {
             onChange={(e) => setDraft(e.target.value)}
             type="password"
             placeholder="sk-ant-..."
-            className="mt-3 w-full rounded-lg border border-slate-700 bg-slate-800/50 px-3 py-2.5 text-sm text-slate-100 outline-none focus:border-emerald-500"
+            className="mt-3 w-full rounded-lg border border-slate-700 bg-slate-800/50 px-3 py-2.5 text-sm text-slate-100 outline-none focus:border-[color:var(--accent)]"
             autoComplete="off"
             spellCheck={false}
           />
@@ -47,7 +126,7 @@ export function Settings({ nav }: { nav: (r: Route) => void }) {
             <button
               onClick={save}
               disabled={!draft.trim()}
-              className="flex-1 rounded-lg bg-emerald-500 py-2.5 text-sm font-semibold text-emerald-950 disabled:opacity-30"
+              className="accent-bg flex-1 rounded-lg py-2.5 text-sm font-semibold disabled:opacity-30"
             >
               {saved ? "Сохранено ✓" : "Сохранить ключ"}
             </button>
@@ -78,7 +157,7 @@ export function Settings({ nav }: { nav: (r: Route) => void }) {
                 onClick={() => progress.setAiModel(m.id)}
                 className={`w-full rounded-lg border px-3 py-2.5 text-left ${
                   progress.aiModel === m.id
-                    ? "border-emerald-500 bg-emerald-500/10"
+                    ? "accent-ring accent-soft-bg border"
                     : "border-slate-700 bg-slate-800/40"
                 }`}
               >

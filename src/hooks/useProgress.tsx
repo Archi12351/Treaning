@@ -34,6 +34,9 @@ interface ProgressState {
   onboarded: boolean;
   apiKey: string;
   aiModel: string;
+  accentTheme: string;
+  remindersEnabled: boolean;
+  mySalaryEur: number | null;
 }
 
 const defaultState: ProgressState = {
@@ -52,6 +55,9 @@ const defaultState: ProgressState = {
   onboarded: false,
   apiKey: "",
   aiModel: "claude-opus-5",
+  accentTheme: "emerald",
+  remindersEnabled: false,
+  mySalaryEur: null,
 };
 
 function loadState(): ProgressState {
@@ -86,6 +92,9 @@ interface ProgressApi extends ProgressState {
   completeOnboarding: () => void;
   setApiKey: (key: string) => void;
   setAiModel: (model: string) => void;
+  setAccentTheme: (theme: string) => void;
+  setRemindersEnabled: (enabled: boolean) => void;
+  setMySalaryEur: (value: number | null) => void;
 }
 
 const ProgressContext = createContext<ProgressApi | null>(null);
@@ -206,6 +215,18 @@ export function ProgressProvider({ children }: { children: ReactNode }) {
     setState((s) => ({ ...s, aiModel: model }));
   }, []);
 
+  const setAccentTheme = useCallback((theme: string) => {
+    setState((s) => ({ ...s, accentTheme: theme }));
+  }, []);
+
+  const setRemindersEnabled = useCallback((enabled: boolean) => {
+    setState((s) => ({ ...s, remindersEnabled: enabled }));
+  }, []);
+
+  const setMySalaryEur = useCallback((value: number | null) => {
+    setState((s) => ({ ...s, mySalaryEur: value }));
+  }, []);
+
   const value = useMemo<ProgressApi>(
     () => ({
       ...state,
@@ -222,6 +243,9 @@ export function ProgressProvider({ children }: { children: ReactNode }) {
       completeOnboarding,
       setApiKey,
       setAiModel,
+      setAccentTheme,
+      setRemindersEnabled,
+      setMySalaryEur,
     }),
     [
       state,
@@ -238,6 +262,9 @@ export function ProgressProvider({ children }: { children: ReactNode }) {
       completeOnboarding,
       setApiKey,
       setAiModel,
+      setAccentTheme,
+      setRemindersEnabled,
+      setMySalaryEur,
     ],
   );
 

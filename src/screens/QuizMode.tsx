@@ -78,14 +78,14 @@ export function QuizMode({ nav }: { nav: (r: Route) => void }) {
       <div className="flex flex-col items-center px-6 pt-[calc(env(safe-area-inset-top)+2rem)] text-center">
         <span className="text-5xl">{scorePercent >= 70 ? "🎯" : "💪"}</span>
         <h2 className="mt-4 text-xl font-bold text-slate-50">Тест завершён</h2>
-        <p className="mt-2 text-3xl font-black text-emerald-400">{scorePercent}%</p>
+        <p className="accent-text mt-2 text-3xl font-black">{scorePercent}%</p>
         <p className="mt-1 text-sm text-slate-400">
           Правильно {correctCount} из {quiz.length}
         </p>
         <div className="mt-8 flex w-full flex-col gap-3">
           <button
             onClick={() => nav({ name: "quiz" })}
-            className="rounded-xl bg-emerald-500 py-3 font-semibold text-emerald-950"
+            className="accent-bg rounded-xl py-3 font-semibold"
           >
             Новый тест
           </button>
@@ -114,7 +114,7 @@ export function QuizMode({ nav }: { nav: (r: Route) => void }) {
       <div className="space-y-4 px-4 py-4">
         <div className="h-1.5 w-full overflow-hidden rounded-full bg-slate-800">
           <div
-            className="h-full rounded-full bg-emerald-500 transition-all"
+            className="accent-bg h-full rounded-full transition-all"
             style={{ width: `${(index / quiz.length) * 100}%` }}
           />
         </div>

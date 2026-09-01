@@ -48,7 +48,7 @@ export function HomeScreen({ nav }: { nav: (r: Route) => void }) {
           <h1 className="text-2xl font-bold text-slate-50">Deutsch A1–C2</h1>
         </div>
         <div className="flex flex-col items-end">
-          <span className="rounded-full bg-emerald-500/15 px-3 py-1 text-sm font-semibold text-emerald-400">
+          <span className="accent-soft-bg rounded-full px-3 py-1 text-sm font-semibold">
             {progress.level}
           </span>
           <span className="mt-1 text-xs text-slate-500">🔥 {progress.streakCount} дней</span>
@@ -58,12 +58,12 @@ export function HomeScreen({ nav }: { nav: (r: Route) => void }) {
       {!progress.placementDone && (
         <button
           onClick={() => nav({ name: "placement" })}
-          className="mt-5 w-full rounded-2xl bg-gradient-to-r from-emerald-500 to-teal-500 p-4 text-left shadow-lg shadow-emerald-500/20 active:scale-[0.99]"
+          className="accent-gradient mt-5 w-full rounded-2xl p-4 text-left shadow-lg active:scale-[0.99]"
         >
-          <p className="text-sm font-semibold text-emerald-950">
+          <p className="text-sm font-semibold">
             Определите свой уровень
           </p>
-          <p className="mt-0.5 text-xs text-emerald-950/80">
+          <p className="mt-0.5 text-xs opacity-80">
             Короткий тест (5 минут) — от A1 до C2, чтобы начать с нужного уровня
           </p>
         </button>
@@ -156,6 +156,12 @@ export function HomeScreen({ nav }: { nav: (r: Route) => void }) {
           title="Профиль"
           subtitle="Прогресс и настройки"
           onClick={() => nav({ name: "progress" })}
+        />
+        <QuickCard
+          icon="🌍"
+          title="Культура и факты"
+          subtitle="Зарплаты, страны DACH"
+          onClick={() => nav({ name: "culture" })}
         />
       </div>
 

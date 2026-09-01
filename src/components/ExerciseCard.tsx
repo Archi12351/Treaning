@@ -71,13 +71,13 @@ export function ExerciseCard({
             disabled={checked}
             onChange={(e) => setTextAnswer(e.target.value)}
             placeholder="Введите ответ..."
-            className="w-full rounded-lg border border-slate-700 bg-slate-800/50 px-3 py-2 text-sm text-slate-100 outline-none focus:border-emerald-500 disabled:opacity-60"
+            className="w-full rounded-lg border border-slate-700 bg-slate-800/50 px-3 py-2 text-sm text-slate-100 outline-none focus:border-[color:var(--accent)] disabled:opacity-60"
           />
           {!checked && (
             <button
               onClick={() => check(textAnswer)}
               disabled={!textAnswer.trim()}
-              className="mt-2 w-full rounded-lg bg-emerald-500 py-2 text-sm font-semibold text-emerald-950 disabled:opacity-30"
+              className="accent-bg mt-2 w-full rounded-lg py-2 text-sm font-semibold disabled:opacity-30"
             >
               Проверить
             </button>

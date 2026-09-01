@@ -63,7 +63,7 @@ export function PlacementTest({ nav }: { nav: (r: Route) => void }) {
       <div className="flex flex-col items-center px-6 pt-[calc(env(safe-area-inset-top)+2rem)] text-center">
         <span className="text-5xl">🏆</span>
         <h2 className="mt-4 text-lg text-slate-300">Ваш уровень немецкого:</h2>
-        <p className="mt-2 text-5xl font-black text-emerald-400">{result.level}</p>
+        <p className="accent-text mt-2 text-5xl font-black">{result.level}</p>
         <p className="mt-3 text-sm text-slate-400">Точность ответов: {result.score}%</p>
         <p className="mt-6 text-sm text-slate-400">
           Мы составили индивидуальную программу с учётом вашего уровня и
@@ -71,7 +71,7 @@ export function PlacementTest({ nav }: { nav: (r: Route) => void }) {
         </p>
         <button
           onClick={() => nav({ name: "home" })}
-          className="mt-8 w-full rounded-xl bg-emerald-500 py-3 font-semibold text-emerald-950"
+          className="accent-bg mt-8 w-full rounded-xl py-3 font-semibold"
         >
           Начать обучение
         </button>
@@ -93,7 +93,7 @@ export function PlacementTest({ nav }: { nav: (r: Route) => void }) {
       <div className="px-4 py-6">
         <div className="h-1.5 w-full overflow-hidden rounded-full bg-slate-800">
           <div
-            className="h-full rounded-full bg-emerald-500 transition-all"
+            className="accent-bg h-full rounded-full transition-all"
             style={{ width: `${(index / PLACEMENT_QUESTIONS.length) * 100}%` }}
           />
         </div>

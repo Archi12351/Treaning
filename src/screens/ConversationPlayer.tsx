@@ -95,7 +95,7 @@ export function ConversationPlayer({
               className={`max-w-[85%] rounded-2xl px-3.5 py-2.5 ${
                 line.speaker === "bot"
                   ? "rounded-tl-sm bg-slate-800"
-                  : "rounded-tr-sm bg-emerald-600/25"
+                  : "accent-soft-bg rounded-tr-sm"
               }`}
             >
               <div className="flex items-center gap-2">
@@ -172,7 +172,7 @@ export function ConversationPlayer({
             <div className="flex w-full flex-col gap-3">
               <button
                 onClick={restart}
-                className="rounded-xl bg-emerald-500 py-3 font-semibold text-emerald-950"
+                className="accent-bg rounded-xl py-3 font-semibold"
               >
                 Пройти ещё раз
               </button>

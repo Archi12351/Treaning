@@ -26,7 +26,7 @@ export function ProgressScreen({ nav }: { nav: (r: Route) => void }) {
       <div className="space-y-5 px-4 py-4">
         <div className="rounded-2xl bg-gradient-to-br from-slate-800 to-slate-900 p-5 text-center">
           <p className="text-xs text-slate-400">Текущий уровень</p>
-          <p className="mt-1 text-4xl font-black text-emerald-400">{progress.level}</p>
+          <p className="accent-text mt-1 text-4xl font-black">{progress.level}</p>
           {progress.placementDone && (
             <p className="mt-1 text-xs text-slate-500">
               по результатам теста ({progress.levelConfidence}% точности)
@@ -52,10 +52,10 @@ export function ProgressScreen({ nav }: { nav: (r: Route) => void }) {
           <a
             href="deutsch-a1-c2.apk"
             download
-            className="mt-3 flex items-center justify-between rounded-xl bg-emerald-500 px-3.5 py-2.5"
+            className="accent-bg mt-3 flex items-center justify-between rounded-xl px-3.5 py-2.5"
           >
-            <span className="text-sm font-semibold text-emerald-950">Скачать APK для Android</span>
-            <span className="text-emerald-950">⬇︎</span>
+            <span className="text-sm font-semibold">Скачать APK для Android</span>
+            <span>⬇︎</span>
           </a>
           <p className="mt-2 text-[11px] leading-relaxed text-slate-500">
             После скачивания разрешите «Установку из неизвестных источников» —
@@ -89,7 +89,7 @@ export function ProgressScreen({ nav }: { nav: (r: Route) => void }) {
                 <div
                   className={`h-8 w-8 rounded-lg ${
                     progress.activeDates.includes(day.date)
-                      ? "bg-emerald-500"
+                      ? "accent-bg"
                       : "bg-slate-800"
                   }`}
                 />
@@ -101,7 +101,7 @@ export function ProgressScreen({ nav }: { nav: (r: Route) => void }) {
 
         <div className="rounded-2xl bg-slate-900 p-4">
           <p className="text-sm font-semibold text-slate-300">Лексика</p>
-          <ProgressBar value={vocabMastered} total={VOCABULARY.length} color="bg-emerald-500" />
+          <ProgressBar value={vocabMastered} total={VOCABULARY.length} color="accent-bg" />
           <p className="mt-1 text-xs text-slate-500">
             Изучается: {vocabStarted}, усвоено прочно: {vocabMastered}
           </p>

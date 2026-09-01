@@ -29,7 +29,7 @@ export function BottomNav({
               key={item.key}
               onClick={() => onChange(item.key)}
               className={`flex flex-1 flex-col items-center gap-0.5 py-2.5 text-[11px] font-medium transition-colors ${
-                isActive ? "text-emerald-400" : "text-slate-500"
+                isActive ? "accent-text" : "text-slate-500"
               }`}
             >
               <span className="text-xl leading-none">{item.icon}</span>

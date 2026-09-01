@@ -18,7 +18,7 @@ export function SpeakButton({
         e.stopPropagation();
         speak(text, rate);
       }}
-      className={`flex ${dim} shrink-0 items-center justify-center rounded-full bg-slate-800 text-emerald-400 active:bg-slate-700 ${
+      className={`flex ${dim} shrink-0 items-center justify-center rounded-full bg-slate-800 accent-text active:bg-slate-700 ${
         speaking ? "animate-pulse" : ""
       }`}
       aria-label="Прослушать произношение"

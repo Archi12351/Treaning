@@ -10,7 +10,23 @@ export function VocabTopics({ nav }: { nav: (r: Route) => void }) {
   return (
     <div>
       <TopBar title="Лексика" />
-      <div className="space-y-3 px-4 py-4">
+      <div className="px-4 pt-2">
+        <button
+          onClick={() => nav({ name: "forms-trainer" })}
+          className="flex w-full items-center gap-3 rounded-2xl bg-gradient-to-r from-fuchsia-500 to-pink-500 p-4 text-left shadow-lg shadow-fuchsia-500/20 active:scale-[0.99]"
+        >
+          <span className="text-2xl">✍️</span>
+          <div className="min-w-0 flex-1">
+            <p className="font-semibold text-white">Тренажёр форм слов</p>
+            <p className="text-xs text-white/80">
+              Спряжение, множественное число, степени сравнения
+            </p>
+          </div>
+          <span className="text-xl text-white">→</span>
+        </button>
+      </div>
+      <p className="px-4 pb-1 pt-4 text-xs text-slate-500">Темы для карточек:</p>
+      <div className="space-y-3 px-4 py-3">
         {TOPICS.map((topic) => {
           const words = VOCABULARY.filter((v) => v.topic === topic.id);
           const mastered = words.filter(
@@ -34,7 +50,7 @@ export function VocabTopics({ nav }: { nav: (r: Route) => void }) {
               </div>
               <div className="mt-2 h-1.5 w-full overflow-hidden rounded-full bg-slate-800">
                 <div
-                  className="h-full rounded-full bg-emerald-500"
+                  className="accent-bg h-full rounded-full"
                   style={{ width: `${pct}%` }}
                 />
               </div>

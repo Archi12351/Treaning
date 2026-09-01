@@ -96,7 +96,7 @@ export function VocabTrainer({
               setSessionCorrect(0);
               setFinished(false);
             }}
-            className="rounded-xl bg-emerald-500 py-3 font-semibold text-emerald-950"
+            className="accent-bg rounded-xl py-3 font-semibold"
           >
             Повторить ещё раз
           </button>
@@ -125,7 +125,7 @@ export function VocabTrainer({
       <div className="flex flex-1 flex-col px-4 py-6">
         <div className="h-1.5 w-full overflow-hidden rounded-full bg-slate-800">
           <div
-            className="h-full rounded-full bg-emerald-500 transition-all"
+            className="accent-bg h-full rounded-full transition-all"
             style={{ width: `${(index / words.length) * 100}%` }}
           />
         </div>
@@ -139,14 +139,15 @@ export function VocabTrainer({
               <span className="rounded-full bg-slate-800 px-2 py-0.5 text-[11px] text-slate-400">
                 {current.level}
               </span>
+              {current.emoji && <span className="text-5xl">{current.emoji}</span>}
               <p className="text-2xl font-bold text-slate-50">{current.de}</p>
               <div onClick={(e) => e.stopPropagation()}>
                 <SpeakButton text={current.de} />
               </div>
               <p className="text-xs text-slate-500">Нажми, чтобы перевернуть</p>
             </div>
-            <div className="flip-card-back absolute inset-0 flex flex-col items-center justify-center gap-2 rounded-2xl bg-emerald-950/40 p-6 text-center">
-              <p className="text-xl font-semibold text-emerald-300">{current.ru}</p>
+            <div className="flip-card-back accent-soft-bg absolute inset-0 flex flex-col items-center justify-center gap-2 rounded-2xl p-6 text-center">
+              <p className="accent-text text-xl font-semibold">{current.ru}</p>
               <p className="mt-2 text-sm text-slate-200">{current.exampleDe}</p>
               <p className="text-xs text-slate-400">{current.exampleRu}</p>
             </div>

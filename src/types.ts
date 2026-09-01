@@ -8,6 +8,7 @@ export interface VocabItem {
   exampleRu: string;
   topic: string;
   level: CEFRLevel;
+  emoji?: string;
 }
 
 export type ExerciseType = "choice" | "fill" | "reorder" | "transform";

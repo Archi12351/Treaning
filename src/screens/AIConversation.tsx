@@ -78,7 +78,7 @@ export function AIConversation({ nav }: { nav: (r: Route) => void }) {
           </p>
           <button
             onClick={() => nav({ name: "settings" })}
-            className="mt-6 w-full rounded-xl bg-emerald-500 py-3 font-semibold text-emerald-950"
+            className="accent-bg mt-6 w-full rounded-xl py-3 font-semibold"
           >
             Добавить API-ключ
           </button>
@@ -103,7 +103,7 @@ export function AIConversation({ nav }: { nav: (r: Route) => void }) {
                 onClick={() => setTopic(t)}
                 className={`rounded-xl border px-3 py-3 text-left text-sm font-medium ${
                   topic === t
-                    ? "border-emerald-500 bg-emerald-500/10 text-emerald-400"
+                    ? "accent-ring accent-soft-bg border"
                     : "border-slate-700 bg-slate-800/40 text-slate-200"
                 }`}
               >
@@ -117,7 +117,7 @@ export function AIConversation({ nav }: { nav: (r: Route) => void }) {
               setStarted(true);
             }}
             disabled={!topic}
-            className="mt-6 w-full rounded-xl bg-emerald-500 py-3 font-semibold text-emerald-950 disabled:opacity-30"
+            className="accent-bg mt-6 w-full rounded-xl py-3 font-semibold disabled:opacity-30"
           >
             Начать разговор
           </button>
@@ -154,7 +154,7 @@ export function AIConversation({ nav }: { nav: (r: Route) => void }) {
               className={`max-w-[85%] rounded-2xl px-3.5 py-2.5 text-sm ${
                 m.role === "assistant"
                   ? "rounded-tl-sm bg-slate-800 text-slate-100"
-                  : "rounded-tr-sm bg-emerald-600/25 text-slate-100"
+                  : "accent-soft-bg rounded-tr-sm !text-slate-100"
               }`}
             >
               {m.text}
@@ -183,7 +183,7 @@ export function AIConversation({ nav }: { nav: (r: Route) => void }) {
               if (e.key === "Enter") submit(textInput);
             }}
             placeholder="Напишите на немецком..."
-            className="flex-1 rounded-full border border-slate-700 bg-slate-900 px-4 py-2.5 text-sm text-slate-100 outline-none focus:border-emerald-500"
+            className="flex-1 rounded-full border border-slate-700 bg-slate-900 px-4 py-2.5 text-sm text-slate-100 outline-none focus:border-[color:var(--accent)]"
           />
           {sttSupported && (
             <button
@@ -199,13 +199,13 @@ export function AIConversation({ nav }: { nav: (r: Route) => void }) {
           <button
             onClick={() => submit(textInput)}
             disabled={!textInput.trim() || loading}
-            className="flex h-10 w-10 shrink-0 items-center justify-center rounded-full bg-emerald-500 text-emerald-950 disabled:opacity-30"
+            className="accent-bg flex h-10 w-10 shrink-0 items-center justify-center rounded-full disabled:opacity-30"
             aria-label="Отправить"
           >
             ➤
           </button>
         </div>
-        {speaking && <p className="mt-1.5 text-center text-[11px] text-emerald-400">🔊 говорит...</p>}
+        {speaking && <p className="accent-text mt-1.5 text-center text-[11px]">🔊 говорит...</p>}
       </div>
     </div>
   );

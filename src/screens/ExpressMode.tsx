@@ -116,7 +116,7 @@ export function ExpressMode({ nav }: { nav: (r: Route) => void }) {
         <p className="mt-2 text-slate-400">
           Правильно {correct} из {index}
         </p>
-        <p className="mt-1 text-sm text-emerald-400">+15 XP</p>
+        <p className="accent-text mt-1 text-sm">+15 XP</p>
         <div className="mt-8 flex w-full flex-col gap-3">
           <button
             onClick={() => nav({ name: "express" })}
@@ -168,13 +168,14 @@ export function ExpressMode({ nav }: { nav: (r: Route) => void }) {
             >
               <div className="flip-card-inner relative h-full w-full">
                 <div className="flip-card-front absolute inset-0 flex flex-col items-center justify-center gap-3 rounded-2xl bg-slate-900 p-6 text-center">
+                  {current.data.emoji && <span className="text-5xl">{current.data.emoji}</span>}
                   <p className="text-2xl font-bold text-slate-50">{current.data.de}</p>
                   <div onClick={(e) => e.stopPropagation()}>
                     <SpeakButton text={current.data.de} />
                   </div>
                 </div>
-                <div className="flip-card-back absolute inset-0 flex flex-col items-center justify-center gap-2 rounded-2xl bg-emerald-950/40 p-6 text-center">
-                  <p className="text-xl font-semibold text-emerald-300">{current.data.ru}</p>
+                <div className="flip-card-back accent-soft-bg absolute inset-0 flex flex-col items-center justify-center gap-2 rounded-2xl p-6 text-center">
+                  <p className="accent-text text-xl font-semibold">{current.data.ru}</p>
                 </div>
               </div>
             </div>

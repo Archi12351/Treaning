@@ -1,5 +1,6 @@
 import { lazy, Suspense, useEffect, useState } from "react";
 import { ProgressProvider, useProgress } from "./hooks/useProgress";
+import { useStreakReminder } from "./hooks/useReminders";
 import { BottomNav } from "./components/BottomNav";
 import { VocabTopics } from "./screens/VocabTopics";
 import { VocabTrainer } from "./screens/VocabTrainer";
@@ -20,6 +21,8 @@ import { HomeScreen } from "./screens/HomeScreen";
 import { TextbookIndex } from "./screens/TextbookIndex";
 import { TextbookChapter } from "./screens/TextbookChapter";
 import { Settings } from "./screens/Settings";
+import { Culture } from "./screens/Culture";
+import { FormsTrainer } from "./screens/FormsTrainer";
 
 export type Route =
   | { name: "home" }
@@ -36,7 +39,9 @@ export type Route =
   | { name: "quiz" }
   | { name: "textbook" }
   | { name: "textbook-chapter"; chapterId: string }
-  | { name: "settings" };
+  | { name: "settings" }
+  | { name: "culture" }
+  | { name: "forms-trainer" };
 
 const TAB_ROOTS: Record<string, Route> = {
   home: { name: "home" },
@@ -96,10 +101,15 @@ function AppShell() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
+  useStreakReminder(progress.remindersEnabled, progress.lastActiveDate, progress.streakCount);
+
   const nav = (r: Route) => setRoute(r);
 
   return (
-    <div className="flex min-h-[100svh] flex-col bg-slate-950">
+    <div
+      className="flex min-h-[100svh] flex-col bg-slate-950"
+      data-theme={progress.accentTheme}
+    >
       <div className="flex-1 overflow-y-auto pb-2">
         {route.name === "home" && <HomeScreen nav={nav} />}
         {route.name === "vocab-topics" && <VocabTopics nav={nav} />}
@@ -128,6 +138,8 @@ function AppShell() {
           <TextbookChapter chapterId={route.chapterId} nav={nav} />
         )}
         {route.name === "settings" && <Settings nav={nav} />}
+        {route.name === "culture" && <Culture nav={nav} />}
+        {route.name === "forms-trainer" && <FormsTrainer nav={nav} />}
       </div>
       {showsBottomNav(route) && (
         <BottomNav
