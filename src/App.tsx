@@ -23,6 +23,7 @@ import { TextbookChapter } from "./screens/TextbookChapter";
 import { Settings } from "./screens/Settings";
 import { Culture } from "./screens/Culture";
 import { FormsTrainer } from "./screens/FormsTrainer";
+import { StudyPath } from "./screens/StudyPath";
 
 export type Route =
   | { name: "home" }
@@ -41,7 +42,8 @@ export type Route =
   | { name: "textbook-chapter"; chapterId: string }
   | { name: "settings" }
   | { name: "culture" }
-  | { name: "forms-trainer" };
+  | { name: "forms-trainer" }
+  | { name: "study-path" };
 
 const TAB_ROOTS: Record<string, Route> = {
   home: { name: "home" },
@@ -140,6 +142,7 @@ function AppShell() {
         {route.name === "settings" && <Settings nav={nav} />}
         {route.name === "culture" && <Culture nav={nav} />}
         {route.name === "forms-trainer" && <FormsTrainer nav={nav} />}
+        {route.name === "study-path" && <StudyPath nav={nav} />}
       </div>
       {showsBottomNav(route) && (
         <BottomNav

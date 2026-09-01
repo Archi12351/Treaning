@@ -128,10 +128,13 @@ export function ExerciseCard({
           }`}
         >
           <p className="font-semibold">
-            {correct ? "Верно!" : `Правильный ответ: ${exercise.answer}`}
+            {correct ? "Верно!" : `Неверно. Правильный ответ: ${exercise.answer}`}
           </p>
           {exercise.explanation && (
-            <p className="mt-1 text-xs text-slate-300">{exercise.explanation}</p>
+            <p className="mt-1 text-xs text-slate-300">
+              {correct ? "" : "Потому что: "}
+              {exercise.explanation}
+            </p>
           )}
         </div>
       )}

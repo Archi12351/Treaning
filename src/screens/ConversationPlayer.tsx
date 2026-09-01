@@ -89,10 +89,13 @@ export function ConversationPlayer({
         {lines.slice(0, revealed).map((line, i) => (
           <div
             key={i}
-            className={`flex ${line.speaker === "bot" ? "justify-start" : "justify-end"}`}
+            className={`flex items-end gap-2 ${line.speaker === "bot" ? "justify-start" : "flex-row-reverse justify-start"}`}
           >
+            <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-slate-800 text-base">
+              {line.speaker === "bot" ? conversation.avatar : progress.userAvatar}
+            </span>
             <div
-              className={`max-w-[85%] rounded-2xl px-3.5 py-2.5 ${
+              className={`max-w-[80%] rounded-2xl px-3.5 py-2.5 ${
                 line.speaker === "bot"
                   ? "rounded-tl-sm bg-slate-800"
                   : "accent-soft-bg rounded-tr-sm"

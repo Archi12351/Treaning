@@ -2,8 +2,10 @@ import { useMemo, useState } from "react";
 import type { Route } from "../App";
 import { TopBar } from "../components/TopBar";
 import { TEXTBOOK_CHAPTERS, TEXTBOOK_PARAGRAPHS } from "../data/textbook";
+import { useProgress } from "../hooks/useProgress";
 
 export function TextbookIndex({ nav }: { nav: (r: Route) => void }) {
+  const progress = useProgress();
   const [query, setQuery] = useState("");
 
   const searchResults = useMemo(() => {
@@ -72,6 +74,9 @@ export function TextbookIndex({ nav }: { nav: (r: Route) => void }) {
                       {c.levelRange} · {count} {count === 1 ? "параграф" : "параграфа"}
                     </p>
                   </div>
+                  {progress.chaptersRead.includes(c.id) && (
+                    <span className="text-xs text-emerald-400">✓</span>
+                  )}
                 </button>
               );
             })}

@@ -153,9 +153,15 @@ export function AIConversation({ nav }: { nav: (r: Route) => void }) {
           </p>
         )}
         {messages.map((m, i) => (
-          <div key={i} className={`flex ${m.role === "assistant" ? "justify-start" : "justify-end"}`}>
+          <div
+            key={i}
+            className={`flex items-end gap-2 ${m.role === "assistant" ? "justify-start" : "flex-row-reverse justify-start"}`}
+          >
+            <span className="flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-slate-800 text-base">
+              {m.role === "assistant" ? "🤖" : progress.userAvatar}
+            </span>
             <div
-              className={`max-w-[85%] rounded-2xl px-3.5 py-2.5 text-sm ${
+              className={`max-w-[80%] rounded-2xl px-3.5 py-2.5 text-sm ${
                 m.role === "assistant"
                   ? "rounded-tl-sm bg-slate-800 text-slate-100"
                   : "accent-soft-bg rounded-tr-sm !text-slate-100"

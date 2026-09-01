@@ -1,7 +1,9 @@
+import { useEffect } from "react";
 import type { Route } from "../App";
 import { TopBar } from "../components/TopBar";
 import { SpeakButton } from "../components/SpeakButton";
 import { TEXTBOOK_CHAPTERS, TEXTBOOK_PARAGRAPHS } from "../data/textbook";
+import { useProgress } from "../hooks/useProgress";
 
 export function TextbookChapter({
   chapterId,
@@ -10,8 +12,14 @@ export function TextbookChapter({
   chapterId: string;
   nav: (r: Route) => void;
 }) {
+  const progress = useProgress();
   const chapter = TEXTBOOK_CHAPTERS.find((c) => c.id === chapterId);
   const paragraphs = TEXTBOOK_PARAGRAPHS.filter((p) => p.chapterId === chapterId);
+
+  useEffect(() => {
+    progress.markChapterRead(chapterId);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [chapterId]);
 
   if (!chapter) return null;
 

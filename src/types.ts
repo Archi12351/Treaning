@@ -47,6 +47,7 @@ export interface ConversationTopic {
   ru: string;
   level: CEFRLevel;
   icon: string;
+  avatar: string;
   lines: DialogueLine[];
 }
 

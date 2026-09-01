@@ -4,6 +4,7 @@ import { useProgress } from "../hooks/useProgress";
 import { GRAMMAR_TOPICS } from "../data/grammar";
 import { VOCABULARY } from "../data/vocabulary";
 import { CONVERSATIONS } from "../data/conversations";
+import { LEVEL_ORDER, levelIndex } from "../utils/studyPlan";
 import { masteryPercent } from "../utils/srs";
 import { buildStudyPlan, type PlanStep } from "../utils/studyPlan";
 
@@ -95,7 +96,15 @@ export function HomeScreen({ nav }: { nav: (r: Route) => void }) {
 
       {plan.length > 0 && (
         <>
-          <SectionTitle>Моя программа</SectionTitle>
+          <div className="flex items-center justify-between">
+            <SectionTitle>Моя программа</SectionTitle>
+            <button
+              onClick={() => nav({ name: "study-path" })}
+              className="accent-text pb-2 text-xs font-medium"
+            >
+              Весь план →
+            </button>
+          </div>
           <div className="space-y-2">
             {plan.map((step) => (
               <button
@@ -167,7 +176,12 @@ export function HomeScreen({ nav }: { nav: (r: Route) => void }) {
 
       <SectionTitle>Разговорные темы</SectionTitle>
       <div className="flex gap-2 overflow-x-auto pb-2">
-        {CONVERSATIONS.slice(0, 5).map((c) => (
+        {CONVERSATIONS.filter(
+          (c) => levelIndex(c.level) <= Math.min(levelIndex(progress.level) + 1, LEVEL_ORDER.length - 1),
+        )
+          .sort((a, b) => levelIndex(b.level) - levelIndex(a.level))
+          .slice(0, 5)
+          .map((c) => (
           <button
             key={c.id}
             onClick={() => nav({ name: "conversation-player", id: c.id })}

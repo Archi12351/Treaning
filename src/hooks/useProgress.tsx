@@ -40,6 +40,8 @@ interface ProgressState {
   accentTheme: string;
   remindersEnabled: boolean;
   mySalaryEur: number | null;
+  userAvatar: string;
+  chaptersRead: string[];
 }
 
 const defaultState: ProgressState = {
@@ -64,6 +66,8 @@ const defaultState: ProgressState = {
   accentTheme: "emerald",
   remindersEnabled: false,
   mySalaryEur: null,
+  userAvatar: "🙂",
+  chaptersRead: [],
 };
 
 function loadState(): ProgressState {
@@ -104,6 +108,8 @@ interface ProgressApi extends ProgressState {
   setAccentTheme: (theme: string) => void;
   setRemindersEnabled: (enabled: boolean) => void;
   setMySalaryEur: (value: number | null) => void;
+  setUserAvatar: (emoji: string) => void;
+  markChapterRead: (chapterId: string) => void;
 }
 
 const ProgressContext = createContext<ProgressApi | null>(null);
@@ -248,6 +254,18 @@ export function ProgressProvider({ children }: { children: ReactNode }) {
     setState((s) => ({ ...s, mySalaryEur: value }));
   }, []);
 
+  const setUserAvatar = useCallback((emoji: string) => {
+    setState((s) => ({ ...s, userAvatar: emoji }));
+  }, []);
+
+  const markChapterRead = useCallback((chapterId: string) => {
+    setState((s) =>
+      s.chaptersRead.includes(chapterId)
+        ? s
+        : { ...s, chaptersRead: [...s.chaptersRead, chapterId] },
+    );
+  }, []);
+
   const value = useMemo<ProgressApi>(
     () => ({
       ...state,
@@ -270,6 +288,8 @@ export function ProgressProvider({ children }: { children: ReactNode }) {
       setAccentTheme,
       setRemindersEnabled,
       setMySalaryEur,
+      setUserAvatar,
+      markChapterRead,
     }),
     [
       state,
@@ -292,6 +312,8 @@ export function ProgressProvider({ children }: { children: ReactNode }) {
       setAccentTheme,
       setRemindersEnabled,
       setMySalaryEur,
+      setUserAvatar,
+      markChapterRead,
     ],
   );
 

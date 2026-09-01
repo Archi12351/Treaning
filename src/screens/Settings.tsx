@@ -24,6 +24,8 @@ const THEMES: { id: string; label: string; swatch: string }[] = [
   { id: "sky", label: "Небесный", swatch: "#0ea5e9" },
 ];
 
+const AVATARS = ["🙂", "😎", "🧑‍🎓", "👩‍🎓", "🧑‍💻", "👩‍💻", "🧔", "👩‍🦰", "🧑‍🦱", "🐨"];
+
 export function Settings({ nav }: { nav: (r: Route) => void }) {
   const progress = useProgress();
   const [draft, setDraft] = useState(progress.apiKey);
@@ -76,6 +78,29 @@ export function Settings({ nav }: { nav: (r: Route) => void }) {
                   }}
                 />
                 <span className="text-[10px] text-slate-500">{t.label}</span>
+              </button>
+            ))}
+          </div>
+        </div>
+
+        <div className="rounded-2xl bg-slate-900 p-4">
+          <p className="text-sm font-semibold text-slate-200">🙂 Ваш аватар</p>
+          <p className="mt-1 text-xs text-slate-500">
+            Показывается рядом с вашими репликами в диалогах
+          </p>
+          <div className="mt-3 grid grid-cols-5 gap-2">
+            {AVATARS.map((a) => (
+              <button
+                key={a}
+                onClick={() => progress.setUserAvatar(a)}
+                className={`flex h-11 w-11 items-center justify-center rounded-full border text-xl ${
+                  progress.userAvatar === a
+                    ? "accent-ring bg-slate-800"
+                    : "border-transparent bg-slate-800/50"
+                }`}
+                aria-label={a}
+              >
+                {a}
               </button>
             ))}
           </div>
