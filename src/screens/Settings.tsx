@@ -12,8 +12,8 @@ const MODELS = [
 ];
 
 const GEMINI_MODELS = [
-  { id: "gemini-2.5-pro", label: "Gemini 2.5 Pro", note: "Самый мощный, для сложных диалогов" },
-  { id: "gemini-2.5-flash", label: "Gemini 2.5 Flash", note: "Быстрый и бесплатный лимит щедрее" },
+  { id: "gemini-pro-latest", label: "Gemini Pro", note: "Самый мощный, для сложных диалогов" },
+  { id: "gemini-flash-latest", label: "Gemini Flash", note: "Быстрый и бесплатный лимит щедрее" },
 ];
 
 const THEMES: { id: string; label: string; swatch: string }[] = [

@@ -60,7 +60,7 @@ const defaultState: ProgressState = {
   apiKey: "",
   aiModel: "claude-opus-5",
   geminiApiKey: "",
-  geminiModel: "gemini-2.5-flash",
+  geminiModel: "gemini-flash-latest",
   accentTheme: "emerald",
   remindersEnabled: false,
   mySalaryEur: null,
