@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import { useProgress } from "./useProgress";
+import { synthesizeSpeech } from "../utils/geminiTts";
 
 let allVoices: SpeechSynthesisVoice[] = [];
 
@@ -50,22 +51,24 @@ export function useGermanVoices() {
 }
 
 export function useTextToSpeech() {
-  const supported =
+  const browserSupported =
     typeof window !== "undefined" && "speechSynthesis" in window;
   const [speaking, setSpeaking] = useState(false);
   const progress = useProgress();
+  const audioRef = useRef<HTMLAudioElement | null>(null);
+  const supported = browserSupported || (progress.useAiVoice && Boolean(progress.geminiApiKey));
 
   useEffect(() => {
-    if (!supported) return;
+    if (!browserSupported) return;
     loadVoices();
     window.speechSynthesis.addEventListener("voiceschanged", loadVoices);
     return () =>
       window.speechSynthesis.removeEventListener("voiceschanged", loadVoices);
-  }, [supported]);
+  }, [browserSupported]);
 
-  const speak = useCallback(
-    (text: string, rate = 0.95) => {
-      if (!supported) return;
+  const speakLocally = useCallback(
+    (text: string, rate: number) => {
+      if (!browserSupported) return;
       window.speechSynthesis.cancel();
       const utter = new SpeechSynthesisUtterance(text);
       utter.lang = "de-DE";
@@ -80,14 +83,44 @@ export function useTextToSpeech() {
       utter.onerror = () => setSpeaking(false);
       window.speechSynthesis.speak(utter);
     },
-    [supported, progress.ttsVoiceURI],
+    [browserSupported, progress.ttsVoiceURI],
+  );
+
+  const speak = useCallback(
+    async (text: string, rate = 0.95) => {
+      if (progress.useAiVoice && progress.geminiApiKey) {
+        setSpeaking(true);
+        try {
+          const blob = await synthesizeSpeech(text, progress.geminiApiKey, progress.aiVoiceName);
+          const url = URL.createObjectURL(blob);
+          if (!audioRef.current) audioRef.current = new Audio();
+          const audio = audioRef.current;
+          audio.src = url;
+          audio.onended = () => {
+            setSpeaking(false);
+            URL.revokeObjectURL(url);
+          };
+          audio.onerror = () => {
+            setSpeaking(false);
+            URL.revokeObjectURL(url);
+          };
+          await audio.play();
+          return;
+        } catch {
+          setSpeaking(false);
+          // Fall back to the local voice below rather than staying silent.
+        }
+      }
+      speakLocally(text, rate);
+    },
+    [progress.useAiVoice, progress.geminiApiKey, progress.aiVoiceName, speakLocally],
   );
 
   const stop = useCallback(() => {
-    if (!supported) return;
-    window.speechSynthesis.cancel();
+    if (browserSupported) window.speechSynthesis.cancel();
+    audioRef.current?.pause();
     setSpeaking(false);
-  }, [supported]);
+  }, [browserSupported]);
 
   return { supported, speaking, speak, stop };
 }

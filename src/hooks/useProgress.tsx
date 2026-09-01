@@ -43,6 +43,8 @@ interface ProgressState {
   userAvatar: string;
   chaptersRead: string[];
   ttsVoiceURI: string;
+  useAiVoice: boolean;
+  aiVoiceName: string;
 }
 
 const defaultState: ProgressState = {
@@ -70,6 +72,8 @@ const defaultState: ProgressState = {
   userAvatar: "🙂",
   chaptersRead: [],
   ttsVoiceURI: "",
+  useAiVoice: false,
+  aiVoiceName: "Kore",
 };
 
 function loadState(): ProgressState {
@@ -113,6 +117,8 @@ interface ProgressApi extends ProgressState {
   setUserAvatar: (emoji: string) => void;
   markChapterRead: (chapterId: string) => void;
   setTtsVoiceURI: (voiceURI: string) => void;
+  setUseAiVoice: (enabled: boolean) => void;
+  setAiVoiceName: (name: string) => void;
 }
 
 const ProgressContext = createContext<ProgressApi | null>(null);
@@ -273,6 +279,14 @@ export function ProgressProvider({ children }: { children: ReactNode }) {
     setState((s) => ({ ...s, ttsVoiceURI: voiceURI }));
   }, []);
 
+  const setUseAiVoice = useCallback((enabled: boolean) => {
+    setState((s) => ({ ...s, useAiVoice: enabled }));
+  }, []);
+
+  const setAiVoiceName = useCallback((name: string) => {
+    setState((s) => ({ ...s, aiVoiceName: name }));
+  }, []);
+
   const value = useMemo<ProgressApi>(
     () => ({
       ...state,
@@ -298,6 +312,8 @@ export function ProgressProvider({ children }: { children: ReactNode }) {
       setUserAvatar,
       markChapterRead,
       setTtsVoiceURI,
+      setUseAiVoice,
+      setAiVoiceName,
     }),
     [
       state,
@@ -323,6 +339,8 @@ export function ProgressProvider({ children }: { children: ReactNode }) {
       setUserAvatar,
       markChapterRead,
       setTtsVoiceURI,
+      setUseAiVoice,
+      setAiVoiceName,
     ],
   );
 

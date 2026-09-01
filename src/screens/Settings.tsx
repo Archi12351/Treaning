@@ -3,7 +3,8 @@ import type { Route } from "../App";
 import { TopBar } from "../components/TopBar";
 import { useProgress } from "../hooks/useProgress";
 import { useReminderPermission } from "../hooks/useReminders";
-import { useGermanVoices, useTextToSpeech } from "../hooks/useSpeech";
+import { useGermanVoices } from "../hooks/useSpeech";
+import { GEMINI_VOICES, synthesizeSpeech } from "../utils/geminiTts";
 import { hasAIBackend } from "../utils/aiBackend";
 
 const MODELS = [
@@ -35,7 +36,36 @@ export function Settings({ nav }: { nav: (r: Route) => void }) {
   const [geminiSaved, setGeminiSaved] = useState(false);
   const { supported: notifSupported, permission, requestPermission } = useReminderPermission();
   const germanVoices = useGermanVoices();
-  const { speak } = useTextToSpeech();
+  const [aiPreviewLoading, setAiPreviewLoading] = useState<string | null>(null);
+  const [aiPreviewError, setAiPreviewError] = useState<string | null>(null);
+
+  const previewLocalVoice = (voice: SpeechSynthesisVoice) => {
+    window.speechSynthesis.cancel();
+    const utter = new SpeechSynthesisUtterance("Hallo, so klingt diese Stimme.");
+    utter.lang = "de-DE";
+    utter.voice = voice;
+    window.speechSynthesis.speak(utter);
+  };
+
+  const previewAiVoice = async (voiceName: string) => {
+    if (!progress.geminiApiKey) return;
+    setAiPreviewError(null);
+    setAiPreviewLoading(voiceName);
+    try {
+      const blob = await synthesizeSpeech(
+        "Hallo, so klingt diese Stimme.",
+        progress.geminiApiKey,
+        voiceName,
+      );
+      const audio = new Audio(URL.createObjectURL(blob));
+      audio.onended = () => URL.revokeObjectURL(audio.src);
+      await audio.play();
+    } catch (err) {
+      setAiPreviewError(err instanceof Error ? err.message : "Не удалось воспроизвести голос.");
+    } finally {
+      setAiPreviewLoading(null);
+    }
+  };
 
   const save = () => {
     progress.setApiKey(draft.trim());
@@ -110,12 +140,69 @@ export function Settings({ nav }: { nav: (r: Route) => void }) {
         </div>
 
         <div className="rounded-2xl bg-slate-900 p-4">
-          <p className="text-sm font-semibold text-slate-200">🔊 Голос озвучивания</p>
+          <div className="flex items-center justify-between">
+            <div className="pr-3">
+              <p className="text-sm font-semibold text-slate-200">🎙️ Реалистичный AI-голос</p>
+              <p className="mt-1 text-xs leading-relaxed text-slate-500">
+                Живой нейро-голос от Gemini вместо системного синтеза речи
+                телефона. Нужен ключ Gemini (см. ниже) — расходует его лимит,
+                как обычные сообщения.
+              </p>
+              {!progress.geminiApiKey && (
+                <p className="mt-1 text-xs text-amber-400">
+                  Сначала добавьте ключ Gemini в разделе провайдера ниже.
+                </p>
+              )}
+            </div>
+            <button
+              onClick={() => progress.setUseAiVoice(!progress.useAiVoice)}
+              disabled={!progress.geminiApiKey}
+              className={`h-7 w-12 shrink-0 rounded-full transition-colors disabled:opacity-30 ${
+                progress.useAiVoice ? "accent-bg" : "bg-slate-700"
+              }`}
+            >
+              <span
+                className="block h-5 w-5 rounded-full bg-white transition-transform"
+                style={{ transform: progress.useAiVoice ? "translateX(22px)" : "translateX(4px)" }}
+              />
+            </button>
+          </div>
+
+          {progress.useAiVoice && progress.geminiApiKey && (
+            <div className="mt-3 space-y-2">
+              {GEMINI_VOICES.map((v) => (
+                <button
+                  key={v.name}
+                  onClick={() => {
+                    progress.setAiVoiceName(v.name);
+                    previewAiVoice(v.name);
+                  }}
+                  className={`flex w-full items-center justify-between rounded-lg border px-3 py-2.5 text-left text-sm ${
+                    progress.aiVoiceName === v.name
+                      ? "accent-ring accent-soft-bg border"
+                      : "border-slate-700 bg-slate-800/40 text-slate-200"
+                  }`}
+                >
+                  <span className="truncate">{v.label}</span>
+                  <span className="shrink-0 pl-2 text-[11px] text-slate-500">
+                    {aiPreviewLoading === v.name ? "…" : "🔊"}
+                  </span>
+                </button>
+              ))}
+              {aiPreviewError && (
+                <p className="text-xs text-red-400">{aiPreviewError}</p>
+              )}
+            </div>
+          )}
+        </div>
+
+        <div className="rounded-2xl bg-slate-900 p-4">
+          <p className="text-sm font-semibold text-slate-200">🔊 Голос телефона (запасной)</p>
           <p className="mt-1 text-xs leading-relaxed text-slate-500">
-            Список голосов зависит от вашего телефона и браузера. Если голосов
-            мало или только один — на Android можно установить дополнительные
-            в Настройках → Языки и ввод → Синтез речи → Google → Установить
-            голосовые данные.
+            Используется, если AI-голос выше выключен или недоступен. Список
+            голосов зависит от вашего телефона и браузера — на Android можно
+            установить дополнительные в Настройках → Языки и ввод → Синтез
+            речи → Google → Установить голосовые данные.
           </p>
           {germanVoices.length === 0 ? (
             <p className="mt-3 text-xs text-amber-400">
@@ -138,7 +225,7 @@ export function Settings({ nav }: { nav: (r: Route) => void }) {
                   key={v.voiceURI}
                   onClick={() => {
                     progress.setTtsVoiceURI(v.voiceURI);
-                    speak("Hallo, so klingt diese Stimme.");
+                    previewLocalVoice(v);
                   }}
                   className={`flex w-full items-center justify-between rounded-lg border px-3 py-2.5 text-left text-sm ${
                     progress.ttsVoiceURI === v.voiceURI
