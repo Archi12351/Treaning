@@ -25,6 +25,9 @@ export const GRAMMAR_TOPICS: GrammarTopic[] = [
       { id: "k2-3", type: "fill", level: "B2", prompt: "Wenn ich das gewusst ___, wäre ich nicht gekommen.", answer: "hätte", explanation: "Konjunktiv II der Vergangenheit: hätte + Partizip II." },
       { id: "k2-4", type: "transform", level: "B2", prompt: "Formuliere um (Konjunktiv II): Ich habe kein Auto, deshalb kann ich nicht kommen.", hint: "Beginne mit „Wenn ich...“", answer: "Wenn ich ein Auto hätte, könnte ich kommen.", explanation: "Realer Satz wird zu einem irrealen Bedingungssatz." },
       { id: "k2-5", type: "choice", level: "C1", prompt: "An deiner Stelle ___ ich das Angebot annehmen.", options: ["werde", "würde", "wurde", "würdet"], answer: "würde", explanation: "Ratschlag mit würde + Infinitiv." },
+      { id: "k2-6", type: "choice", level: "C1", prompt: "Er tat so, als ob er nichts ___ (wissen).", options: ["wüsste", "weiß", "wusste", "gewusst"], answer: "wüsste", explanation: "als ob + Konjunktiv II." },
+      { id: "k2-7", type: "transform", level: "B2", prompt: "Formuliere höflich: Gib mir das Buch!", answer: "Könntest du mir bitte das Buch geben?", explanation: "Höfliche Bitte mit Konjunktiv II." },
+      { id: "k2-8", type: "fill", level: "B2", prompt: "Wenn ich du ___ (sein), würde ich das anders machen.", answer: "wäre", explanation: "Irrealer Vergleich: wenn ich du wäre." },
     ],
   },
   {
@@ -51,6 +54,9 @@ export const GRAMMAR_TOPICS: GrammarTopic[] = [
       { id: "pa-3", type: "transform", level: "B2", prompt: "Aktiv → Passiv: Der Chef unterschreibt den Vertrag.", answer: "Der Vertrag wird vom Chef unterschrieben.", explanation: "Agens im Passiv mit „von“." },
       { id: "pa-4", type: "fill", level: "C1", prompt: "Die Aufgabe muss bis morgen erledigt ___.", answer: "werden", explanation: "Passiv mit Modalverb: müssen + Partizip II + werden." },
       { id: "pa-5", type: "transform", level: "C1", prompt: "Aktiv → Passiv (Präteritum): Man baute die Brücke 1920.", answer: "Die Brücke wurde 1920 gebaut.", explanation: "Vorgangspassiv im Präteritum." },
+      { id: "pa-6", type: "choice", level: "B2", prompt: "Die Fenster ___ jeden Monat geputzt.", options: ["werden", "sind", "haben", "wird"], answer: "werden", explanation: "Vorgangspassiv, Plural: werden." },
+      { id: "pa-7", type: "fill", level: "B2", prompt: "Die Tür wurde repariert. Jetzt ist sie ___ (reparieren).", answer: "repariert", explanation: "Zustandspassiv: sein + Partizip II." },
+      { id: "pa-8", type: "transform", level: "C1", prompt: "Aktiv → Passiv: Die Firma stellt viele neue Mitarbeiter ein.", answer: "Viele neue Mitarbeiter werden von der Firma eingestellt.", explanation: "Agens mit von + Dativ." },
     ],
   },
   {
@@ -78,6 +84,9 @@ export const GRAMMAR_TOPICS: GrammarTopic[] = [
       { id: "ns-3", type: "fill", level: "C1", prompt: "Sie lernt jeden Abend, ___ sie das Examen besteht (Ziel, anderes Subjekt).", answer: "damit", explanation: "Finalsatz mit unterschiedlichen Subjekten: damit." },
       { id: "ns-4", type: "transform", level: "C1", prompt: "Verbinde mit „um...zu“: Er geht früh ins Bett. Er will fit sein.", answer: "Er geht früh ins Bett, um fit zu sein.", explanation: "Finalsatz mit gleichem Subjekt: um...zu." },
       { id: "ns-5", type: "choice", level: "C1", prompt: "___ er wenig Zeit hatte, schrieb er die ganze Nacht an dem Bericht.", options: ["Da", "Trotzdem", "Sodass", "Damit"], answer: "Da", explanation: "Kausaler Nebensatz (da = weil, meist am Satzanfang)." },
+      { id: "ns-6", type: "choice", level: "C1", prompt: "Sie sparte Geld, ___ sie sich ein neues Auto kaufen konnte.", options: ["damit", "um zu", "weil", "obwohl"], answer: "damit", explanation: "Finalsatz, unterschiedliche Subjekte: damit." },
+      { id: "ns-7", type: "fill", level: "B1", prompt: "___ (weil) sie krank war, blieb sie zu Hause.", answer: "Weil", explanation: "Kausalsatz am Satzanfang." },
+      { id: "ns-8", type: "transform", level: "C1", prompt: "Verbinde mit „sodass“: Er war sehr müde. Er schlief sofort ein.", answer: "Er war so müde, dass er sofort einschlief.", explanation: "Konsekutivsatz: so...dass." },
     ],
   },
   {
@@ -104,6 +113,9 @@ export const GRAMMAR_TOPICS: GrammarTopic[] = [
       { id: "rs-3", type: "fill", level: "C1", prompt: "Das Restaurant, ___ wir gestern gegessen haben, war ausgezeichnet.", answer: "in dem", explanation: "Präposition + Relativpronomen im Dativ (essen in einem Restaurant)." },
       { id: "rs-4", type: "choice", level: "C1", prompt: "Das ist das Schönste, ___ mir je passiert ist.", options: ["das", "was", "wo", "dem"], answer: "was", explanation: "Nach Superlativen (das Schönste) steht „was“." },
       { id: "rs-5", type: "transform", level: "C1", prompt: "Verbinde: Ich kenne die Stadt. In dieser Stadt bin ich geboren.", answer: "Ich kenne die Stadt, in der ich geboren bin.", explanation: "Relativsatz mit Präposition „in“ + Dativ." },
+      { id: "rs-6", type: "choice", level: "C1", prompt: "Die Kollegen, ___ ich täglich zusammenarbeite, sind sehr nett.", options: ["mit denen", "die", "deren", "mit die"], answer: "mit denen", explanation: "Präposition mit + Relativpronomen im Dativ Plural." },
+      { id: "rs-7", type: "fill", level: "C1", prompt: "Der Mann, ___ Auto gestohlen wurde, hat Anzeige erstattet.", answer: "dessen", explanation: "Genitiv Maskulinum: dessen." },
+      { id: "rs-8", type: "transform", level: "C1", prompt: "Verbinde: Das ist die Frau. Ich habe ihr Buch gelesen.", answer: "Das ist die Frau, deren Buch ich gelesen habe.", explanation: "Genitiv Femininum: deren." },
     ],
   },
   {
@@ -130,6 +142,9 @@ export const GRAMMAR_TOPICS: GrammarTopic[] = [
       { id: "kn-3", type: "transform", level: "C1", prompt: "Verbinde mit „zwar...aber“: Das Auto ist teuer. Es ist sehr zuverlässig.", answer: "Das Auto ist zwar teuer, aber es ist sehr zuverlässig.", explanation: "zwar...aber für Einräumung + Gegensatz." },
       { id: "kn-4", type: "choice", level: "C1", prompt: "Er spricht ___ Deutsch ___ Französisch fließend.", options: ["nicht nur / sondern auch", "zwar / aber", "je / desto", "entweder / oder"], answer: "nicht nur / sondern auch", explanation: "Aufzählung zweier zutreffender Fakten." },
       { id: "kn-5", type: "fill", level: "C1", prompt: "___ ist die Miete hoch, ___ ist die Wohnung sehr gemütlich.", answer: "Einerseits, andererseits", explanation: "Gegenüberstellung zweier Aspekte." },
+      { id: "kn-6", type: "choice", level: "C1", prompt: "___ er wenig verdient, ist er zufrieden.", options: ["Obwohl", "Trotzdem", "Weil", "Damit"], answer: "Obwohl", explanation: "Konzessivsatz." },
+      { id: "kn-7", type: "fill", level: "C1", prompt: "Er ist weder pünktlich ___ zuverlässig.", answer: "noch", explanation: "weder...noch." },
+      { id: "kn-8", type: "transform", level: "C1", prompt: "Verbinde mit „sowohl...als auch“: Sie spricht Englisch. Sie spricht auch Spanisch.", answer: "Sie spricht sowohl Englisch als auch Spanisch.", explanation: "Doppelkonnektor sowohl...als auch." },
     ],
   },
   {
@@ -156,6 +171,9 @@ export const GRAMMAR_TOPICS: GrammarTopic[] = [
       { id: "ir-3", type: "fill", level: "C1", prompt: "Sie fragte, ___ ich am Wochenende Zeit hätte.", answer: "ob", explanation: "Ja/Nein-Frage in indirekter Rede: ob." },
       { id: "ir-4", type: "choice", level: "C1", prompt: "Der Sprecher erklärte, die Lage ___ sich verbessert.", options: ["hat", "habe", "hätten", "hatte"], answer: "habe", explanation: "Konjunktiv I Perfekt: habe + Partizip II." },
       { id: "ir-5", type: "transform", level: "C1", prompt: "In indirekte Rede setzen: Sie sagt: „Ich komme morgen später.“", answer: "Sie sagt, sie komme morgen später.", explanation: "Konjunktiv I, regelmäßig gebildet: komme." },
+      { id: "ir-6", type: "choice", level: "C1", prompt: "Er behauptete, er ___ die Wahrheit gesagt.", options: ["habe", "hat", "hätte", "haben"], answer: "habe", explanation: "Konjunktiv I Perfekt: habe + Partizip II." },
+      { id: "ir-7", type: "fill", level: "C1", prompt: "Sie sagte, sie ___ (kommen) morgen.", answer: "komme", explanation: "Konjunktiv I: komme." },
+      { id: "ir-8", type: "transform", level: "C1", prompt: "In indirekte Rede setzen: Er fragt: „Kommst du morgen?“", answer: "Er fragt, ob ich morgen komme.", explanation: "Ja/Nein-Frage in indirekter Rede: ob." },
     ],
   },
   {
@@ -182,6 +200,9 @@ export const GRAMMAR_TOPICS: GrammarTopic[] = [
       { id: "no-3", type: "choice", level: "C1", prompt: "Das ___ Fenster lässt kalte Luft herein. (kaputt machen)", options: ["kaputtmachende", "kaputte", "kaputt gemachte", "kaputtgemacht"], answer: "kaputt gemachte", explanation: "Partizip II als Adjektiv: abgeschlossene Handlung." },
       { id: "no-4", type: "transform", level: "C1", prompt: "Nominalisiere: Die Firma wächst schnell, was viele überrascht.", answer: "Das schnelle Wachstum der Firma überrascht viele.", explanation: "Verb wachsen → das Wachstum." },
       { id: "no-5", type: "fill", level: "C1", prompt: "möglich → die ___", answer: "Möglichkeit", explanation: "Adjektiv + -keit = Nomen." },
+      { id: "no-6", type: "fill", level: "C1", prompt: "sich entwickeln → die ___", answer: "Entwicklung", explanation: "Verb + -ung = Nomen." },
+      { id: "no-7", type: "choice", level: "C1", prompt: "krank → die ___", options: ["Krankheit", "Krankung", "Kranktum", "Krankion"], answer: "Krankheit", explanation: "Adjektiv + -heit = Nomen." },
+      { id: "no-8", type: "transform", level: "C1", prompt: "Nominalisiere: Er kommt an, was alle freut.", answer: "Seine Ankunft freut alle.", explanation: "ankommen → die Ankunft." },
     ],
   },
   {
@@ -208,6 +229,9 @@ export const GRAMMAR_TOPICS: GrammarTopic[] = [
       { id: "in-3", type: "choice", level: "C1", prompt: "___ ins Kino zu gehen, blieben sie zu Hause.", options: ["Um", "Ohne", "Statt", "Damit"], answer: "Statt", explanation: "statt...zu = Ersetzung einer Handlung." },
       { id: "in-4", type: "fill", level: "C1", prompt: "Diese Regeln sind unbedingt zu ___ (beachten).", answer: "beachten", explanation: "sein + zu + Infinitiv drückt Notwendigkeit aus." },
       { id: "in-5", type: "transform", level: "B2", prompt: "Verschiedene Subjekte — verbinde mit „damit“: Ich geb dir meine Nummer. Du kannst mich erreichen.", answer: "Ich gebe dir meine Nummer, damit du mich erreichen kannst.", explanation: "Bei unterschiedlichen Subjekten: damit statt um...zu." },
+      { id: "in-6", type: "choice", level: "B2", prompt: "Sie geht joggen, ___ fit zu bleiben.", options: ["um", "ohne", "statt", "damit"], answer: "um", explanation: "Ziel bei gleichem Subjekt: um...zu." },
+      { id: "in-7", type: "fill", level: "B2", prompt: "Er verließ das Meeting, ___ sich zu entschuldigen.", answer: "ohne", explanation: "ohne...zu = Handlung ohne Begleitumstand." },
+      { id: "in-8", type: "transform", level: "C1", prompt: "Verbinde: Er kaufte ein neues Handy. Er reparierte das alte nicht.", answer: "Er kaufte ein neues Handy, statt das alte zu reparieren.", explanation: "statt...zu = Ersetzung einer Handlung." },
     ],
   },
 
@@ -235,6 +259,9 @@ export const GRAMMAR_TOPICS: GrammarTopic[] = [
       { id: "an-3", type: "choice", level: "A1", prompt: "Sie ___ zwei Kinder.", options: ["ist", "sind", "hat", "habt"], answer: "hat", explanation: "haben: sie (она) hat." },
       { id: "an-4", type: "fill", level: "A1", prompt: "Wir ___ (sein) heute zu Hause.", answer: "sind", explanation: "sein, wir sind." },
       { id: "an-5", type: "choice", level: "A1", prompt: "Das ist ___ Frau. Die Frau ist nett.", options: ["ein", "eine", "einen", "die"], answer: "eine", explanation: "Frau — женский род, неопределённый артикль eine." },
+      { id: "an-6", type: "choice", level: "A1", prompt: "___ Katze schläft. (die Katze)", options: ["Der", "Die", "Das", "Den"], answer: "Die", explanation: "Katze — женский род: die." },
+      { id: "an-7", type: "fill", level: "A1", prompt: "Ich ___ (sein) müde.", answer: "bin", explanation: "sein: ich bin." },
+      { id: "an-8", type: "choice", level: "A1", prompt: "Wir ___ (haben) ein Auto.", options: ["habe", "hast", "haben", "hat"], answer: "haben", explanation: "haben: wir haben." },
     ],
   },
   {
@@ -259,6 +286,9 @@ export const GRAMMAR_TOPICS: GrammarTopic[] = [
       { id: "pr-3", type: "fill", level: "A1", prompt: "Wir ___ (machen) heute Hausaufgaben.", answer: "machen", explanation: "regelmäßig: wir machen." },
       { id: "pr-4", type: "choice", level: "A1", prompt: "Ich ___ (werden) Lehrer.", options: ["werde", "wirst", "wird", "werden"], answer: "werde", explanation: "werden: ich werde." },
       { id: "pr-5", type: "choice", level: "A1", prompt: "Sie (она) ___ (sehen) einen Film.", options: ["sehe", "siehst", "sieht", "sehen"], answer: "sieht", explanation: "sehen: e→ie, sie sieht." },
+      { id: "pr-6", type: "choice", level: "A1", prompt: "Ich ___ (lesen) ein Buch.", options: ["lese", "liest", "list", "lesen"], answer: "lese", explanation: "lesen: ich lese." },
+      { id: "pr-7", type: "fill", level: "A1", prompt: "Sie ___ (laufen) sehr schnell.", answer: "läuft", explanation: "laufen: a→äu, sie läuft." },
+      { id: "pr-8", type: "choice", level: "A1", prompt: "Wir ___ (haben) heute frei.", options: ["habe", "hast", "haben", "hat"], answer: "haben", explanation: "haben: wir haben." },
     ],
   },
   {
@@ -284,6 +314,9 @@ export const GRAMMAR_TOPICS: GrammarTopic[] = [
       { id: "ak-3", type: "fill", level: "A1", prompt: "Ich habe ___ (kein) Auto.", answer: "kein", explanation: "Auto среднего рода — kein." },
       { id: "ak-4", type: "choice", level: "A1", prompt: "Wir laufen ___ den Wald.", options: ["durch", "aus", "bei", "zu"], answer: "durch", explanation: "durch + Akkusativ = через." },
       { id: "ak-5", type: "fill", level: "A1", prompt: "Ich trinke Kaffee ___ (ohne) Zucker.", answer: "ohne", explanation: "ohne + Akkusativ = без." },
+      { id: "ak-6", type: "fill", level: "A1", prompt: "Ich brauche ___ (ein) Stift. (Akkusativ, m.)", answer: "einen", explanation: "ein → einen im Akkusativ Maskulinum." },
+      { id: "ak-7", type: "choice", level: "A1", prompt: "Das Geschenk ist ___ meine Mutter.", options: ["für", "mit", "bei", "aus"], answer: "für", explanation: "für + Akkusativ." },
+      { id: "ak-8", type: "fill", level: "A1", prompt: "Wir gehen ___ (durch) den Park.", answer: "durch", explanation: "durch + Akkusativ." },
     ],
   },
 
@@ -311,6 +344,9 @@ export const GRAMMAR_TOPICS: GrammarTopic[] = [
       { id: "pe-3", type: "fill", level: "A2", prompt: "Wir haben Pizza ___ (essen → Partizip II).", answer: "gegessen", explanation: "essen — неправильный глагол: gegessen." },
       { id: "pe-4", type: "fill", level: "A2", prompt: "Sie hat Medizin ___ (studieren → Partizip II).", answer: "studiert", explanation: "глаголы на -ieren не получают ge-." },
       { id: "pe-5", type: "transform", level: "A2", prompt: "Ins Perfekt setzen: Ich stehe um 7 Uhr auf.", answer: "Ich bin um 7 Uhr aufgestanden.", explanation: "aufstehen — sein + aufgestanden (ge- между приставкой и корнем)." },
+      { id: "pe-6", type: "fill", level: "A2", prompt: "Sie hat den Brief ___ (schreiben).", answer: "geschrieben", explanation: "schreiben → geschrieben." },
+      { id: "pe-7", type: "choice", level: "A2", prompt: "Er ___ nach München gefahren.", options: ["hat", "ist", "war", "habe"], answer: "ist", explanation: "fahren — sein + gefahren." },
+      { id: "pe-8", type: "transform", level: "A2", prompt: "Ins Perfekt setzen: Ich lerne Deutsch.", answer: "Ich habe Deutsch gelernt.", explanation: "lernen → haben + gelernt." },
     ],
   },
   {
@@ -336,6 +372,9 @@ export const GRAMMAR_TOPICS: GrammarTopic[] = [
       { id: "da-3", type: "fill", level: "A2", prompt: "Das gehört ___ (die) Frau.", answer: "der", explanation: "женский род в Dativ: die→der." },
       { id: "da-4", type: "choice", level: "A2", prompt: "Er kommt ___ Deutschland.", options: ["aus", "bei", "zu", "für"], answer: "aus", explanation: "aus + Dativ = «из»." },
       { id: "da-5", type: "fill", level: "A2", prompt: "Ich antworte ___ (mein) Chef sofort.", answer: "meinem", explanation: "antworten + Dativ: mein→meinem." },
+      { id: "da-6", type: "choice", level: "A2", prompt: "Ich danke ___ Lehrerin. (die Lehrerin)", options: ["die", "der", "den", "dem"], answer: "der", explanation: "danken + Dativ: die→der." },
+      { id: "da-7", type: "fill", level: "A2", prompt: "Das Buch gehört ___ (mein) Bruder.", answer: "meinem", explanation: "gehören + Dativ." },
+      { id: "da-8", type: "choice", level: "A2", prompt: "Wir kommen ___ der Schule.", options: ["aus", "in", "an", "zu"], answer: "aus", explanation: "aus + Dativ." },
     ],
   },
   {
@@ -361,6 +400,9 @@ export const GRAMMAR_TOPICS: GrammarTopic[] = [
       { id: "mo-3", type: "fill", level: "A2", prompt: "Du ___ (müssen) das nicht heute machen.", answer: "musst", explanation: "müssen: du musst." },
       { id: "mo-4", type: "transform", level: "A2", prompt: "Verbinde mit Modalverb: Ich will. Ich reise nach Spanien.", answer: "Ich will nach Spanien reisen.", explanation: "Modalverb + Infinitiv am Ende." },
       { id: "mo-5", type: "choice", level: "A2", prompt: "Wir ___ (möchten) morgen ins Kino gehen.", options: ["möchte", "möchten", "möchtest", "möchtet"], answer: "möchten", explanation: "möchten: wir möchten." },
+      { id: "mo-6", type: "choice", level: "A2", prompt: "Ich ___ (dürfen) hier nicht rauchen.", options: ["darf", "muss", "kann", "will"], answer: "darf", explanation: "dürfen + nicht = Verbot." },
+      { id: "mo-7", type: "fill", level: "A2", prompt: "Er ___ (wollen) Arzt werden.", answer: "will", explanation: "wollen: er will." },
+      { id: "mo-8", type: "transform", level: "A2", prompt: "Baue „müssen“ ein: Ich mache die Hausaufgaben.", answer: "Ich muss die Hausaufgaben machen.", explanation: "Modalverb + Infinitiv am Ende." },
     ],
   },
   {
@@ -385,6 +427,9 @@ export const GRAMMAR_TOPICS: GrammarTopic[] = [
       { id: "tv-3", type: "fill", level: "A2", prompt: "Partizip II von „einkaufen“: ___", answer: "eingekauft", explanation: "ge- встаёт между ein- и kauf-." },
       { id: "tv-4", type: "transform", level: "A2", prompt: "Ins Präsens setzen (aufwachen): Ich / um 6 Uhr", answer: "Ich wache um 6 Uhr auf.", explanation: "aufwachen — trennbar." },
       { id: "tv-5", type: "choice", level: "A2", prompt: "Er ___ das Problem sofort. (erkennen)", options: ["kennt ... er", "erkennt", "kennt er ... an", "erkennt ... an"], answer: "erkennt", explanation: "erkennen — untrennbar, не разделяется." },
+      { id: "tv-6", type: "choice", level: "A2", prompt: "Welches Verb ist trennbar?", options: ["bekommen", "ankommen", "verstehen", "entschuldigen"], answer: "ankommen", explanation: "an- ist eine trennbare Vorsilbe." },
+      { id: "tv-7", type: "fill", level: "A2", prompt: "Partizip II von „aufräumen“: ___", answer: "aufgeräumt", explanation: "ge- zwischen auf- und räum-." },
+      { id: "tv-8", type: "transform", level: "A2", prompt: "Ins Präsens setzen (ausmachen): Ich / das Licht", answer: "Ich mache das Licht aus.", explanation: "ausmachen — trennbar." },
     ],
   },
 
@@ -411,6 +456,9 @@ export const GRAMMAR_TOPICS: GrammarTopic[] = [
       { id: "prt-3", type: "choice", level: "B1", prompt: "Wir ___ (können) das Problem nicht lösen.", options: ["konnten", "können", "gekonnt", "könnten"], answer: "konnten", explanation: "können im Präteritum: wir konnten." },
       { id: "prt-4", type: "fill", level: "B1", prompt: "Sie ___ (sein → Präteritum) letztes Jahr in Italien.", answer: "war", explanation: "sein: ich/sie war." },
       { id: "prt-5", type: "fill", level: "B1", prompt: "Das Kind ___ (spielen → Präteritum) im Garten.", answer: "spielte", explanation: "regelmäßig: spielen → spielte." },
+      { id: "prt-6", type: "fill", level: "B1", prompt: "Ich ___ (sein) gestern zu Hause.", answer: "war", explanation: "sein im Präteritum: ich war." },
+      { id: "prt-7", type: "choice", level: "B1", prompt: "Wir ___ (müssen) früh aufstehen.", options: ["mussten", "müssen", "gemusst", "müssten"], answer: "mussten", explanation: "müssen im Präteritum: wir mussten." },
+      { id: "prt-8", type: "fill", level: "B1", prompt: "Sie ___ (kommen → Präteritum) spät nach Hause.", answer: "kam", explanation: "kommen — unregelmäßig: kam." },
     ],
   },
   {
@@ -436,6 +484,9 @@ export const GRAMMAR_TOPICS: GrammarTopic[] = [
       { id: "nb-3", type: "transform", level: "B1", prompt: "Verbinde mit „wenn“: Es regnet. Ich nehme einen Regenschirm.", answer: "Wenn es regnet, nehme ich einen Regenschirm.", explanation: "wenn-Satz zuerst → Hauptsatz beginnt mit dem Verb." },
       { id: "nb-4", type: "fill", level: "B1", prompt: "Er sagt, dass er heute keine Zeit ___ (haben).", answer: "hat", explanation: "Verb im Nebensatz am Ende: hat." },
       { id: "nb-5", type: "choice", level: "B1", prompt: "___ das Wetter schön ist, gehen wir spazieren.", options: ["Dass", "Weil", "Wenn", "Ob"], answer: "Wenn", explanation: "Bedingung: wenn." },
+      { id: "nb-6", type: "choice", level: "B1", prompt: "Ich glaube, ___ er recht hat.", options: ["dass", "weil", "wenn", "ob"], answer: "dass", explanation: "dass nach glauben." },
+      { id: "nb-7", type: "fill", level: "B1", prompt: "___ (wenn) es regnet, bleibe ich zu Hause.", answer: "Wenn", explanation: "Konditionalsatz am Satzanfang." },
+      { id: "nb-8", type: "transform", level: "B1", prompt: "Verbinde mit „weil“: Sie ist müde. Sie hat schlecht geschlafen.", answer: "Sie ist müde, weil sie schlecht geschlafen hat.", explanation: "Kausalsatz mit weil." },
     ],
   },
   {
@@ -460,6 +511,9 @@ export const GRAMMAR_TOPICS: GrammarTopic[] = [
       { id: "ad-3", type: "fill", level: "B1", prompt: "Das ist ein ___ (schön) Haus. (Nom. n.)", answer: "schönes", explanation: "ein + Neutrum Nom. → Adjektiv trägt -es." },
       { id: "ad-4", type: "choice", level: "B1", prompt: "Eine ___ (klein) Katze schläft dort.", options: ["klein", "kleine", "kleinen", "kleiner"], answer: "kleine", explanation: "eine + Femininum Nom. → -e." },
       { id: "ad-5", type: "fill", level: "B1", prompt: "Er trinkt gern ___ (frisch) Kaffee. (ohne Artikel)", answer: "frischen", explanation: "Nullartikel Akk. m. → wie bestimmter Artikel: -en." },
+      { id: "ad-6", type: "fill", level: "B1", prompt: "Er hat ein ___ (neu) Auto gekauft. (Akk. n., ein)", answer: "neues", explanation: "ein + Neutrum Akk. → -es." },
+      { id: "ad-7", type: "choice", level: "B1", prompt: "Die ___ (alt) Frau lächelt. (Nom. f., die)", options: ["alt", "alte", "alten", "alter"], answer: "alte", explanation: "nach bestimmtem Artikel, Nom. f.: -e." },
+      { id: "ad-8", type: "fill", level: "B1", prompt: "Ich trinke ___ (kalt) Wasser. (ohne Artikel, Akk. n.)", answer: "kaltes", explanation: "Nullartikel Akk. Neutrum: -es." },
     ],
   },
 ];

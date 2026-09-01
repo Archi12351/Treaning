@@ -1,6 +1,31 @@
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import type { Exercise } from "../types";
 import { normalize } from "../utils/text";
+
+function shuffle<T>(arr: T[]): T[] {
+  const a = [...arr];
+  for (let i = a.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [a[i], a[j]] = [a[j], a[i]];
+  }
+  return a;
+}
+
+// Accepts either the exact expected word/phrase, or that same word/phrase
+// appearing inside a longer answer (some learners type the whole completed
+// sentence instead of just the missing word — both should count as correct).
+function fillMatches(input: string, answer: string): boolean {
+  const ni = normalize(input);
+  const na = normalize(answer);
+  if (!ni) return false;
+  if (ni === na) return true;
+  const inputWords = ni.split(" ");
+  const answerWords = na.split(" ");
+  for (let i = 0; i <= inputWords.length - answerWords.length; i++) {
+    if (answerWords.every((w, j) => inputWords[i + j] === w)) return true;
+  }
+  return false;
+}
 
 export function ExerciseCard({
   exercise,
@@ -14,8 +39,17 @@ export function ExerciseCard({
   const [checked, setChecked] = useState(false);
   const [correct, setCorrect] = useState(false);
 
+  const options = useMemo(
+    () => (exercise.options ? shuffle(exercise.options) : undefined),
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [exercise.id],
+  );
+
   const check = (value: string) => {
-    const isCorrect = normalize(value) === normalize(exercise.answer);
+    const isCorrect =
+      exercise.type === "choice"
+        ? normalize(value) === normalize(exercise.answer)
+        : fillMatches(value, exercise.answer);
     setChecked(true);
     setCorrect(isCorrect);
     onAnswered(isCorrect);
@@ -33,9 +67,9 @@ export function ExerciseCard({
         <p className="mt-1 text-xs text-slate-500">Подсказка: {exercise.hint}</p>
       )}
 
-      {exercise.type === "choice" && exercise.options && (
+      {exercise.type === "choice" && options && (
         <div className="mt-4 grid grid-cols-2 gap-2">
-          {exercise.options.map((opt) => {
+          {options.map((opt) => {
             const isSelected = selected === opt;
             const showCorrect = checked && opt === exercise.answer;
             const showWrong = checked && isSelected && opt !== exercise.answer;
@@ -70,7 +104,7 @@ export function ExerciseCard({
             value={textAnswer}
             disabled={checked}
             onChange={(e) => setTextAnswer(e.target.value)}
-            placeholder="Введите ответ..."
+            placeholder="Слово/фраза — или вся фраза целиком"
             className="w-full rounded-lg border border-slate-700 bg-slate-800/50 px-3 py-2 text-sm text-slate-100 outline-none focus:border-[color:var(--accent)] disabled:opacity-60"
           />
           {!checked && (

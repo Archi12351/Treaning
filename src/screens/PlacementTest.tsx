@@ -1,18 +1,41 @@
-import { useEffect, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import type { Route } from "../App";
 import { TopBar } from "../components/TopBar";
 import { PLACEMENT_QUESTIONS } from "../data/placement";
 import { useProgress } from "../hooks/useProgress";
-import type { CEFRLevel } from "../types";
+import type { CEFRLevel, PlacementQuestion } from "../types";
 
 const LEVELS: CEFRLevel[] = ["A1", "A2", "B1", "B2", "C1", "C2"];
+const QUESTIONS_PER_LEVEL = 5;
 
-function computeLevel(answers: Record<string, boolean>) {
+function shuffle<T>(arr: T[]): T[] {
+  const a = [...arr];
+  for (let i = a.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [a[i], a[j]] = [a[j], a[i]];
+  }
+  return a;
+}
+
+// Builds a fresh test each attempt: a random subset per level (so the exact
+// question set and answer order differ every time) drawn from a larger pool.
+function buildTest(): PlacementQuestion[] {
+  const result: PlacementQuestion[] = [];
+  for (const level of LEVELS) {
+    const pool = shuffle(PLACEMENT_QUESTIONS.filter((q) => q.level === level));
+    for (const q of pool.slice(0, QUESTIONS_PER_LEVEL)) {
+      result.push({ ...q, options: shuffle(q.options) });
+    }
+  }
+  return result;
+}
+
+function computeLevel(questions: PlacementQuestion[], answers: Record<string, boolean>) {
   let achieved: CEFRLevel = "A1";
   let totalCorrect = 0;
 
   for (const level of LEVELS) {
-    const qs = PLACEMENT_QUESTIONS.filter((q) => q.level === level);
+    const qs = questions.filter((q) => q.level === level);
     const correct = qs.filter((q) => answers[q.id]).length;
     totalCorrect += correct;
     const ratio = qs.length ? correct / qs.length : 0;
@@ -22,18 +45,19 @@ function computeLevel(answers: Record<string, boolean>) {
       break;
     }
   }
-  const score = Math.round((totalCorrect / PLACEMENT_QUESTIONS.length) * 100);
+  const score = Math.round((totalCorrect / questions.length) * 100);
   return { level: achieved, score };
 }
 
 export function PlacementTest({ nav }: { nav: (r: Route) => void }) {
   const progress = useProgress();
+  const questions = useMemo(buildTest, []);
   const [index, setIndex] = useState(0);
   const [answers, setAnswers] = useState<Record<string, boolean>>({});
   const [selected, setSelected] = useState<string | null>(null);
   const [result, setResult] = useState<{ level: CEFRLevel; score: number } | null>(null);
 
-  const question = PLACEMENT_QUESTIONS[index];
+  const question = questions[index];
 
   useEffect(() => {
     progress.completeOnboarding();
@@ -47,8 +71,8 @@ export function PlacementTest({ nav }: { nav: (r: Route) => void }) {
     const nextAnswers = { ...answers, [question.id]: correct };
     setAnswers(nextAnswers);
     setTimeout(() => {
-      if (index + 1 >= PLACEMENT_QUESTIONS.length) {
-        const r = computeLevel(nextAnswers);
+      if (index + 1 >= questions.length) {
+        const r = computeLevel(questions, nextAnswers);
         progress.recordPlacement(r.level, r.score);
         setResult(r);
       } else {
@@ -86,7 +110,7 @@ export function PlacementTest({ nav }: { nav: (r: Route) => void }) {
         onBack={() => nav({ name: "home" })}
         right={
           <span className="text-xs text-slate-500">
-            {index + 1}/{PLACEMENT_QUESTIONS.length}
+            {index + 1}/{questions.length}
           </span>
         }
       />
@@ -94,7 +118,7 @@ export function PlacementTest({ nav }: { nav: (r: Route) => void }) {
         <div className="h-1.5 w-full overflow-hidden rounded-full bg-slate-800">
           <div
             className="accent-bg h-full rounded-full transition-all"
-            style={{ width: `${(index / PLACEMENT_QUESTIONS.length) * 100}%` }}
+            style={{ width: `${(index / questions.length) * 100}%` }}
           />
         </div>
 

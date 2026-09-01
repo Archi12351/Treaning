@@ -5,6 +5,7 @@ import { VOCABULARY } from "../data/vocabulary";
 import { GRAMMAR_TOPICS } from "../data/grammar";
 import { CONVERSATIONS } from "../data/conversations";
 import { masteryPercent } from "../utils/srs";
+import { isRunningAsInstalledApp } from "../hooks/useIsInstalled";
 
 export function ProgressScreen({ nav }: { nav: (r: Route) => void }) {
   const progress = useProgress();
@@ -19,6 +20,7 @@ export function ProgressScreen({ nav }: { nav: (r: Route) => void }) {
   );
   const grammarTotal = GRAMMAR_TOPICS.reduce((s, t) => s + t.exercises.length, 0);
   const last7 = last7Days();
+  const alreadyInstalled = isRunningAsInstalledApp();
 
   return (
     <div>
@@ -47,26 +49,28 @@ export function ProgressScreen({ nav }: { nav: (r: Route) => void }) {
           <Stat label="🗣️ Диалогов" value={`${progress.conversationsDone.length}/${CONVERSATIONS.length}`} />
         </div>
 
-        <div className="rounded-2xl bg-slate-900 p-4">
-          <p className="text-sm font-semibold text-slate-200">📲 Установить приложение</p>
-          <a
-            href="deutsch-a1-c2.apk"
-            download
-            className="accent-bg mt-3 flex items-center justify-between rounded-xl px-3.5 py-2.5"
-          >
-            <span className="text-sm font-semibold">Скачать APK для Android</span>
-            <span>⬇︎</span>
-          </a>
-          <p className="mt-2 text-[11px] leading-relaxed text-slate-500">
-            После скачивания разрешите «Установку из неизвестных источников» —
-            это не магазин приложений, поэтому Android спросит подтверждение.
-          </p>
-          <p className="mt-3 text-[11px] leading-relaxed text-slate-500">
-            <span className="font-semibold text-slate-400">На iPhone:</span> откройте
-            эту страницу в Safari → кнопка «Поделиться» → «На экран «Домой»» —
-            приложение появится как обычная иконка.
-          </p>
-        </div>
+        {!alreadyInstalled && (
+          <div className="rounded-2xl bg-slate-900 p-4">
+            <p className="text-sm font-semibold text-slate-200">📲 Установить приложение</p>
+            <a
+              href="deutsch-a1-c2.apk"
+              download
+              className="accent-bg mt-3 flex items-center justify-between rounded-xl px-3.5 py-2.5"
+            >
+              <span className="text-sm font-semibold">Скачать APK для Android</span>
+              <span>⬇︎</span>
+            </a>
+            <p className="mt-2 text-[11px] leading-relaxed text-slate-500">
+              После скачивания разрешите «Установку из неизвестных источников» —
+              это не магазин приложений, поэтому Android спросит подтверждение.
+            </p>
+            <p className="mt-3 text-[11px] leading-relaxed text-slate-500">
+              <span className="font-semibold text-slate-400">На iPhone:</span> откройте
+              эту страницу в Safari → кнопка «Поделиться» → «На экран «Домой»» —
+              приложение появится как обычная иконка.
+            </p>
+          </div>
+        )}
 
         <button
           onClick={() => nav({ name: "settings" })}

@@ -1,10 +1,19 @@
-import { useState } from "react";
+import { useMemo, useState } from "react";
 import type { Route } from "../App";
 import { TopBar } from "../components/TopBar";
 import { SpeakButton } from "../components/SpeakButton";
 import { ExerciseCard } from "../components/ExerciseCard";
 import { GRAMMAR_TOPICS } from "../data/grammar";
 import { useProgress } from "../hooks/useProgress";
+
+function shuffle<T>(arr: T[]): T[] {
+  const a = [...arr];
+  for (let i = a.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [a[i], a[j]] = [a[j], a[i]];
+  }
+  return a;
+}
 
 export function GrammarDetail({
   topicId,
@@ -16,20 +25,27 @@ export function GrammarDetail({
   const topic = GRAMMAR_TOPICS.find((t) => t.id === topicId);
   const progress = useProgress();
   const [mode, setMode] = useState<"theory" | "exercises">("theory");
+  const [sessionKey, setSessionKey] = useState(0);
   const [exIndex, setExIndex] = useState(0);
   const [answered, setAnswered] = useState(false);
   const [done, setDone] = useState(false);
 
+  const exercises = useMemo(
+    () => (topic ? shuffle(topic.exercises).slice(0, 5) : []),
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+    [topicId, sessionKey],
+  );
+
   if (!topic) return null;
 
   const handleAnswered = (correct: boolean) => {
-    progress.recordGrammarAttempt(topic.id, topic.exercises[exIndex].id, correct);
+    progress.recordGrammarAttempt(topic.id, exercises[exIndex].id, correct);
     if (correct) progress.addXp(3);
     setAnswered(true);
   };
 
   const next = () => {
-    if (exIndex + 1 >= topic.exercises.length) {
+    if (exIndex + 1 >= exercises.length) {
       setDone(true);
     } else {
       setExIndex((i) => i + 1);
@@ -72,7 +88,7 @@ export function GrammarDetail({
             onClick={() => setMode("exercises")}
             className="w-full rounded-xl bg-sky-500 py-3 font-semibold text-sky-950"
           >
-            Начать упражнения ({topic.exercises.length})
+            Начать упражнения ({exercises.length})
           </button>
         </div>
       </div>
@@ -86,18 +102,20 @@ export function GrammarDetail({
         <span className="text-5xl">✅</span>
         <h2 className="mt-4 text-xl font-bold text-slate-50">Тема пройдена</h2>
         <p className="mt-2 text-slate-400">
-          Верно {stats?.completed.length ?? 0} из {topic.exercises.length}
+          Верно {stats?.completed.length ?? 0} из {exercises.length}
         </p>
         <div className="mt-8 flex w-full flex-col gap-3">
           <button
             onClick={() => {
               setExIndex(0);
               setDone(false);
+              setAnswered(false);
+              setSessionKey((k) => k + 1);
               setMode("exercises");
             }}
             className="rounded-xl bg-sky-500 py-3 font-semibold text-sky-950"
           >
-            Повторить упражнения
+            Повторить упражнения (в новом порядке)
           </button>
           <button
             onClick={() => nav({ name: "grammar-topics" })}
@@ -117,14 +135,14 @@ export function GrammarDetail({
         onBack={() => setMode("theory")}
         right={
           <span className="text-xs text-slate-500">
-            {exIndex + 1}/{topic.exercises.length}
+            {exIndex + 1}/{exercises.length}
           </span>
         }
       />
       <div className="space-y-4 px-4 py-4">
         <ExerciseCard
-          key={topic.exercises[exIndex].id}
-          exercise={topic.exercises[exIndex]}
+          key={exercises[exIndex].id}
+          exercise={exercises[exIndex]}
           onAnswered={handleAnswered}
         />
         {answered && (
