@@ -32,8 +32,11 @@ interface ProgressState {
   conversationsDone: string[];
   sessionsCount: number;
   onboarded: boolean;
+  aiProvider: "claude" | "gemini";
   apiKey: string;
   aiModel: string;
+  geminiApiKey: string;
+  geminiModel: string;
   accentTheme: string;
   remindersEnabled: boolean;
   mySalaryEur: number | null;
@@ -53,8 +56,11 @@ const defaultState: ProgressState = {
   conversationsDone: [],
   sessionsCount: 0,
   onboarded: false,
+  aiProvider: "claude",
   apiKey: "",
   aiModel: "claude-opus-5",
+  geminiApiKey: "",
+  geminiModel: "gemini-2.5-flash",
   accentTheme: "emerald",
   remindersEnabled: false,
   mySalaryEur: null,
@@ -92,6 +98,9 @@ interface ProgressApi extends ProgressState {
   completeOnboarding: () => void;
   setApiKey: (key: string) => void;
   setAiModel: (model: string) => void;
+  setAiProvider: (provider: "claude" | "gemini") => void;
+  setGeminiApiKey: (key: string) => void;
+  setGeminiModel: (model: string) => void;
   setAccentTheme: (theme: string) => void;
   setRemindersEnabled: (enabled: boolean) => void;
   setMySalaryEur: (value: number | null) => void;
@@ -215,6 +224,18 @@ export function ProgressProvider({ children }: { children: ReactNode }) {
     setState((s) => ({ ...s, aiModel: model }));
   }, []);
 
+  const setAiProvider = useCallback((provider: "claude" | "gemini") => {
+    setState((s) => ({ ...s, aiProvider: provider }));
+  }, []);
+
+  const setGeminiApiKey = useCallback((key: string) => {
+    setState((s) => ({ ...s, geminiApiKey: key }));
+  }, []);
+
+  const setGeminiModel = useCallback((model: string) => {
+    setState((s) => ({ ...s, geminiModel: model }));
+  }, []);
+
   const setAccentTheme = useCallback((theme: string) => {
     setState((s) => ({ ...s, accentTheme: theme }));
   }, []);
@@ -243,6 +264,9 @@ export function ProgressProvider({ children }: { children: ReactNode }) {
       completeOnboarding,
       setApiKey,
       setAiModel,
+      setAiProvider,
+      setGeminiApiKey,
+      setGeminiModel,
       setAccentTheme,
       setRemindersEnabled,
       setMySalaryEur,
@@ -262,6 +286,9 @@ export function ProgressProvider({ children }: { children: ReactNode }) {
       completeOnboarding,
       setApiKey,
       setAiModel,
+      setAiProvider,
+      setGeminiApiKey,
+      setGeminiModel,
       setAccentTheme,
       setRemindersEnabled,
       setMySalaryEur,

@@ -3,7 +3,7 @@ import type { Route } from "../App";
 import { TopBar } from "../components/TopBar";
 import { useProgress } from "../hooks/useProgress";
 import { useAIChat } from "../hooks/useAIChat";
-import { hasAIBackend } from "../utils/aiBackend";
+import { canUseAI } from "../utils/aiBackend";
 import { useSpeechRecognition, useTextToSpeech } from "../hooks/useSpeech";
 
 const TOPICS = [
@@ -25,12 +25,15 @@ export function AIConversation({ nav }: { nav: (r: Route) => void }) {
 
   const { speak, speaking } = useTextToSpeech();
   const { supported: sttSupported, listening, transcript, start } = useSpeechRecognition();
-  const { messages, loading, send, reset } = useAIChat(
-    progress.apiKey,
-    progress.aiModel,
-    progress.level,
-    topic ?? "Alltag",
-  );
+  const { messages, loading, send, reset } = useAIChat({
+    provider: progress.aiProvider,
+    apiKey: progress.apiKey,
+    model: progress.aiModel,
+    geminiApiKey: progress.geminiApiKey,
+    geminiModel: progress.geminiModel,
+    level: progress.level,
+    topic: topic ?? "Alltag",
+  });
 
   useEffect(() => {
     scrollRef.current?.scrollIntoView({ behavior: "smooth" });
@@ -63,7 +66,7 @@ export function AIConversation({ nav }: { nav: (r: Route) => void }) {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [messages]);
 
-  if (!hasAIBackend() && !progress.apiKey) {
+  if (!canUseAI(progress.aiProvider, progress.apiKey, progress.geminiApiKey)) {
     return (
       <div>
         <TopBar title="AI-собеседник" onBack={() => nav({ name: "conversations" })} />
@@ -73,9 +76,9 @@ export function AIConversation({ nav }: { nav: (r: Route) => void }) {
             Живой AI-собеседник на немецком
           </h2>
           <p className="mt-2 text-sm leading-relaxed text-slate-400">
-            Это приложение работает прямо в браузере, без своего сервера,
-            поэтому для настоящего AI-диалога (Claude) нужен ваш собственный
-            API-ключ Anthropic. Он хранится только на этом устройстве.
+            {progress.aiProvider === "gemini"
+              ? "Для AI-диалога через Gemini нужен ваш собственный API-ключ Google. Он хранится только на этом устройстве."
+              : "Это приложение работает прямо в браузере, без своего сервера, поэтому для настоящего AI-диалога (Claude) нужен ваш собственный API-ключ Anthropic. Он хранится только на этом устройстве."}
           </p>
           <button
             onClick={() => nav({ name: "settings" })}

@@ -6,6 +6,7 @@ import { GRAMMAR_TOPICS } from "../data/grammar";
 import { CONVERSATIONS } from "../data/conversations";
 import { masteryPercent } from "../utils/srs";
 import { isRunningAsInstalledApp } from "../hooks/useIsInstalled";
+import { canUseAI } from "../utils/aiBackend";
 
 export function ProgressScreen({ nav }: { nav: (r: Route) => void }) {
   const progress = useProgress();
@@ -79,7 +80,9 @@ export function ProgressScreen({ nav }: { nav: (r: Route) => void }) {
           <div>
             <p className="text-sm font-semibold text-slate-200">⚙️ AI-собеседник: API-ключ и модель</p>
             <p className="mt-0.5 text-xs text-slate-500">
-              {progress.apiKey ? "Ключ добавлен" : "Ключ не задан — AI-диалоги недоступны"}
+              {canUseAI(progress.aiProvider, progress.apiKey, progress.geminiApiKey)
+                ? `Подключено: ${progress.aiProvider === "gemini" ? "Gemini" : "Claude"}`
+                : "Ключ не задан — AI-диалоги недоступны"}
             </p>
           </div>
           <span className="text-slate-500">→</span>

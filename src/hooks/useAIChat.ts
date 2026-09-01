@@ -5,7 +5,10 @@ import type { AIChatMessage, CEFRLevel } from "../types";
 // When set (build-time env var), the app talks to a server-side proxy
 // instead of calling the Anthropic API directly from the browser — no
 // per-user API key needed. See server/README.md for how to deploy one.
+// The backend currently only proxies Claude; Gemini is always BYOK.
 const BACKEND_URL = import.meta.env.VITE_AI_BACKEND_URL;
+
+const GEMINI_URL = "https://generativelanguage.googleapis.com/v1beta/models";
 
 function buildSystemPrompt(level: CEFRLevel, topic: string): string {
   return [
@@ -23,7 +26,27 @@ interface SendResult {
   error?: string;
 }
 
-export function useAIChat(apiKey: string, model: string, level: CEFRLevel, topic: string) {
+export type AIProvider = "claude" | "gemini";
+
+interface UseAIChatConfig {
+  provider: AIProvider;
+  apiKey: string;
+  model: string;
+  geminiApiKey: string;
+  geminiModel: string;
+  level: CEFRLevel;
+  topic: string;
+}
+
+export function useAIChat({
+  provider,
+  apiKey,
+  model,
+  geminiApiKey,
+  geminiModel,
+  level,
+  topic,
+}: UseAIChatConfig) {
   const [messages, setMessages] = useState<AIChatMessage[]>([]);
   const [loading, setLoading] = useState(false);
   const clientRef = useRef<Anthropic | null>(null);
@@ -90,18 +113,56 @@ export function useAIChat(apiKey: string, model: string, level: CEFRLevel, topic
     [apiKey, getClient, level, topic, model],
   );
 
+  const sendViaGemini = useCallback(
+    async (history: AIChatMessage[]): Promise<SendResult> => {
+      if (!geminiApiKey) return { ok: false, error: "Не задан API-ключ Gemini." };
+      try {
+        const res = await fetch(`${GEMINI_URL}/${geminiModel}:generateContent`, {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            "x-goog-api-key": geminiApiKey,
+          },
+          body: JSON.stringify({
+            systemInstruction: { parts: [{ text: buildSystemPrompt(level, topic) }] },
+            contents: history.map((m) => ({
+              role: m.role === "assistant" ? "model" : "user",
+              parts: [{ text: m.text }],
+            })),
+            generationConfig: { maxOutputTokens: 400 },
+          }),
+        });
+        const data = await res.json();
+        if (!res.ok) {
+          const status = res.status;
+          let error = data?.error?.message || `Сервер Gemini ответил ошибкой (${status}).`;
+          if (status === 400 || status === 403) error = "Неверный API-ключ Gemini. Проверьте его в настройках.";
+          else if (status === 429) error = "Превышен лимит запросов Gemini. Попробуйте чуть позже.";
+          return { ok: false, error };
+        }
+        const reply: string = data?.candidates?.[0]?.content?.parts?.[0]?.text ?? "";
+        setMessages((prev) => [...prev, { role: "assistant", text: reply }]);
+        return { ok: true };
+      } catch {
+        return { ok: false, error: "Не удалось подключиться к Gemini API. Проверьте интернет-соединение." };
+      }
+    },
+    [geminiApiKey, geminiModel, level, topic],
+  );
+
   const send = useCallback(
     async (userText: string): Promise<SendResult> => {
       const history = [...messages, { role: "user" as const, text: userText }];
       setMessages(history);
       setLoading(true);
       try {
+        if (provider === "gemini") return await sendViaGemini(history);
         return BACKEND_URL ? await sendViaBackend(history) : await sendViaOwnKey(history);
       } finally {
         setLoading(false);
       }
     },
-    [messages, sendViaBackend, sendViaOwnKey],
+    [messages, provider, sendViaBackend, sendViaOwnKey, sendViaGemini],
   );
 
   const reset = useCallback(() => setMessages([]), []);
