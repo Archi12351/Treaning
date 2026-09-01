@@ -9,8 +9,23 @@ export function ConversationsList({ nav }: { nav: (r: Route) => void }) {
   return (
     <div>
       <TopBar title="Разговорная практика" />
-      <p className="px-4 pb-2 text-xs text-slate-500">
-        Реальные повседневные ситуации. Слушайте немецкую речь и отвечайте
+      <div className="px-4 pt-2">
+        <button
+          onClick={() => nav({ name: "ai-conversation" })}
+          className="flex w-full items-center gap-3 rounded-2xl bg-gradient-to-r from-violet-500 to-fuchsia-500 p-4 text-left shadow-lg shadow-violet-500/20 active:scale-[0.99]"
+        >
+          <span className="text-2xl">🤖</span>
+          <div className="min-w-0 flex-1">
+            <p className="font-semibold text-white">AI-собеседник (голос)</p>
+            <p className="text-xs text-white/80">
+              Живой разговор на любую тему с настоящим ИИ
+            </p>
+          </div>
+          <span className="text-xl text-white">→</span>
+        </button>
+      </div>
+      <p className="px-4 pb-2 pt-4 text-xs text-slate-500">
+        Или пройдите готовый сценарий: слушайте немецкую речь и отвечайте
         голосом или выбором фразы.
       </p>
       <div className="space-y-3 px-4 py-2">

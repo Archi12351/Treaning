@@ -31,10 +31,13 @@ interface ProgressState {
   grammarProgress: Record<string, GrammarProgress>;
   conversationsDone: string[];
   sessionsCount: number;
+  onboarded: boolean;
+  apiKey: string;
+  aiModel: string;
 }
 
 const defaultState: ProgressState = {
-  level: "B1",
+  level: "A1",
   levelConfidence: 0,
   placementDone: false,
   placementHistory: [],
@@ -46,6 +49,9 @@ const defaultState: ProgressState = {
   grammarProgress: {},
   conversationsDone: [],
   sessionsCount: 0,
+  onboarded: false,
+  apiKey: "",
+  aiModel: "claude-opus-5",
 };
 
 function loadState(): ProgressState {
@@ -77,6 +83,9 @@ interface ProgressApi extends ProgressState {
   markConversationDone: (id: string) => void;
   incrementSessions: () => void;
   resetProgress: () => void;
+  completeOnboarding: () => void;
+  setApiKey: (key: string) => void;
+  setAiModel: (model: string) => void;
 }
 
 const ProgressContext = createContext<ProgressApi | null>(null);
@@ -185,6 +194,18 @@ export function ProgressProvider({ children }: { children: ReactNode }) {
     setState(defaultState);
   }, []);
 
+  const completeOnboarding = useCallback(() => {
+    setState((s) => ({ ...s, onboarded: true }));
+  }, []);
+
+  const setApiKey = useCallback((key: string) => {
+    setState((s) => ({ ...s, apiKey: key }));
+  }, []);
+
+  const setAiModel = useCallback((model: string) => {
+    setState((s) => ({ ...s, aiModel: model }));
+  }, []);
+
   const value = useMemo<ProgressApi>(
     () => ({
       ...state,
@@ -198,6 +219,9 @@ export function ProgressProvider({ children }: { children: ReactNode }) {
       markConversationDone,
       incrementSessions,
       resetProgress,
+      completeOnboarding,
+      setApiKey,
+      setAiModel,
     }),
     [
       state,
@@ -211,6 +235,9 @@ export function ProgressProvider({ children }: { children: ReactNode }) {
       markConversationDone,
       incrementSessions,
       resetProgress,
+      completeOnboarding,
+      setApiKey,
+      setAiModel,
     ],
   );
 

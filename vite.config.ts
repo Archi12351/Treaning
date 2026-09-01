@@ -17,9 +17,9 @@ export default defineConfig(({ command }) => ({
       registerType: 'autoUpdate',
       includeAssets: ['icon.svg'],
       manifest: {
-        name: 'Deutsch B2-C1',
+        name: 'Deutsch A1-C2',
         short_name: 'Deutsch',
-        description: 'Тренажёр немецкого языка до уровня B2-C1: лексика, грамматика, тесты, разговорная практика',
+        description: 'Тренажёр немецкого языка от A1 до C2: тест на уровень, индивидуальная программа, учебник, лексика, грамматика, тесты, AI-собеседник',
         theme_color: '#0f172a',
         background_color: '#0f172a',
         display: 'standalone',

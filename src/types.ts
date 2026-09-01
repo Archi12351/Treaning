@@ -1,4 +1,4 @@
-export type CEFRLevel = "A2" | "B1" | "B2" | "C1" | "C2";
+export type CEFRLevel = "A1" | "A2" | "B1" | "B2" | "C1" | "C2";
 
 export interface VocabItem {
   id: string;
@@ -68,3 +68,32 @@ export interface SRSCard {
 }
 
 export type Grade = 0 | 1 | 2 | 3;
+
+export interface TextbookTable {
+  headers: string[];
+  rows: string[][];
+}
+
+export interface TextbookParagraph {
+  id: string;
+  number: string;
+  chapterId: string;
+  title: string;
+  level: CEFRLevel;
+  body: string[];
+  examples?: { de: string; ru: string }[];
+  exceptions?: string[];
+  table?: TextbookTable;
+}
+
+export interface TextbookChapter {
+  id: string;
+  number: number;
+  title: string;
+  levelRange: string;
+}
+
+export interface AIChatMessage {
+  role: "user" | "assistant";
+  text: string;
+}

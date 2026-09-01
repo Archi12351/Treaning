@@ -2,6 +2,11 @@ import type { Route } from "../App";
 import { TopBar } from "../components/TopBar";
 import { GRAMMAR_TOPICS } from "../data/grammar";
 import { useProgress } from "../hooks/useProgress";
+import { levelIndex } from "../utils/studyPlan";
+
+const SORTED_TOPICS = [...GRAMMAR_TOPICS].sort(
+  (a, b) => levelIndex(a.level) - levelIndex(b.level),
+);
 
 export function GrammarTopics({ nav }: { nav: (r: Route) => void }) {
   const progress = useProgress();
@@ -9,8 +14,26 @@ export function GrammarTopics({ nav }: { nav: (r: Route) => void }) {
   return (
     <div>
       <TopBar title="Грамматика" />
-      <div className="space-y-3 px-4 py-4">
-        {GRAMMAR_TOPICS.map((topic) => {
+      <div className="px-4 pt-2">
+        <button
+          onClick={() => nav({ name: "textbook" })}
+          className="flex w-full items-center gap-3 rounded-2xl bg-gradient-to-r from-sky-500 to-indigo-500 p-4 text-left shadow-lg shadow-sky-500/20 active:scale-[0.99]"
+        >
+          <span className="text-2xl">📖</span>
+          <div className="min-w-0 flex-1">
+            <p className="font-semibold text-white">Учебник A1–C2</p>
+            <p className="text-xs text-white/80">
+              Все правила и исключения по параграфам, от алфавита
+            </p>
+          </div>
+          <span className="text-xl text-white">→</span>
+        </button>
+      </div>
+      <p className="px-4 pb-1 pt-4 text-xs text-slate-500">
+        Или отрабатывайте темы упражнениями, по уровням от A1 до C1:
+      </p>
+      <div className="space-y-3 px-4 py-3">
+        {SORTED_TOPICS.map((topic) => {
           const done = progress.grammarProgress[topic.id]?.completed.length ?? 0;
           const total = topic.exercises.length;
           const pct = Math.round((done / total) * 100);

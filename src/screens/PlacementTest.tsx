@@ -1,14 +1,14 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import type { Route } from "../App";
 import { TopBar } from "../components/TopBar";
 import { PLACEMENT_QUESTIONS } from "../data/placement";
 import { useProgress } from "../hooks/useProgress";
 import type { CEFRLevel } from "../types";
 
-const LEVELS: CEFRLevel[] = ["A2", "B1", "B2", "C1", "C2"];
+const LEVELS: CEFRLevel[] = ["A1", "A2", "B1", "B2", "C1", "C2"];
 
 function computeLevel(answers: Record<string, boolean>) {
-  let achieved: CEFRLevel = "A2";
+  let achieved: CEFRLevel = "A1";
   let totalCorrect = 0;
 
   for (const level of LEVELS) {
@@ -34,6 +34,11 @@ export function PlacementTest({ nav }: { nav: (r: Route) => void }) {
   const [result, setResult] = useState<{ level: CEFRLevel; score: number } | null>(null);
 
   const question = PLACEMENT_QUESTIONS[index];
+
+  useEffect(() => {
+    progress.completeOnboarding();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   const choose = (option: string) => {
     if (selected) return;
@@ -61,8 +66,8 @@ export function PlacementTest({ nav }: { nav: (r: Route) => void }) {
         <p className="mt-2 text-5xl font-black text-emerald-400">{result.level}</p>
         <p className="mt-3 text-sm text-slate-400">Точность ответов: {result.score}%</p>
         <p className="mt-6 text-sm text-slate-400">
-          Мы подобрали материалы по лексике и грамматике с учётом вашего
-          уровня и постепенно будем повышать сложность до B2–C1.
+          Мы составили индивидуальную программу с учётом вашего уровня и
+          будем постепенно вести вас от {result.level} до C1–C2.
         </p>
         <button
           onClick={() => nav({ name: "home" })}
@@ -120,6 +125,13 @@ export function PlacementTest({ nav }: { nav: (r: Route) => void }) {
             );
           })}
         </div>
+
+        <button
+          onClick={() => nav({ name: "home" })}
+          className="mt-8 w-full text-center text-xs text-slate-500 underline"
+        >
+          Пропустить, определю уровень позже
+        </button>
       </div>
     </div>
   );

@@ -1,6 +1,13 @@
 import type { PlacementQuestion } from "../types";
 
 export const PLACEMENT_QUESTIONS: PlacementQuestion[] = [
+  // A1
+  { id: "p-a1-1", level: "A1", prompt: "Ich ___ Anna.", options: ["bin", "bist", "heiße", "hast"], answer: "heiße" },
+  { id: "p-a1-2", level: "A1", prompt: "___ ist ein Auto. (das Auto)", options: ["Der", "Die", "Das", "Den"], answer: "Das" },
+  { id: "p-a1-3", level: "A1", prompt: "Wir ___ zwei Kinder.", options: ["sind", "haben", "hat", "bin"], answer: "haben" },
+  { id: "p-a1-4", level: "A1", prompt: "Ich sehe ___ Mann. (der Mann)", options: ["der", "den", "dem", "die"], answer: "den" },
+  { id: "p-a1-5", level: "A1", prompt: "Du ___ (sprechen) sehr gut Deutsch.", options: ["spreche", "sprichst", "spricht", "sprechen"], answer: "sprichst" },
+
   // A2
   { id: "p-a2-1", level: "A2", prompt: "Ich ___ heute keine Zeit.", options: ["habe", "bin", "hat", "sein"], answer: "habe" },
   { id: "p-a2-2", level: "A2", prompt: "Wir fahren ___ dem Bus zur Arbeit.", options: ["mit", "auf", "in", "zu"], answer: "mit" },

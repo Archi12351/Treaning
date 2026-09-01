@@ -1,17 +1,31 @@
-import type { VocabItem } from "../types";
+import type { CEFRLevel, VocabItem } from "../types";
 
-export const TOPICS = [
-  { id: "charakter", title: "Charakter & Persönlichkeit", ru: "Характер и личность" },
-  { id: "gefuehle", title: "Gefühle & Beziehungen", ru: "Чувства и отношения" },
-  { id: "arbeit", title: "Arbeit & Beruf", ru: "Работа и карьера" },
-  { id: "umwelt", title: "Umwelt & Nachhaltigkeit", ru: "Экология" },
-  { id: "gesellschaft", title: "Gesellschaft & Politik", ru: "Общество и политика" },
-  { id: "wirtschaft", title: "Wirtschaft & Finanzen", ru: "Экономика и финансы" },
-  { id: "technik", title: "Wissenschaft & Technik", ru: "Наука и технологии" },
-  { id: "gesundheit", title: "Gesundheit & Medizin", ru: "Здоровье и медицина" },
-  { id: "medien", title: "Medien & Kommunikation", ru: "Медиа и коммуникация" },
-  { id: "reisen", title: "Reisen & Kultur", ru: "Путешествия и культура" },
-] as const;
+export const TOPICS: { id: string; title: string; ru: string; level: CEFRLevel }[] = [
+  // A1 — самые основы
+  { id: "begruessung", title: "Begrüßung & Vorstellung", ru: "Приветствие и знакомство", level: "A1" },
+  { id: "familie", title: "Familie & Menschen", ru: "Семья и люди", level: "A1" },
+  { id: "zahlen", title: "Zahlen, Farben, Zeit", ru: "Числа, цвета, время", level: "A1" },
+  { id: "essen", title: "Essen & Trinken", ru: "Еда и напитки", level: "A1" },
+  // A2 — базовая бытовая лексика
+  { id: "zuhause", title: "Zuhause & Alltag", ru: "Дом и повседневность", level: "A2" },
+  { id: "einkaufen", title: "Einkaufen & Stadt", ru: "Покупки и город", level: "A2" },
+  { id: "koerper", title: "Körper & Kleidung", ru: "Тело и одежда", level: "A2" },
+  // B1 — расширенная бытовая и учебная лексика
+  { id: "schule", title: "Schule & Ausbildung", ru: "Учёба и образование", level: "B1" },
+  { id: "freizeit", title: "Freizeit & Hobbys", ru: "Досуг и хобби", level: "B1" },
+  { id: "wetter", title: "Wetter & Natur", ru: "Погода и природа", level: "B1" },
+  // B2–C1 — продвинутая тематическая лексика
+  { id: "charakter", title: "Charakter & Persönlichkeit", ru: "Характер и личность", level: "B2" },
+  { id: "gefuehle", title: "Gefühle & Beziehungen", ru: "Чувства и отношения", level: "B2" },
+  { id: "arbeit", title: "Arbeit & Beruf", ru: "Работа и карьера", level: "B2" },
+  { id: "umwelt", title: "Umwelt & Nachhaltigkeit", ru: "Экология", level: "B2" },
+  { id: "gesellschaft", title: "Gesellschaft & Politik", ru: "Общество и политика", level: "C1" },
+  { id: "wirtschaft", title: "Wirtschaft & Finanzen", ru: "Экономика и финансы", level: "C1" },
+  { id: "technik", title: "Wissenschaft & Technik", ru: "Наука и технологии", level: "C1" },
+  { id: "gesundheit", title: "Gesundheit & Medizin", ru: "Здоровье и медицина", level: "B2" },
+  { id: "medien", title: "Medien & Kommunikation", ru: "Медиа и коммуникация", level: "C1" },
+  { id: "reisen", title: "Reisen & Kultur", ru: "Путешествия и культура", level: "B2" },
+];
 
 export const VOCABULARY: VocabItem[] = [
   // Charakter & Persönlichkeit
@@ -153,4 +167,124 @@ export const VOCABULARY: VocabItem[] = [
   { id: "re10", de: "die Gastfreundschaft", ru: "гостеприимство", exampleDe: "Die Gastfreundschaft der Einheimischen hat uns beeindruckt.", exampleRu: "Гостеприимство местных жителей произвело на нас впечатление.", topic: "reisen", level: "C1" },
   { id: "re11", de: "die Zeitverschiebung", ru: "разница во времени", exampleDe: "Die Zeitverschiebung macht mir am Anfang immer zu schaffen.", exampleRu: "Разница во времени поначалу всегда меня утомляет.", topic: "reisen", level: "B2" },
   { id: "re12", de: "das Fernweh", ru: "тяга к путешествиям, тоска по дальним странам", exampleDe: "Sobald der Sommer beginnt, packt mich das Fernweh.", exampleRu: "Как только начинается лето, меня охватывает тяга к путешествиям.", topic: "reisen", level: "C1" },
+
+  // Begrüßung & Vorstellung (A1)
+  { id: "be1", de: "hallo", ru: "привет", exampleDe: "Hallo, wie geht es dir?", exampleRu: "Привет, как дела?", topic: "begruessung", level: "A1" },
+  { id: "be2", de: "auf Wiedersehen", ru: "до свидания", exampleDe: "Auf Wiedersehen, bis morgen!", exampleRu: "До свидания, до завтра!", topic: "begruessung", level: "A1" },
+  { id: "be3", de: "heißen", ru: "зваться, называться", exampleDe: "Wie heißen Sie?", exampleRu: "Как вас зовут?", topic: "begruessung", level: "A1" },
+  { id: "be4", de: "kommen aus", ru: "быть родом из", exampleDe: "Ich komme aus Russland.", exampleRu: "Я из России.", topic: "begruessung", level: "A1" },
+  { id: "be5", de: "wohnen", ru: "жить, проживать", exampleDe: "Ich wohne in Berlin.", exampleRu: "Я живу в Берлине.", topic: "begruessung", level: "A1" },
+  { id: "be6", de: "die Sprache", ru: "язык", exampleDe: "Ich lerne die deutsche Sprache.", exampleRu: "Я учу немецкий язык.", topic: "begruessung", level: "A1" },
+  { id: "be7", de: "danke", ru: "спасибо", exampleDe: "Danke für deine Hilfe.", exampleRu: "Спасибо за твою помощь.", topic: "begruessung", level: "A1" },
+  { id: "be8", de: "bitte", ru: "пожалуйста", exampleDe: "Bitte, hier ist dein Kaffee.", exampleRu: "Пожалуйста, вот твой кофе.", topic: "begruessung", level: "A1" },
+  { id: "be9", de: "die Entschuldigung", ru: "извинение", exampleDe: "Entschuldigung, wo ist der Bahnhof?", exampleRu: "Извините, где вокзал?", topic: "begruessung", level: "A1" },
+  { id: "be10", de: "das Alter", ru: "возраст", exampleDe: "Wie alt bist du?", exampleRu: "Сколько тебе лет?", topic: "begruessung", level: "A1" },
+
+  // Familie & Menschen (A1)
+  { id: "fa1", de: "die Mutter", ru: "мама", exampleDe: "Meine Mutter kocht sehr gut.", exampleRu: "Моя мама очень хорошо готовит.", topic: "familie", level: "A1" },
+  { id: "fa2", de: "der Vater", ru: "папа", exampleDe: "Mein Vater arbeitet in einer Fabrik.", exampleRu: "Мой папа работает на заводе.", topic: "familie", level: "A1" },
+  { id: "fa3", de: "die Geschwister", ru: "братья и сёстры", exampleDe: "Ich habe zwei Geschwister.", exampleRu: "У меня двое братьев/сестёр.", topic: "familie", level: "A1" },
+  { id: "fa4", de: "der Freund / die Freundin", ru: "друг / подруга", exampleDe: "Das ist mein bester Freund.", exampleRu: "Это мой лучший друг.", topic: "familie", level: "A1" },
+  { id: "fa5", de: "die Kinder", ru: "дети", exampleDe: "Sie haben drei Kinder.", exampleRu: "У них трое детей.", topic: "familie", level: "A1" },
+  { id: "fa6", de: "verheiratet", ru: "женат/замужем", exampleDe: "Sind Sie verheiratet?", exampleRu: "Вы женаты/замужем?", topic: "familie", level: "A1" },
+  { id: "fa7", de: "die Großeltern", ru: "бабушка и дедушка", exampleDe: "Meine Großeltern wohnen auf dem Land.", exampleRu: "Мои бабушка и дедушка живут за городом.", topic: "familie", level: "A1" },
+  { id: "fa8", de: "der Nachbar", ru: "сосед", exampleDe: "Unser Nachbar ist sehr freundlich.", exampleRu: "Наш сосед очень дружелюбный.", topic: "familie", level: "A2" },
+  { id: "fa9", de: "das Baby", ru: "младенец", exampleDe: "Das Baby schläft schon.", exampleRu: "Малыш уже спит.", topic: "familie", level: "A1" },
+  { id: "fa10", de: "die Ehe", ru: "брак", exampleDe: "Sie führen eine glückliche Ehe.", exampleRu: "У них счастливый брак.", topic: "familie", level: "A2" },
+
+  // Zahlen, Farben, Zeit (A1)
+  { id: "za1", de: "eins, zwei, drei", ru: "один, два, три", exampleDe: "Eins, zwei, drei — los!", exampleRu: "Один, два, три — вперёд!", topic: "zahlen", level: "A1" },
+  { id: "za2", de: "rot", ru: "красный", exampleDe: "Das Auto ist rot.", exampleRu: "Машина красная.", topic: "zahlen", level: "A1" },
+  { id: "za3", de: "blau", ru: "синий", exampleDe: "Der Himmel ist blau.", exampleRu: "Небо синее.", topic: "zahlen", level: "A1" },
+  { id: "za4", de: "heute", ru: "сегодня", exampleDe: "Heute ist Montag.", exampleRu: "Сегодня понедельник.", topic: "zahlen", level: "A1" },
+  { id: "za5", de: "morgen", ru: "завтра", exampleDe: "Morgen fahre ich nach Hause.", exampleRu: "Завтра я поеду домой.", topic: "zahlen", level: "A1" },
+  { id: "za6", de: "die Uhrzeit", ru: "время (по часам)", exampleDe: "Wie spät ist es? — Es ist drei Uhr.", exampleRu: "Который час? — Три часа.", topic: "zahlen", level: "A1" },
+  { id: "za7", de: "die Woche", ru: "неделя", exampleDe: "Ich arbeite fünf Tage die Woche.", exampleRu: "Я работаю пять дней в неделю.", topic: "zahlen", level: "A1" },
+  { id: "za8", de: "der Monat", ru: "месяц", exampleDe: "Der erste Monat des Jahres ist Januar.", exampleRu: "Первый месяц года — январь.", topic: "zahlen", level: "A1" },
+  { id: "za9", de: "hundert", ru: "сто", exampleDe: "Das kostet hundert Euro.", exampleRu: "Это стоит сто евро.", topic: "zahlen", level: "A1" },
+  { id: "za10", de: "grün", ru: "зелёный", exampleDe: "Die Ampel ist grün.", exampleRu: "Светофор зелёный.", topic: "zahlen", level: "A1" },
+
+  // Essen & Trinken (A1)
+  { id: "es1", de: "das Brot", ru: "хлеб", exampleDe: "Ich kaufe frisches Brot.", exampleRu: "Я покупаю свежий хлеб.", topic: "essen", level: "A1" },
+  { id: "es2", de: "das Wasser", ru: "вода", exampleDe: "Ich trinke viel Wasser.", exampleRu: "Я пью много воды.", topic: "essen", level: "A1" },
+  { id: "es3", de: "der Apfel", ru: "яблоко", exampleDe: "Der Apfel ist süß.", exampleRu: "Яблоко сладкое.", topic: "essen", level: "A1" },
+  { id: "es4", de: "das Fleisch", ru: "мясо", exampleDe: "Ich esse selten Fleisch.", exampleRu: "Я редко ем мясо.", topic: "essen", level: "A1" },
+  { id: "es5", de: "das Frühstück", ru: "завтрак", exampleDe: "Was isst du zum Frühstück?", exampleRu: "Что ты ешь на завтрак?", topic: "essen", level: "A1" },
+  { id: "es6", de: "hungrig", ru: "голодный", exampleDe: "Ich bin sehr hungrig.", exampleRu: "Я очень голоден.", topic: "essen", level: "A1" },
+  { id: "es7", de: "bestellen", ru: "заказывать", exampleDe: "Wir möchten bestellen, bitte.", exampleRu: "Мы хотели бы сделать заказ, пожалуйста.", topic: "essen", level: "A1" },
+  { id: "es8", de: "lecker", ru: "вкусный", exampleDe: "Das Essen ist sehr lecker.", exampleRu: "Еда очень вкусная.", topic: "essen", level: "A1" },
+  { id: "es9", de: "der Kaffee", ru: "кофе", exampleDe: "Ich trinke jeden Morgen Kaffee.", exampleRu: "Я пью кофе каждое утро.", topic: "essen", level: "A1" },
+  { id: "es10", de: "das Gemüse", ru: "овощи", exampleDe: "Gemüse ist gesund.", exampleRu: "Овощи полезны.", topic: "essen", level: "A1" },
+
+  // Zuhause & Alltag (A2)
+  { id: "zu1", de: "die Wohnung", ru: "квартира", exampleDe: "Unsere Wohnung hat drei Zimmer.", exampleRu: "В нашей квартире три комнаты.", topic: "zuhause", level: "A2" },
+  { id: "zu2", de: "aufstehen", ru: "вставать", exampleDe: "Ich stehe um sieben Uhr auf.", exampleRu: "Я встаю в семь часов.", topic: "zuhause", level: "A2" },
+  { id: "zu3", de: "putzen", ru: "убирать, чистить", exampleDe: "Am Samstag putze ich die Wohnung.", exampleRu: "В субботу я убираю квартиру.", topic: "zuhause", level: "A2" },
+  { id: "zu4", de: "der Alltag", ru: "повседневная жизнь", exampleDe: "Mein Alltag ist ziemlich stressig.", exampleRu: "Моя повседневная жизнь довольно напряжённая.", topic: "zuhause", level: "A2" },
+  { id: "zu5", de: "die Küche", ru: "кухня", exampleDe: "Die Küche ist klein, aber gemütlich.", exampleRu: "Кухня маленькая, но уютная.", topic: "zuhause", level: "A2" },
+  { id: "zu6", de: "der Nachbar besuchen", ru: "навещать соседа", exampleDe: "Wir besuchen oft unsere Nachbarn.", exampleRu: "Мы часто навещаем наших соседей.", topic: "zuhause", level: "A2" },
+  { id: "zu7", de: "kochen", ru: "готовить (еду)", exampleDe: "Ich koche gern italienisch.", exampleRu: "Я люблю готовить итальянские блюда.", topic: "zuhause", level: "A2" },
+  { id: "zu8", de: "die Miete", ru: "арендная плата", exampleDe: "Die Miete steigt jedes Jahr.", exampleRu: "Арендная плата растёт каждый год.", topic: "zuhause", level: "A2" },
+  { id: "zu9", de: "der Feierabend", ru: "конец рабочего дня", exampleDe: "Endlich Feierabend!", exampleRu: "Наконец-то конец рабочего дня!", topic: "zuhause", level: "A2" },
+  { id: "zu10", de: "sich ausruhen", ru: "отдыхать", exampleDe: "Am Wochenende ruhe ich mich aus.", exampleRu: "На выходных я отдыхаю.", topic: "zuhause", level: "A2" },
+
+  // Einkaufen & Stadt (A2)
+  { id: "ei1", de: "das Geschäft", ru: "магазин", exampleDe: "Das Geschäft öffnet um neun Uhr.", exampleRu: "Магазин открывается в девять часов.", topic: "einkaufen", level: "A2" },
+  { id: "ei2", de: "der Preis", ru: "цена", exampleDe: "Der Preis ist zu hoch.", exampleRu: "Цена слишком высокая.", topic: "einkaufen", level: "A2" },
+  { id: "ei3", de: "bezahlen", ru: "оплачивать", exampleDe: "Kann ich mit Karte bezahlen?", exampleRu: "Могу я расплатиться картой?", topic: "einkaufen", level: "A2" },
+  { id: "ei4", de: "die Straße", ru: "улица", exampleDe: "Die Straße ist sehr belebt.", exampleRu: "Улица очень оживлённая.", topic: "einkaufen", level: "A2" },
+  { id: "ei5", de: "der Supermarkt", ru: "супермаркет", exampleDe: "Ich gehe in den Supermarkt.", exampleRu: "Я иду в супермаркет.", topic: "einkaufen", level: "A2" },
+  { id: "ei6", de: "die Quittung", ru: "чек, квитанция", exampleDe: "Möchten Sie eine Quittung?", exampleRu: "Хотите чек?", topic: "einkaufen", level: "A2" },
+  { id: "ei7", de: "umtauschen", ru: "обменивать (товар)", exampleDe: "Kann ich den Pullover umtauschen?", exampleRu: "Могу я обменять свитер?", topic: "einkaufen", level: "A2" },
+  { id: "ei8", de: "das Rathaus", ru: "ратуша, мэрия", exampleDe: "Das Rathaus liegt im Zentrum.", exampleRu: "Ратуша находится в центре.", topic: "einkaufen", level: "A2" },
+  { id: "ei9", de: "die Öffnungszeiten", ru: "часы работы", exampleDe: "Wie sind die Öffnungszeiten?", exampleRu: "Какие часы работы?", topic: "einkaufen", level: "A2" },
+  { id: "ei10", de: "günstig", ru: "выгодный, недорогой", exampleDe: "Dieses Angebot ist sehr günstig.", exampleRu: "Это предложение очень выгодное.", topic: "einkaufen", level: "A2" },
+
+  // Körper & Kleidung (A2)
+  { id: "ko1", de: "der Kopf", ru: "голова", exampleDe: "Mein Kopf tut weh.", exampleRu: "У меня болит голова.", topic: "koerper", level: "A2" },
+  { id: "ko2", de: "die Hand", ru: "рука (кисть)", exampleDe: "Gib mir bitte deine Hand.", exampleRu: "Дай мне, пожалуйста, руку.", topic: "koerper", level: "A2" },
+  { id: "ko3", de: "die Jacke", ru: "куртка", exampleDe: "Zieh deine Jacke an, es ist kalt.", exampleRu: "Надень куртку, холодно.", topic: "koerper", level: "A2" },
+  { id: "ko4", de: "die Schuhe", ru: "обувь", exampleDe: "Diese Schuhe sind sehr bequem.", exampleRu: "Эта обувь очень удобная.", topic: "koerper", level: "A2" },
+  { id: "ko5", de: "anziehen", ru: "надевать", exampleDe: "Sie zieht sich schnell an.", exampleRu: "Она быстро одевается.", topic: "koerper", level: "A2" },
+  { id: "ko6", de: "müde", ru: "уставший", exampleDe: "Ich bin heute sehr müde.", exampleRu: "Я сегодня очень уставший.", topic: "koerper", level: "A2" },
+  { id: "ko7", de: "krank", ru: "больной", exampleDe: "Er ist seit gestern krank.", exampleRu: "Он болеет со вчерашнего дня.", topic: "koerper", level: "A2" },
+  { id: "ko8", de: "das Gesicht", ru: "лицо", exampleDe: "Sie hat ein freundliches Gesicht.", exampleRu: "У неё дружелюбное лицо.", topic: "koerper", level: "A2" },
+  { id: "ko9", de: "die Größe", ru: "размер", exampleDe: "Welche Größe brauchen Sie?", exampleRu: "Какой размер вам нужен?", topic: "koerper", level: "A2" },
+  { id: "ko10", de: "bequem", ru: "удобный", exampleDe: "Diese Hose ist sehr bequem.", exampleRu: "Эти брюки очень удобные.", topic: "koerper", level: "A2" },
+
+  // Schule & Ausbildung (B1)
+  { id: "sc1", de: "die Prüfung", ru: "экзамен", exampleDe: "Die Prüfung war schwieriger als erwartet.", exampleRu: "Экзамен оказался сложнее, чем ожидалось.", topic: "schule", level: "B1" },
+  { id: "sc2", de: "die Note", ru: "оценка", exampleDe: "Er hat eine gute Note bekommen.", exampleRu: "Он получил хорошую оценку.", topic: "schule", level: "B1" },
+  { id: "sc3", de: "das Studium", ru: "учёба в вузе", exampleDe: "Sie hat ihr Studium erfolgreich beendet.", exampleRu: "Она успешно завершила учёбу в университете.", topic: "schule", level: "B1" },
+  { id: "sc4", de: "die Hausaufgabe", ru: "домашнее задание", exampleDe: "Hast du deine Hausaufgaben gemacht?", exampleRu: "Ты сделал домашнее задание?", topic: "schule", level: "B1" },
+  { id: "sc5", de: "der Unterricht", ru: "занятие, урок", exampleDe: "Der Unterricht beginnt um acht Uhr.", exampleRu: "Урок начинается в восемь часов.", topic: "schule", level: "B1" },
+  { id: "sc6", de: "sich konzentrieren", ru: "концентрироваться", exampleDe: "Es fällt mir schwer, mich zu konzentrieren.", exampleRu: "Мне трудно концентрироваться.", topic: "schule", level: "B1" },
+  { id: "sc7", de: "der Abschluss", ru: "диплом, окончание учёбы", exampleDe: "Nach dem Abschluss sucht er eine Stelle.", exampleRu: "После получения диплома он ищет работу.", topic: "schule", level: "B1" },
+  { id: "sc8", de: "das Stipendium", ru: "стипендия", exampleDe: "Sie hat ein Stipendium bekommen.", exampleRu: "Она получила стипендию.", topic: "schule", level: "B1" },
+  { id: "sc9", de: "wiederholen", ru: "повторять (материал)", exampleDe: "Wir sollten den Stoff wiederholen.", exampleRu: "Нам стоит повторить материал.", topic: "schule", level: "B1" },
+  { id: "sc10", de: "die Fremdsprache", ru: "иностранный язык", exampleDe: "Er spricht drei Fremdsprachen.", exampleRu: "Он говорит на трёх иностранных языках.", topic: "schule", level: "B1" },
+
+  // Freizeit & Hobbys (B1)
+  { id: "fr1", de: "das Hobby", ru: "хобби", exampleDe: "Mein liebstes Hobby ist Malen.", exampleRu: "Моё любимое хобби — рисование.", topic: "freizeit", level: "B1" },
+  { id: "fr2", de: "sich entspannen", ru: "расслабляться", exampleDe: "Am Wochenende entspanne ich mich gern.", exampleRu: "На выходных я люблю расслабляться.", topic: "freizeit", level: "B1" },
+  { id: "fr3", de: "die Mannschaft", ru: "команда (спортивная)", exampleDe: "Er spielt in einer Fußballmannschaft.", exampleRu: "Он играет в футбольной команде.", topic: "freizeit", level: "B1" },
+  { id: "fr4", de: "das Konzert", ru: "концерт", exampleDe: "Wir waren gestern auf einem Konzert.", exampleRu: "Мы вчера были на концерте.", topic: "freizeit", level: "B1" },
+  { id: "fr5", de: "wandern", ru: "ходить в поход, гулять пешком", exampleDe: "Im Sommer wandern wir oft in den Bergen.", exampleRu: "Летом мы часто ходим в горы.", topic: "freizeit", level: "B1" },
+  { id: "fr6", de: "der Verein", ru: "клуб, кружок, объединение", exampleDe: "Er ist Mitglied in einem Sportverein.", exampleRu: "Он состоит в спортивном клубе.", topic: "freizeit", level: "B1" },
+  { id: "fr7", de: "die Ausstellung", ru: "выставка", exampleDe: "Die Ausstellung im Museum war beeindruckend.", exampleRu: "Выставка в музее произвела впечатление.", topic: "freizeit", level: "B1" },
+  { id: "fr8", de: "malen", ru: "рисовать (красками)", exampleDe: "Sie malt in ihrer Freizeit gern.", exampleRu: "В свободное время она любит рисовать.", topic: "freizeit", level: "B1" },
+  { id: "fr9", de: "die Freizeitbeschäftigung", ru: "занятие на досуге", exampleDe: "Lesen ist meine liebste Freizeitbeschäftigung.", exampleRu: "Чтение — моё любимое занятие на досуге.", topic: "freizeit", level: "B1" },
+  { id: "fr10", de: "sich langweilen", ru: "скучать (от безделья)", exampleDe: "An Regentagen langweile ich mich manchmal.", exampleRu: "В дождливые дни мне иногда бывает скучно.", topic: "freizeit", level: "B1" },
+
+  // Wetter & Natur (B1)
+  { id: "we1", de: "der Regen", ru: "дождь", exampleDe: "Der Regen hört bald auf.", exampleRu: "Дождь скоро закончится.", topic: "wetter", level: "B1" },
+  { id: "we2", de: "die Sonne scheint", ru: "светит солнце", exampleDe: "Heute scheint endlich die Sonne.", exampleRu: "Сегодня наконец светит солнце.", topic: "wetter", level: "B1" },
+  { id: "we3", de: "der Wald", ru: "лес", exampleDe: "Wir machen einen Spaziergang im Wald.", exampleRu: "Мы гуляем в лесу.", topic: "wetter", level: "B1" },
+  { id: "we4", de: "die Jahreszeit", ru: "время года", exampleDe: "Welche Jahreszeit magst du am liebsten?", exampleRu: "Какое время года тебе нравится больше всего?", topic: "wetter", level: "B1" },
+  { id: "we5", de: "der Sturm", ru: "буря, шторм", exampleDe: "In der Nacht gab es einen starken Sturm.", exampleRu: "Ночью была сильная буря.", topic: "wetter", level: "B1" },
+  { id: "we6", de: "die Temperatur", ru: "температура", exampleDe: "Die Temperatur sinkt am Abend.", exampleRu: "Вечером температура понижается.", topic: "wetter", level: "B1" },
+  { id: "we7", de: "der Schnee", ru: "снег", exampleDe: "Im Winter liegt hier viel Schnee.", exampleRu: "Зимой здесь много снега.", topic: "wetter", level: "B1" },
+  { id: "we8", de: "die Umgebung", ru: "окрестности, окружение", exampleDe: "Die Umgebung des Sees ist sehr grün.", exampleRu: "Окрестности озера очень зелёные.", topic: "wetter", level: "B1" },
+  { id: "we9", de: "der Berg", ru: "гора", exampleDe: "Von dem Berg hat man eine tolle Aussicht.", exampleRu: "С горы открывается прекрасный вид.", topic: "wetter", level: "B1" },
+  { id: "we10", de: "neblig", ru: "туманный", exampleDe: "Heute Morgen war es sehr neblig.", exampleRu: "Сегодня утром было очень туманно.", topic: "wetter", level: "B1" },
 ];

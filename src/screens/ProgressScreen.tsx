@@ -47,6 +47,19 @@ export function ProgressScreen({ nav }: { nav: (r: Route) => void }) {
           <Stat label="🗣️ Диалогов" value={`${progress.conversationsDone.length}/${CONVERSATIONS.length}`} />
         </div>
 
+        <button
+          onClick={() => nav({ name: "settings" })}
+          className="flex w-full items-center justify-between rounded-2xl bg-slate-900 p-4 text-left"
+        >
+          <div>
+            <p className="text-sm font-semibold text-slate-200">⚙️ AI-собеседник: API-ключ и модель</p>
+            <p className="mt-0.5 text-xs text-slate-500">
+              {progress.apiKey ? "Ключ добавлен" : "Ключ не задан — AI-диалоги недоступны"}
+            </p>
+          </div>
+          <span className="text-slate-500">→</span>
+        </button>
+
         <div className="rounded-2xl bg-slate-900 p-4">
           <p className="text-sm font-semibold text-slate-300">Активность за 7 дней</p>
           <div className="mt-3 flex justify-between">

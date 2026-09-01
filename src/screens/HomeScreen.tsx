@@ -1,9 +1,11 @@
+import { useMemo } from "react";
 import type { Route } from "../App";
 import { useProgress } from "../hooks/useProgress";
 import { GRAMMAR_TOPICS } from "../data/grammar";
 import { VOCABULARY } from "../data/vocabulary";
 import { CONVERSATIONS } from "../data/conversations";
 import { masteryPercent } from "../utils/srs";
+import { buildStudyPlan, type PlanStep } from "../utils/studyPlan";
 
 export function HomeScreen({ nav }: { nav: (r: Route) => void }) {
   const progress = useProgress();
@@ -20,12 +22,30 @@ export function HomeScreen({ nav }: { nav: (r: Route) => void }) {
     0,
   );
 
+  const plan = useMemo(
+    () =>
+      buildStudyPlan({
+        level: progress.level,
+        grammarProgress: progress.grammarProgress,
+        vocabCards: progress.vocabCards,
+        conversationsDone: progress.conversationsDone,
+        limit: 4,
+      }),
+    [progress.level, progress.grammarProgress, progress.vocabCards, progress.conversationsDone],
+  );
+
+  const openStep = (step: PlanStep) => {
+    if (step.kind === "grammar") nav({ name: "grammar-detail", topicId: step.id });
+    else if (step.kind === "vocab") nav({ name: "vocab-trainer", topic: step.id });
+    else nav({ name: "conversation-player", id: step.id });
+  };
+
   return (
     <div className="px-4 pt-[calc(env(safe-area-inset-top)+1rem)]">
       <div className="flex items-center justify-between">
         <div>
           <p className="text-sm text-slate-400">Willkommen zurück 👋</p>
-          <h1 className="text-2xl font-bold text-slate-50">Deutsch B2–C1</h1>
+          <h1 className="text-2xl font-bold text-slate-50">Deutsch A1–C2</h1>
         </div>
         <div className="flex flex-col items-end">
           <span className="rounded-full bg-emerald-500/15 px-3 py-1 text-sm font-semibold text-emerald-400">
@@ -44,7 +64,7 @@ export function HomeScreen({ nav }: { nav: (r: Route) => void }) {
             Определите свой уровень
           </p>
           <p className="mt-0.5 text-xs text-emerald-950/80">
-            Пройдите короткий тест (5 минут), чтобы начать с нужного уровня
+            Короткий тест (5 минут) — от A1 до C2, чтобы начать с нужного уровня
           </p>
         </button>
       )}
@@ -73,6 +93,32 @@ export function HomeScreen({ nav }: { nav: (r: Route) => void }) {
         />
       </div>
 
+      {plan.length > 0 && (
+        <>
+          <SectionTitle>Моя программа</SectionTitle>
+          <div className="space-y-2">
+            {plan.map((step) => (
+              <button
+                key={`${step.kind}-${step.id}`}
+                onClick={() => openStep(step)}
+                className="flex w-full items-center gap-3 rounded-xl bg-slate-900 p-3.5 text-left active:bg-slate-800"
+              >
+                <span className="text-xl">
+                  {step.kind === "grammar" ? "🧩" : step.kind === "vocab" ? "📚" : "🗣️"}
+                </span>
+                <div className="min-w-0 flex-1">
+                  <p className="truncate text-sm font-semibold text-slate-100">{step.title}</p>
+                  <p className="truncate text-[11px] text-slate-500">{step.subtitle}</p>
+                </div>
+                <span className="shrink-0 rounded-full bg-slate-800 px-2 py-0.5 text-[11px] text-slate-400">
+                  {step.level}
+                </span>
+              </button>
+            ))}
+          </div>
+        </>
+      )}
+
       <SectionTitle>Быстрый доступ</SectionTitle>
       <div className="grid grid-cols-2 gap-3">
         <QuickCard
@@ -84,13 +130,19 @@ export function HomeScreen({ nav }: { nav: (r: Route) => void }) {
         <QuickCard
           icon="🧩"
           title="Грамматика"
-          subtitle="8 тем B2–C1"
+          subtitle="18 тем, A1–C1"
           onClick={() => nav({ name: "grammar-topics" })}
+        />
+        <QuickCard
+          icon="📖"
+          title="Учебник"
+          subtitle="Все правила A1–C2"
+          onClick={() => nav({ name: "textbook" })}
         />
         <QuickCard
           icon="🗣️"
           title="Диалоги"
-          subtitle="Голос, реальные темы"
+          subtitle="Сценарии + AI-собеседник"
           onClick={() => nav({ name: "conversations" })}
         />
         <QuickCard
@@ -98,6 +150,12 @@ export function HomeScreen({ nav }: { nav: (r: Route) => void }) {
           title="Тест"
           subtitle="Проверь себя"
           onClick={() => nav({ name: "quiz" })}
+        />
+        <QuickCard
+          icon="📊"
+          title="Профиль"
+          subtitle="Прогресс и настройки"
+          onClick={() => nav({ name: "progress" })}
         />
       </div>
 
