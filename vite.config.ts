@@ -3,8 +3,13 @@ import tailwindcss from '@tailwindcss/vite'
 import { VitePWA } from 'vite-plugin-pwa'
 import { defineConfig } from 'vite'
 
+// Served from https://<user>.github.io/Treaning/ in production (GitHub Pages),
+// but from the domain root during local dev/preview.
+const BASE_PATH = '/Treaning/'
+
 // https://vite.dev/config/
-export default defineConfig({
+export default defineConfig(({ command }) => ({
+  base: command === 'build' ? BASE_PATH : '/',
   plugins: [
     react(),
     tailwindcss(),
@@ -19,7 +24,8 @@ export default defineConfig({
         background_color: '#0f172a',
         display: 'standalone',
         orientation: 'portrait',
-        start_url: '/',
+        start_url: command === 'build' ? BASE_PATH : '/',
+        scope: command === 'build' ? BASE_PATH : '/',
         icons: [
           { src: 'icon-192.png', sizes: '192x192', type: 'image/png' },
           { src: 'icon-512.png', sizes: '512x512', type: 'image/png' },
@@ -31,4 +37,4 @@ export default defineConfig({
       },
     }),
   ],
-})
+}))
