@@ -2,6 +2,11 @@ import { useCallback, useRef, useState } from "react";
 import Anthropic from "@anthropic-ai/sdk";
 import type { AIChatMessage, CEFRLevel } from "../types";
 
+// When set (build-time env var), the app talks to a server-side proxy
+// instead of calling the Anthropic API directly from the browser — no
+// per-user API key needed. See server/README.md for how to deploy one.
+const BACKEND_URL = import.meta.env.VITE_AI_BACKEND_URL;
+
 function buildSystemPrompt(level: CEFRLevel, topic: string): string {
   return [
     `Du bist ein freundlicher deutscher Muttersprachler und Gesprächspartner in einer Sprachlern-App.`,
@@ -30,12 +35,30 @@ export function useAIChat(apiKey: string, model: string, level: CEFRLevel, topic
     return clientRef.current;
   }, [apiKey]);
 
-  const send = useCallback(
-    async (userText: string): Promise<SendResult> => {
+  const sendViaBackend = useCallback(
+    async (history: AIChatMessage[]): Promise<SendResult> => {
+      try {
+        const res = await fetch(BACKEND_URL as string, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ messages: history, level, topic, model }),
+        });
+        const data: { text?: string; error?: string } = await res.json();
+        if (!res.ok) {
+          return { ok: false, error: data.error || `Сервер ответил ошибкой (${res.status}).` };
+        }
+        setMessages((prev) => [...prev, { role: "assistant", text: data.text ?? "" }]);
+        return { ok: true };
+      } catch {
+        return { ok: false, error: "Не удалось подключиться к серверу." };
+      }
+    },
+    [level, model, topic],
+  );
+
+  const sendViaOwnKey = useCallback(
+    async (history: AIChatMessage[]): Promise<SendResult> => {
       if (!apiKey) return { ok: false, error: "Не задан API-ключ." };
-      const history = [...messages, { role: "user" as const, text: userText }];
-      setMessages(history);
-      setLoading(true);
       try {
         const client = getClient();
         const response = await client.messages.create({
@@ -62,11 +85,23 @@ export function useAIChat(apiKey: string, model: string, level: CEFRLevel, topic
           error = err.message;
         }
         return { ok: false, error };
+      }
+    },
+    [apiKey, getClient, level, topic, model],
+  );
+
+  const send = useCallback(
+    async (userText: string): Promise<SendResult> => {
+      const history = [...messages, { role: "user" as const, text: userText }];
+      setMessages(history);
+      setLoading(true);
+      try {
+        return BACKEND_URL ? await sendViaBackend(history) : await sendViaOwnKey(history);
       } finally {
         setLoading(false);
       }
     },
-    [apiKey, getClient, level, messages, model, topic],
+    [messages, sendViaBackend, sendViaOwnKey],
   );
 
   const reset = useCallback(() => setMessages([]), []);

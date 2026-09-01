@@ -3,6 +3,7 @@ import type { Route } from "../App";
 import { TopBar } from "../components/TopBar";
 import { useProgress } from "../hooks/useProgress";
 import { useReminderPermission } from "../hooks/useReminders";
+import { hasAIBackend } from "../utils/aiBackend";
 
 const MODELS = [
   { id: "claude-opus-5", label: "Claude Opus 5", note: "Самый умный, дороже и чуть медленнее" },
@@ -103,46 +104,63 @@ export function Settings({ nav }: { nav: (r: Route) => void }) {
           </div>
         </div>
 
-        <div className="rounded-2xl bg-slate-900 p-4">
-          <p className="text-sm font-semibold text-slate-200">Ключ Anthropic API</p>
-          <p className="mt-1 text-xs leading-relaxed text-slate-500">
-            Приложение полностью работает в браузере, без своего сервера — поэтому
-            для живого AI-собеседника нужен ваш собственный ключ Claude API.
-            Получить его можно на{" "}
-            <span className="accent-text">console.anthropic.com</span>.
-            Ключ хранится только в памяти этого браузера (localStorage) и
-            никуда, кроме api.anthropic.com, не отправляется.
-          </p>
-          <input
-            value={draft}
-            onChange={(e) => setDraft(e.target.value)}
-            type="password"
-            placeholder="sk-ant-..."
-            className="mt-3 w-full rounded-lg border border-slate-700 bg-slate-800/50 px-3 py-2.5 text-sm text-slate-100 outline-none focus:border-[color:var(--accent)]"
-            autoComplete="off"
-            spellCheck={false}
-          />
-          <div className="mt-3 flex gap-2">
-            <button
-              onClick={save}
-              disabled={!draft.trim()}
-              className="accent-bg flex-1 rounded-lg py-2.5 text-sm font-semibold disabled:opacity-30"
-            >
-              {saved ? "Сохранено ✓" : "Сохранить ключ"}
-            </button>
-            {progress.apiKey && (
-              <button
-                onClick={() => {
-                  setDraft("");
-                  progress.setApiKey("");
-                }}
-                className="rounded-lg bg-slate-800 px-4 py-2.5 text-sm font-medium text-red-400"
-              >
-                Удалить
-              </button>
-            )}
+        {hasAIBackend() ? (
+          <div className="accent-soft-bg rounded-2xl p-4">
+            <p className="text-sm font-semibold">✅ AI-собеседник подключён через сервер</p>
+            <p className="mt-1 text-xs leading-relaxed opacity-90">
+              Свой ключ вводить не нужно — приложение обращается к общему
+              серверному прокси, который держит ключ в секрете.
+            </p>
           </div>
-        </div>
+        ) : (
+          <div className="rounded-2xl bg-slate-900 p-4">
+            <p className="text-sm font-semibold text-slate-200">Ключ Anthropic API</p>
+            <p className="mt-1 text-xs leading-relaxed text-slate-500">
+              Приложение полностью работает в браузере, без своего сервера — поэтому
+              для живого AI-собеседника нужен ваш собственный ключ Claude API.
+              Получить его можно на{" "}
+              <a
+                href="https://console.anthropic.com"
+                target="_blank"
+                rel="noreferrer"
+                className="accent-text underline"
+              >
+                console.anthropic.com
+              </a>
+              . Ключ хранится только в памяти этого браузера (localStorage) и
+              никуда, кроме api.anthropic.com, не отправляется.
+            </p>
+            <input
+              value={draft}
+              onChange={(e) => setDraft(e.target.value)}
+              type="password"
+              placeholder="sk-ant-..."
+              className="mt-3 w-full rounded-lg border border-slate-700 bg-slate-800/50 px-3 py-2.5 text-sm text-slate-100 outline-none focus:border-[color:var(--accent)]"
+              autoComplete="off"
+              spellCheck={false}
+            />
+            <div className="mt-3 flex gap-2">
+              <button
+                onClick={save}
+                disabled={!draft.trim()}
+                className="accent-bg flex-1 rounded-lg py-2.5 text-sm font-semibold disabled:opacity-30"
+              >
+                {saved ? "Сохранено ✓" : "Сохранить ключ"}
+              </button>
+              {progress.apiKey && (
+                <button
+                  onClick={() => {
+                    setDraft("");
+                    progress.setApiKey("");
+                  }}
+                  className="rounded-lg bg-slate-800 px-4 py-2.5 text-sm font-medium text-red-400"
+                >
+                  Удалить
+                </button>
+              )}
+            </div>
+          </div>
+        )}
 
         <div className="rounded-2xl bg-slate-900 p-4">
           <p className="text-sm font-semibold text-slate-200">Модель</p>
@@ -168,6 +186,7 @@ export function Settings({ nav }: { nav: (r: Route) => void }) {
           </div>
         </div>
 
+        {!hasAIBackend() && (
         <div className="rounded-2xl bg-amber-500/10 p-4">
           <p className="text-xs leading-relaxed text-amber-200/90">
             ⚠️ Хранение API-ключа в браузере не так безопасно, как на сервере —
@@ -176,6 +195,7 @@ export function Settings({ nav }: { nav: (r: Route) => void }) {
             следите за расходами в консоли Anthropic.
           </p>
         </div>
+        )}
       </div>
     </div>
   );

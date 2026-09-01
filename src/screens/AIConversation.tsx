@@ -3,6 +3,7 @@ import type { Route } from "../App";
 import { TopBar } from "../components/TopBar";
 import { useProgress } from "../hooks/useProgress";
 import { useAIChat } from "../hooks/useAIChat";
+import { hasAIBackend } from "../utils/aiBackend";
 import { useSpeechRecognition, useTextToSpeech } from "../hooks/useSpeech";
 
 const TOPICS = [
@@ -62,7 +63,7 @@ export function AIConversation({ nav }: { nav: (r: Route) => void }) {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [messages]);
 
-  if (!progress.apiKey) {
+  if (!hasAIBackend() && !progress.apiKey) {
     return (
       <div>
         <TopBar title="AI-собеседник" onBack={() => nav({ name: "conversations" })} />
