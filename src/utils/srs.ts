@@ -73,6 +73,11 @@ function addMinutes(date: Date, minutes: number): Date {
   return d;
 }
 
+// A single correct ("Хорошо"/"Легко") review already yields 60% (see below),
+// so a lower bar here is what makes one honest pass through a topic show up
+// as progress instead of requiring several spaced-out review sessions.
+export const MASTERY_THRESHOLD = 50;
+
 export function masteryPercent(card: SRSCard | undefined): number {
   if (!card) return 0;
   if (card.seen === 0) return 0;

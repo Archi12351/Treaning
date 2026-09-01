@@ -5,14 +5,14 @@ import { GRAMMAR_TOPICS } from "../data/grammar";
 import { VOCABULARY } from "../data/vocabulary";
 import { CONVERSATIONS } from "../data/conversations";
 import { LEVEL_ORDER, levelIndex } from "../utils/studyPlan";
-import { masteryPercent } from "../utils/srs";
+import { masteryPercent, MASTERY_THRESHOLD } from "../utils/srs";
 import { buildStudyPlan, type PlanStep } from "../utils/studyPlan";
 
 export function HomeScreen({ nav }: { nav: (r: Route) => void }) {
   const progress = useProgress();
 
   const vocabMastered = VOCABULARY.filter(
-    (v) => masteryPercent(progress.vocabCards[v.id]) >= 80,
+    (v) => masteryPercent(progress.vocabCards[v.id]) >= MASTERY_THRESHOLD,
   ).length;
   const grammarDone = Object.values(progress.grammarProgress).reduce(
     (sum, g) => sum + g.completed.length,

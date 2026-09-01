@@ -8,7 +8,7 @@ import { TOPICS as VOCAB_TOPICS, VOCABULARY } from "../data/vocabulary";
 import { CONVERSATIONS } from "../data/conversations";
 import { TEXTBOOK_CHAPTERS } from "../data/textbook";
 import { LEVEL_ORDER, levelIndex } from "../utils/studyPlan";
-import { masteryPercent } from "../utils/srs";
+import { masteryPercent, MASTERY_THRESHOLD } from "../utils/srs";
 
 const LEVEL_TITLES: Record<CEFRLevel, string> = {
   A1: "Начальный старт",
@@ -62,7 +62,7 @@ export function StudyPath({ nav }: { nav: (r: Route) => void }) {
             const words = VOCABULARY.filter((w) => w.topic === t.id);
             return (
               words.length > 0 &&
-              words.every((w) => masteryPercent(progress.vocabCards[w.id]) >= 80)
+              words.every((w) => masteryPercent(progress.vocabCards[w.id]) >= MASTERY_THRESHOLD)
             );
           }).length;
           const conversationsDone = conversations.filter((c) =>
@@ -138,7 +138,7 @@ export function StudyPath({ nav }: { nav: (r: Route) => void }) {
                       {vocabTopics.map((t) => {
                         const words = VOCABULARY.filter((w) => w.topic === t.id);
                         const mastered = words.filter(
-                          (w) => masteryPercent(progress.vocabCards[w.id]) >= 80,
+                          (w) => masteryPercent(progress.vocabCards[w.id]) >= MASTERY_THRESHOLD,
                         ).length;
                         return (
                           <StepRow

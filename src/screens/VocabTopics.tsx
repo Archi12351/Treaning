@@ -2,7 +2,7 @@ import type { Route } from "../App";
 import { TopBar } from "../components/TopBar";
 import { TOPICS, VOCABULARY } from "../data/vocabulary";
 import { useProgress } from "../hooks/useProgress";
-import { masteryPercent } from "../utils/srs";
+import { masteryPercent, MASTERY_THRESHOLD } from "../utils/srs";
 
 export function VocabTopics({ nav }: { nav: (r: Route) => void }) {
   const progress = useProgress();
@@ -30,7 +30,7 @@ export function VocabTopics({ nav }: { nav: (r: Route) => void }) {
         {TOPICS.map((topic) => {
           const words = VOCABULARY.filter((v) => v.topic === topic.id);
           const mastered = words.filter(
-            (w) => masteryPercent(progress.vocabCards[w.id]) >= 80,
+            (w) => masteryPercent(progress.vocabCards[w.id]) >= MASTERY_THRESHOLD,
           ).length;
           const pct = Math.round((mastered / words.length) * 100);
           return (

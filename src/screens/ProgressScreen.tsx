@@ -4,7 +4,7 @@ import { useProgress } from "../hooks/useProgress";
 import { VOCABULARY } from "../data/vocabulary";
 import { GRAMMAR_TOPICS } from "../data/grammar";
 import { CONVERSATIONS } from "../data/conversations";
-import { masteryPercent } from "../utils/srs";
+import { masteryPercent, MASTERY_THRESHOLD } from "../utils/srs";
 import { isRunningAsInstalledApp } from "../hooks/useIsInstalled";
 import { canUseAI } from "../utils/aiBackend";
 
@@ -12,7 +12,7 @@ export function ProgressScreen({ nav }: { nav: (r: Route) => void }) {
   const progress = useProgress();
 
   const vocabMastered = VOCABULARY.filter(
-    (v) => masteryPercent(progress.vocabCards[v.id]) >= 80,
+    (v) => masteryPercent(progress.vocabCards[v.id]) >= MASTERY_THRESHOLD,
   ).length;
   const vocabStarted = Object.keys(progress.vocabCards).length;
   const grammarDone = Object.values(progress.grammarProgress).reduce(

@@ -2,7 +2,7 @@ import type { CEFRLevel, SRSCard } from "../types";
 import { GRAMMAR_TOPICS } from "../data/grammar";
 import { TOPICS as VOCAB_TOPICS, VOCABULARY } from "../data/vocabulary";
 import { CONVERSATIONS } from "../data/conversations";
-import { masteryPercent } from "./srs";
+import { masteryPercent, MASTERY_THRESHOLD } from "./srs";
 
 export const LEVEL_ORDER: CEFRLevel[] = ["A1", "A2", "B1", "B2", "C1", "C2"];
 
@@ -50,7 +50,7 @@ export function buildStudyPlan({
     .map((t) => {
       const words = VOCABULARY.filter((w) => w.topic === t.id);
       const mastered = words.filter(
-        (w) => masteryPercent(vocabCards[w.id]) >= 80,
+        (w) => masteryPercent(vocabCards[w.id]) >= MASTERY_THRESHOLD,
       ).length;
       return { ...t, mastered, total: words.length };
     })
