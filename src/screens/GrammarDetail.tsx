@@ -31,7 +31,7 @@ export function GrammarDetail({
   const [done, setDone] = useState(false);
 
   const exercises = useMemo(
-    () => (topic ? shuffle(topic.exercises).slice(0, 5) : []),
+    () => (topic ? shuffle(topic.exercises).slice(0, 10) : []),
     // eslint-disable-next-line react-hooks/exhaustive-deps
     [topicId, sessionKey],
   );
