@@ -2,8 +2,8 @@ import { useEffect } from "react";
 import type { Route } from "../App";
 import { TopBar } from "../components/TopBar";
 import { SpeakButton } from "../components/SpeakButton";
-import { TEXTBOOK_CHAPTERS, TEXTBOOK_PARAGRAPHS } from "../data/textbook";
 import { useProgress } from "../hooks/useProgress";
+import { useLanguageData } from "../hooks/useLanguageData";
 
 export function TextbookChapter({
   chapterId,
@@ -13,8 +13,9 @@ export function TextbookChapter({
   nav: (r: Route) => void;
 }) {
   const progress = useProgress();
-  const chapter = TEXTBOOK_CHAPTERS.find((c) => c.id === chapterId);
-  const paragraphs = TEXTBOOK_PARAGRAPHS.filter((p) => p.chapterId === chapterId);
+  const { textbookChapters, textbookParagraphs } = useLanguageData();
+  const chapter = textbookChapters.find((c) => c.id === chapterId);
+  const paragraphs = textbookParagraphs.filter((p) => p.chapterId === chapterId);
 
   useEffect(() => {
     progress.markChapterRead(chapterId);

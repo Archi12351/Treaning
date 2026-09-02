@@ -2,8 +2,8 @@ import { useEffect, useState } from "react";
 import type { Route } from "../App";
 import { TopBar } from "../components/TopBar";
 import { SpeakButton } from "../components/SpeakButton";
-import { CONVERSATIONS } from "../data/conversations";
 import { useProgress } from "../hooks/useProgress";
+import { useLanguageData } from "../hooks/useLanguageData";
 import { useSpeechRecognition, useTextToSpeech } from "../hooks/useSpeech";
 import { matchesAny } from "../utils/text";
 
@@ -14,7 +14,8 @@ export function ConversationPlayer({
   id: string;
   nav: (r: Route) => void;
 }) {
-  const conversation = CONVERSATIONS.find((c) => c.id === id);
+  const { conversations } = useLanguageData();
+  const conversation = conversations.find((c) => c.id === id);
   const progress = useProgress();
   const { speak } = useTextToSpeech();
   const { supported, listening, transcript, start } = useSpeechRecognition();

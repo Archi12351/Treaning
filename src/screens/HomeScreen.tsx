@@ -1,24 +1,24 @@
 import { useMemo } from "react";
 import type { Route } from "../App";
 import { useProgress } from "../hooks/useProgress";
-import { GRAMMAR_TOPICS } from "../data/grammar";
-import { VOCABULARY } from "../data/vocabulary";
-import { CONVERSATIONS } from "../data/conversations";
+import { useLanguageData } from "../hooks/useLanguageData";
+import { LANGUAGE_LIST } from "../data/languages";
 import { LEVEL_ORDER, levelIndex } from "../utils/studyPlan";
 import { masteryPercent, MASTERY_THRESHOLD } from "../utils/srs";
 import { buildStudyPlan, type PlanStep } from "../utils/studyPlan";
 
 export function HomeScreen({ nav }: { nav: (r: Route) => void }) {
   const progress = useProgress();
+  const { grammarTopics, vocabTopics, vocabulary, conversations } = useLanguageData();
 
-  const vocabMastered = VOCABULARY.filter(
+  const vocabMastered = vocabulary.filter(
     (v) => masteryPercent(progress.vocabCards[v.id]) >= MASTERY_THRESHOLD,
   ).length;
   const grammarDone = Object.values(progress.grammarProgress).reduce(
     (sum, g) => sum + g.completed.length,
     0,
   );
-  const totalGrammarExercises = GRAMMAR_TOPICS.reduce(
+  const totalGrammarExercises = grammarTopics.reduce(
     (sum, t) => sum + t.exercises.length,
     0,
   );
@@ -30,9 +30,22 @@ export function HomeScreen({ nav }: { nav: (r: Route) => void }) {
         grammarProgress: progress.grammarProgress,
         vocabCards: progress.vocabCards,
         conversationsDone: progress.conversationsDone,
+        grammarTopics,
+        vocabTopics,
+        vocabulary,
+        conversations,
         limit: 4,
       }),
-    [progress.level, progress.grammarProgress, progress.vocabCards, progress.conversationsDone],
+    [
+      progress.level,
+      progress.grammarProgress,
+      progress.vocabCards,
+      progress.conversationsDone,
+      grammarTopics,
+      vocabTopics,
+      vocabulary,
+      conversations,
+    ],
   );
 
   const openStep = (step: PlanStep) => {
@@ -45,8 +58,8 @@ export function HomeScreen({ nav }: { nav: (r: Route) => void }) {
     <div className="px-4 pt-[calc(env(safe-area-inset-top)+1rem)]">
       <div className="flex items-center justify-between">
         <div>
-          <p className="text-sm text-slate-400">Willkommen zurück 👋</p>
-          <h1 className="text-2xl font-bold text-slate-50">Deutsch A1–C2</h1>
+          <p className="text-sm text-slate-400">С возвращением 👋</p>
+          <h1 className="text-2xl font-bold text-slate-50">Tutorem</h1>
         </div>
         <div className="flex flex-col items-end">
           <span className="accent-soft-bg rounded-full px-3 py-1 text-sm font-semibold">
@@ -54,6 +67,22 @@ export function HomeScreen({ nav }: { nav: (r: Route) => void }) {
           </span>
           <span className="mt-1 text-xs text-slate-500">🔥 {progress.streakCount} дней</span>
         </div>
+      </div>
+
+      <div className="mt-3 flex gap-1.5">
+        {LANGUAGE_LIST.map((l) => (
+          <button
+            key={l.code}
+            onClick={() => progress.setLanguage(l.code)}
+            className={`rounded-full px-3 py-1.5 text-xs font-medium ${
+              progress.language === l.code
+                ? "accent-bg"
+                : "bg-slate-900 text-slate-400"
+            }`}
+          >
+            {l.flag} {l.label}
+          </button>
+        ))}
       </div>
 
       {!progress.placementDone && (
@@ -87,7 +116,7 @@ export function HomeScreen({ nav }: { nav: (r: Route) => void }) {
 
       <div className="mt-4 grid grid-cols-3 gap-2">
         <StatCard label="XP" value={String(progress.xp)} />
-        <StatCard label="Слов усвоено" value={`${vocabMastered}/${VOCABULARY.length}`} />
+        <StatCard label="Слов усвоено" value={`${vocabMastered}/${vocabulary.length}`} />
         <StatCard
           label="Грамматика"
           value={`${grammarDone}/${totalGrammarExercises}`}
@@ -139,7 +168,7 @@ export function HomeScreen({ nav }: { nav: (r: Route) => void }) {
         <QuickCard
           icon="🧩"
           title="Грамматика"
-          subtitle="18 тем, A1–C1"
+          subtitle={`${grammarTopics.length} тем, A1–C1`}
           onClick={() => nav({ name: "grammar-topics" })}
         />
         <QuickCard
@@ -166,31 +195,34 @@ export function HomeScreen({ nav }: { nav: (r: Route) => void }) {
           subtitle="Прогресс и настройки"
           onClick={() => nav({ name: "progress" })}
         />
-        <QuickCard
-          icon="🌍"
-          title="Культура и факты"
-          subtitle="Зарплаты, страны DACH"
-          onClick={() => nav({ name: "culture" })}
-        />
+        {progress.language === "de" && (
+          <QuickCard
+            icon="🌍"
+            title="Культура и факты"
+            subtitle="Зарплаты, страны DACH"
+            onClick={() => nav({ name: "culture" })}
+          />
+        )}
       </div>
 
       <SectionTitle>Разговорные темы</SectionTitle>
       <div className="flex gap-2 overflow-x-auto pb-2">
-        {CONVERSATIONS.filter(
-          (c) => levelIndex(c.level) <= Math.min(levelIndex(progress.level) + 1, LEVEL_ORDER.length - 1),
-        )
+        {conversations
+          .filter(
+            (c) => levelIndex(c.level) <= Math.min(levelIndex(progress.level) + 1, LEVEL_ORDER.length - 1),
+          )
           .sort((a, b) => levelIndex(b.level) - levelIndex(a.level))
           .slice(0, 5)
           .map((c) => (
-          <button
-            key={c.id}
-            onClick={() => nav({ name: "conversation-player", id: c.id })}
-            className="flex w-32 shrink-0 flex-col gap-1 rounded-xl bg-slate-900 p-3 text-left active:bg-slate-800"
-          >
-            <span className="text-2xl">{c.icon}</span>
-            <span className="text-xs font-medium text-slate-200">{c.ru}</span>
-          </button>
-        ))}
+            <button
+              key={c.id}
+              onClick={() => nav({ name: "conversation-player", id: c.id })}
+              className="flex w-32 shrink-0 flex-col gap-1 rounded-xl bg-slate-900 p-3 text-left active:bg-slate-800"
+            >
+              <span className="text-2xl">{c.icon}</span>
+              <span className="text-xs font-medium text-slate-200">{c.ru}</span>
+            </button>
+          ))}
       </div>
       <div className="h-4" />
     </div>

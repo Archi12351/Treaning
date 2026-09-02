@@ -2,8 +2,8 @@ import { useEffect, useMemo, useState } from "react";
 import type { Route } from "../App";
 import { TopBar } from "../components/TopBar";
 import { SpeakButton } from "../components/SpeakButton";
-import { TOPICS, VOCABULARY } from "../data/vocabulary";
 import { useProgress } from "../hooks/useProgress";
+import { useLanguageData } from "../hooks/useLanguageData";
 import { isDue } from "../utils/srs";
 import { useSpeechRecognition } from "../hooks/useSpeech";
 import { matchesAny } from "../utils/text";
@@ -17,10 +17,11 @@ export function VocabTrainer({
   nav: (r: Route) => void;
 }) {
   const progress = useProgress();
-  const meta = TOPICS.find((t) => t.id === topic);
+  const { vocabTopics, vocabulary } = useLanguageData();
+  const meta = vocabTopics.find((t) => t.id === topic);
 
   const words = useMemo(() => {
-    const all = VOCABULARY.filter((v) => v.topic === topic);
+    const all = vocabulary.filter((v) => v.topic === topic);
     const due = all.filter((v) => {
       const card = progress.vocabCards[v.id];
       return !card || isDue(card);
@@ -28,7 +29,7 @@ export function VocabTrainer({
     const rest = all.filter((v) => !due.includes(v));
     return [...due, ...rest];
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [topic]);
+  }, [topic, vocabulary]);
 
   const [index, setIndex] = useState(0);
   const [flipped, setFlipped] = useState(false);

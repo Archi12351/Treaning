@@ -1,8 +1,8 @@
 import { useEffect, useMemo, useState } from "react";
 import type { Route } from "../App";
 import { TopBar } from "../components/TopBar";
-import { PLACEMENT_QUESTIONS } from "../data/placement";
 import { useProgress } from "../hooks/useProgress";
+import { useLanguageData } from "../hooks/useLanguageData";
 import type { CEFRLevel, PlacementQuestion } from "../types";
 
 const LEVELS: CEFRLevel[] = ["A1", "A2", "B1", "B2", "C1", "C2"];
@@ -19,11 +19,11 @@ function shuffle<T>(arr: T[]): T[] {
 
 // Builds a fresh test each attempt: a random subset per level (so the exact
 // question set and answer order differ every time) drawn from a larger pool.
-function buildTest(): PlacementQuestion[] {
+function buildTest(pool: PlacementQuestion[]): PlacementQuestion[] {
   const result: PlacementQuestion[] = [];
   for (const level of LEVELS) {
-    const pool = shuffle(PLACEMENT_QUESTIONS.filter((q) => q.level === level));
-    for (const q of pool.slice(0, QUESTIONS_PER_LEVEL)) {
+    const levelPool = shuffle(pool.filter((q) => q.level === level));
+    for (const q of levelPool.slice(0, QUESTIONS_PER_LEVEL)) {
       result.push({ ...q, options: shuffle(q.options) });
     }
   }
@@ -51,7 +51,8 @@ function computeLevel(questions: PlacementQuestion[], answers: Record<string, bo
 
 export function PlacementTest({ nav }: { nav: (r: Route) => void }) {
   const progress = useProgress();
-  const questions = useMemo(buildTest, []);
+  const { placementQuestions, meta } = useLanguageData();
+  const questions = useMemo(() => buildTest(placementQuestions), [placementQuestions]);
   const [index, setIndex] = useState(0);
   const [answers, setAnswers] = useState<Record<string, boolean>>({});
   const [selected, setSelected] = useState<string | null>(null);
@@ -86,7 +87,7 @@ export function PlacementTest({ nav }: { nav: (r: Route) => void }) {
     return (
       <div className="flex flex-col items-center px-6 pt-[calc(env(safe-area-inset-top)+2rem)] text-center">
         <span className="text-5xl">🏆</span>
-        <h2 className="mt-4 text-lg text-slate-300">Ваш уровень немецкого:</h2>
+        <h2 className="mt-4 text-lg text-slate-300">Ваш уровень ({meta.label.toLowerCase()}):</h2>
         <p className="accent-text mt-2 text-5xl font-black">{result.level}</p>
         <p className="mt-3 text-sm text-slate-400">Точность ответов: {result.score}%</p>
         <p className="mt-6 text-sm text-slate-400">

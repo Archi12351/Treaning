@@ -1,7 +1,5 @@
-import type { CEFRLevel, SRSCard } from "../types";
-import { GRAMMAR_TOPICS } from "../data/grammar";
-import { TOPICS as VOCAB_TOPICS, VOCABULARY } from "../data/vocabulary";
-import { CONVERSATIONS } from "../data/conversations";
+import type { CEFRLevel, ConversationTopic, GrammarTopic, SRSCard, VocabItem } from "../types";
+import type { VocabTopicMeta } from "../data/languages";
 import { masteryPercent, MASTERY_THRESHOLD } from "./srs";
 
 export const LEVEL_ORDER: CEFRLevel[] = ["A1", "A2", "B1", "B2", "C1", "C2"];
@@ -23,6 +21,10 @@ interface BuildPlanParams {
   grammarProgress: Record<string, { completed: string[] }>;
   vocabCards: Record<string, SRSCard>;
   conversationsDone: string[];
+  grammarTopics: GrammarTopic[];
+  vocabTopics: VocabTopicMeta[];
+  vocabulary: VocabItem[];
+  conversations: ConversationTopic[];
   limit?: number;
 }
 
@@ -34,21 +36,25 @@ export function buildStudyPlan({
   grammarProgress,
   vocabCards,
   conversationsDone,
+  grammarTopics,
+  vocabTopics,
+  vocabulary,
+  conversations,
   limit = 5,
 }: BuildPlanParams): PlanStep[] {
   const maxIdx = Math.min(levelIndex(level) + 1, LEVEL_ORDER.length - 1);
 
-  const grammarCandidates = GRAMMAR_TOPICS.filter(
-    (t) => levelIndex(t.level) <= maxIdx,
-  )
+  const grammarCandidates = grammarTopics
+    .filter((t) => levelIndex(t.level) <= maxIdx)
     .filter(
       (t) => (grammarProgress[t.id]?.completed.length ?? 0) < t.exercises.length,
     )
     .sort((a, b) => levelIndex(a.level) - levelIndex(b.level));
 
-  const vocabCandidates = VOCAB_TOPICS.filter((t) => levelIndex(t.level) <= maxIdx)
+  const vocabCandidates = vocabTopics
+    .filter((t) => levelIndex(t.level) <= maxIdx)
     .map((t) => {
-      const words = VOCABULARY.filter((w) => w.topic === t.id);
+      const words = vocabulary.filter((w) => w.topic === t.id);
       const mastered = words.filter(
         (w) => masteryPercent(vocabCards[w.id]) >= MASTERY_THRESHOLD,
       ).length;
@@ -57,9 +63,9 @@ export function buildStudyPlan({
     .filter((t) => t.mastered < t.total)
     .sort((a, b) => levelIndex(a.level) - levelIndex(b.level));
 
-  const conversationCandidates = CONVERSATIONS.filter(
-    (c) => levelIndex(c.level) <= maxIdx && !conversationsDone.includes(c.id),
-  ).sort((a, b) => levelIndex(a.level) - levelIndex(b.level));
+  const conversationCandidates = conversations
+    .filter((c) => levelIndex(c.level) <= maxIdx && !conversationsDone.includes(c.id))
+    .sort((a, b) => levelIndex(a.level) - levelIndex(b.level));
 
   const steps: PlanStep[] = [];
   let gi = 0;

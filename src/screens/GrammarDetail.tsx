@@ -3,8 +3,8 @@ import type { Route } from "../App";
 import { TopBar } from "../components/TopBar";
 import { SpeakButton } from "../components/SpeakButton";
 import { ExerciseCard } from "../components/ExerciseCard";
-import { GRAMMAR_TOPICS } from "../data/grammar";
 import { useProgress } from "../hooks/useProgress";
+import { useLanguageData } from "../hooks/useLanguageData";
 
 function shuffle<T>(arr: T[]): T[] {
   const a = [...arr];
@@ -22,7 +22,8 @@ export function GrammarDetail({
   topicId: string;
   nav: (r: Route) => void;
 }) {
-  const topic = GRAMMAR_TOPICS.find((t) => t.id === topicId);
+  const { grammarTopics } = useLanguageData();
+  const topic = grammarTopics.find((t) => t.id === topicId);
   const progress = useProgress();
   const [mode, setMode] = useState<"theory" | "exercises">("theory");
   const [sessionKey, setSessionKey] = useState(0);

@@ -3,10 +3,7 @@ import type { Route } from "../App";
 import type { CEFRLevel } from "../types";
 import { TopBar } from "../components/TopBar";
 import { useProgress } from "../hooks/useProgress";
-import { GRAMMAR_TOPICS } from "../data/grammar";
-import { TOPICS as VOCAB_TOPICS, VOCABULARY } from "../data/vocabulary";
-import { CONVERSATIONS } from "../data/conversations";
-import { TEXTBOOK_CHAPTERS } from "../data/textbook";
+import { useLanguageData } from "../hooks/useLanguageData";
 import { LEVEL_ORDER, levelIndex } from "../utils/studyPlan";
 import { masteryPercent, MASTERY_THRESHOLD } from "../utils/srs";
 
@@ -27,6 +24,13 @@ function chapterStartLevel(range: string): CEFRLevel {
 
 export function StudyPath({ nav }: { nav: (r: Route) => void }) {
   const progress = useProgress();
+  const {
+    grammarTopics: allGrammarTopics,
+    vocabTopics: allVocabTopics,
+    vocabulary: allVocabulary,
+    conversations: allConversations,
+    textbookChapters: allTextbookChapters,
+  } = useLanguageData();
   const [openLevel, setOpenLevel] = useState<CEFRLevel | null>(progress.level);
   const maxUnlockedIdx = Math.min(levelIndex(progress.level) + 1, LEVEL_ORDER.length - 1);
 
@@ -48,18 +52,18 @@ export function StudyPath({ nav }: { nav: (r: Route) => void }) {
           const isLocked = idx > maxUnlockedIdx;
           const isCurrent = level === progress.level;
 
-          const chapters = TEXTBOOK_CHAPTERS.filter(
+          const chapters = allTextbookChapters.filter(
             (c) => chapterStartLevel(c.levelRange) === level,
           );
-          const grammarTopics = GRAMMAR_TOPICS.filter((t) => t.level === level);
-          const vocabTopics = VOCAB_TOPICS.filter((t) => t.level === level);
-          const conversations = CONVERSATIONS.filter((c) => c.level === level);
+          const grammarTopics = allGrammarTopics.filter((t) => t.level === level);
+          const vocabTopics = allVocabTopics.filter((t) => t.level === level);
+          const conversations = allConversations.filter((c) => c.level === level);
 
           const grammarDone = grammarTopics.filter(
             (t) => (progress.grammarProgress[t.id]?.completed.length ?? 0) >= t.exercises.length,
           ).length;
           const vocabDone = vocabTopics.filter((t) => {
-            const words = VOCABULARY.filter((w) => w.topic === t.id);
+            const words = allVocabulary.filter((w) => w.topic === t.id);
             return (
               words.length > 0 &&
               words.every((w) => masteryPercent(progress.vocabCards[w.id]) >= MASTERY_THRESHOLD)
@@ -136,7 +140,7 @@ export function StudyPath({ nav }: { nav: (r: Route) => void }) {
                   {vocabTopics.length > 0 && (
                     <StepGroup title="3. Выучить слова">
                       {vocabTopics.map((t) => {
-                        const words = VOCABULARY.filter((w) => w.topic === t.id);
+                        const words = allVocabulary.filter((w) => w.topic === t.id);
                         const mastered = words.filter(
                           (w) => masteryPercent(progress.vocabCards[w.id]) >= MASTERY_THRESHOLD,
                         ).length;

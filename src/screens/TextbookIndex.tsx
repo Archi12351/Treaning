@@ -1,23 +1,24 @@
 import { useMemo, useState } from "react";
 import type { Route } from "../App";
 import { TopBar } from "../components/TopBar";
-import { TEXTBOOK_CHAPTERS, TEXTBOOK_PARAGRAPHS } from "../data/textbook";
 import { useProgress } from "../hooks/useProgress";
+import { useLanguageData } from "../hooks/useLanguageData";
 
 export function TextbookIndex({ nav }: { nav: (r: Route) => void }) {
   const progress = useProgress();
+  const { textbookChapters, textbookParagraphs } = useLanguageData();
   const [query, setQuery] = useState("");
 
   const searchResults = useMemo(() => {
     const q = query.trim().toLowerCase();
     if (!q) return [];
-    return TEXTBOOK_PARAGRAPHS.filter(
+    return textbookParagraphs.filter(
       (p) =>
         p.title.toLowerCase().includes(q) ||
         p.body.some((b) => b.toLowerCase().includes(q)) ||
         p.examples?.some((e) => e.de.toLowerCase().includes(q)),
     ).slice(0, 20);
-  }, [query]);
+  }, [query, textbookParagraphs]);
 
   return (
     <div>
@@ -40,7 +41,7 @@ export function TextbookIndex({ nav }: { nav: (r: Route) => void }) {
               <p className="text-sm text-slate-500">Ничего не найдено.</p>
             )}
             {searchResults.map((p) => {
-              const chapter = TEXTBOOK_CHAPTERS.find((c) => c.id === p.chapterId);
+              const chapter = textbookChapters.find((c) => c.id === p.chapterId);
               return (
                 <button
                   key={p.id}
@@ -57,8 +58,8 @@ export function TextbookIndex({ nav }: { nav: (r: Route) => void }) {
           </div>
         ) : (
           <div className="mt-4 space-y-2">
-            {TEXTBOOK_CHAPTERS.map((c) => {
-              const count = TEXTBOOK_PARAGRAPHS.filter((p) => p.chapterId === c.id).length;
+            {textbookChapters.map((c) => {
+              const count = textbookParagraphs.filter((p) => p.chapterId === c.id).length;
               return (
                 <button
                   key={c.id}

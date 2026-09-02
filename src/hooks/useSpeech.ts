@@ -1,5 +1,6 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import { useProgress } from "./useProgress";
+import { getLanguageBundle } from "../data/languages";
 import { synthesizeSpeech } from "../utils/geminiTts";
 
 let allVoices: SpeechSynthesisVoice[] = [];
@@ -9,30 +10,36 @@ function loadVoices(): SpeechSynthesisVoice[] {
   return allVoices;
 }
 
-export function germanVoices(): SpeechSynthesisVoice[] {
-  return allVoices.filter((v) => v.lang?.toLowerCase().startsWith("de"));
+// speechLang looks like "de-DE" — we match on the language prefix ("de")
+// since browsers often report several regional variants (de-DE, de-AT...).
+function voicesForLang(speechLang: string): SpeechSynthesisVoice[] {
+  const prefix = speechLang.split("-")[0].toLowerCase();
+  return allVoices.filter((v) => v.lang?.toLowerCase().startsWith(prefix));
 }
 
 // Low-quality/robotic engines tend to advertise themselves this way; steer
-// the default pick away from them when a better German voice is available.
+// the default pick away from them when a better voice is available.
 const LOW_QUALITY_NAME = /compact|espeak|pico/i;
 
-function pickBestGermanVoice(): SpeechSynthesisVoice | null {
-  const de = germanVoices();
-  const good = de.filter((v) => !LOW_QUALITY_NAME.test(v.name));
-  const pool = good.length > 0 ? good : de;
+function pickBestVoice(speechLang: string): SpeechSynthesisVoice | null {
+  const matching = voicesForLang(speechLang);
+  const good = matching.filter((v) => !LOW_QUALITY_NAME.test(v.name));
+  const pool = good.length > 0 ? good : matching;
   return (
-    pool.find((v) => /google/i.test(v.name) && v.lang === "de-DE") ??
+    pool.find((v) => /google/i.test(v.name) && v.lang === speechLang) ??
     pool.find((v) => /google/i.test(v.name)) ??
-    pool.find((v) => v.lang === "de-DE") ??
+    pool.find((v) => v.lang === speechLang) ??
     pool[0] ??
     null
   );
 }
 
-// Lets Settings show the list of German voices actually installed on this
-// device/browser and re-renders once the OS reports them (can arrive async).
-export function useGermanVoices() {
+// Lets Settings show the list of voices actually installed on this
+// device/browser for the current language, re-rendering once the OS
+// reports them (can arrive async) or the learner switches language.
+export function useVoicesForLanguage() {
+  const progress = useProgress();
+  const speechLang = getLanguageBundle(progress.language).meta.speechLang;
   const [voices, setVoices] = useState<SpeechSynthesisVoice[]>([]);
   const supported = typeof window !== "undefined" && "speechSynthesis" in window;
 
@@ -40,12 +47,12 @@ export function useGermanVoices() {
     if (!supported) return;
     const update = () => {
       loadVoices();
-      setVoices(germanVoices());
+      setVoices(voicesForLang(speechLang));
     };
     update();
     window.speechSynthesis.addEventListener("voiceschanged", update);
     return () => window.speechSynthesis.removeEventListener("voiceschanged", update);
-  }, [supported]);
+  }, [supported, speechLang]);
 
   return voices;
 }
@@ -55,6 +62,7 @@ export function useTextToSpeech() {
     typeof window !== "undefined" && "speechSynthesis" in window;
   const [speaking, setSpeaking] = useState(false);
   const progress = useProgress();
+  const speechLang = getLanguageBundle(progress.language).meta.speechLang;
   const audioRef = useRef<HTMLAudioElement | null>(null);
   const supported = browserSupported || (progress.useAiVoice && Boolean(progress.geminiApiKey));
 
@@ -71,19 +79,21 @@ export function useTextToSpeech() {
       if (!browserSupported) return;
       window.speechSynthesis.cancel();
       const utter = new SpeechSynthesisUtterance(text);
-      utter.lang = "de-DE";
+      utter.lang = speechLang;
       utter.rate = rate;
-      const chosen = progress.ttsVoiceURI
-        ? germanVoices().find((v) => v.voiceURI === progress.ttsVoiceURI)
+      // The saved voice choice is per-device, not per-language, so only
+      // honor it when it actually matches the language being spoken now.
+      const savedChoice = progress.ttsVoiceURI
+        ? voicesForLang(speechLang).find((v) => v.voiceURI === progress.ttsVoiceURI)
         : null;
-      const voice = chosen ?? pickBestGermanVoice();
+      const voice = savedChoice ?? pickBestVoice(speechLang);
       if (voice) utter.voice = voice;
       utter.onstart = () => setSpeaking(true);
       utter.onend = () => setSpeaking(false);
       utter.onerror = () => setSpeaking(false);
       window.speechSynthesis.speak(utter);
     },
-    [browserSupported, progress.ttsVoiceURI],
+    [browserSupported, progress.ttsVoiceURI, speechLang],
   );
 
   const speak = useCallback(
@@ -138,6 +148,8 @@ function getRecognitionCtor(): SpeechRecognitionCtor | null {
 export function useSpeechRecognition() {
   const Ctor = getRecognitionCtor();
   const supported = !!Ctor;
+  const progress = useProgress();
+  const speechLang = getLanguageBundle(progress.language).meta.speechLang;
   const [listening, setListening] = useState(false);
   const [transcript, setTranscript] = useState("");
   const [error, setError] = useState<string | null>(null);
@@ -148,7 +160,7 @@ export function useSpeechRecognition() {
     setError(null);
     setTranscript("");
     const recognition = new Ctor();
-    recognition.lang = "de-DE";
+    recognition.lang = speechLang;
     recognition.interimResults = true;
     recognition.maxAlternatives = 3;
     recognition.continuous = false;
@@ -169,7 +181,7 @@ export function useSpeechRecognition() {
     recognitionRef.current = recognition;
     recognition.start();
     setListening(true);
-  }, [Ctor]);
+  }, [Ctor, speechLang]);
 
   const stop = useCallback(() => {
     recognitionRef.current?.stop();

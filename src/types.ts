@@ -1,5 +1,19 @@
 export type CEFRLevel = "A1" | "A2" | "B1" | "B2" | "C1" | "C2";
 
+// Which language the app is teaching right now. Field names below (de/exampleDe)
+// predate multi-language support and always hold the TARGET language's text —
+// German when language === "de", English when "en", French when "fr" — while
+// ru/exampleRu always hold the Russian translation, regardless of target.
+export type Language = "de" | "en" | "fr";
+
+export interface LanguageMeta {
+  code: Language;
+  label: string;
+  flag: string;
+  speechLang: string;
+  previewPhrase: string;
+}
+
 export interface VocabItem {
   id: string;
   de: string;

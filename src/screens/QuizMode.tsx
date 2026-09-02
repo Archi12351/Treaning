@@ -2,10 +2,9 @@ import { useMemo, useState } from "react";
 import type { Route } from "../App";
 import { TopBar } from "../components/TopBar";
 import { ExerciseCard } from "../components/ExerciseCard";
-import { VOCABULARY } from "../data/vocabulary";
-import { GRAMMAR_TOPICS } from "../data/grammar";
 import { useProgress } from "../hooks/useProgress";
-import type { Exercise } from "../types";
+import { useLanguageData } from "../hooks/useLanguageData";
+import type { Exercise, GrammarTopic, VocabItem } from "../types";
 
 function shuffle<T>(arr: T[]): T[] {
   const a = [...arr];
@@ -16,11 +15,11 @@ function shuffle<T>(arr: T[]): T[] {
   return a;
 }
 
-function buildQuiz(): Exercise[] {
-  const vocabPicks = shuffle(VOCABULARY).slice(0, 8);
+function buildQuiz(vocabulary: VocabItem[], grammarTopics: GrammarTopic[]): Exercise[] {
+  const vocabPicks = shuffle(vocabulary).slice(0, 8);
   const vocabExercises: Exercise[] = vocabPicks.map((v) => {
     const distractors = shuffle(
-      VOCABULARY.filter((o) => o.id !== v.id).map((o) => o.ru),
+      vocabulary.filter((o) => o.id !== v.id).map((o) => o.ru),
     ).slice(0, 3);
     return {
       id: `quiz-vocab-${v.id}`,
@@ -32,7 +31,7 @@ function buildQuiz(): Exercise[] {
     };
   });
 
-  const grammarPool = GRAMMAR_TOPICS.flatMap((t) => t.exercises).filter(
+  const grammarPool = grammarTopics.flatMap((t) => t.exercises).filter(
     (e) => e.type === "choice",
   );
   const grammarExercises = shuffle(grammarPool).slice(0, 6);
@@ -42,7 +41,8 @@ function buildQuiz(): Exercise[] {
 
 export function QuizMode({ nav }: { nav: (r: Route) => void }) {
   const progress = useProgress();
-  const [quiz] = useState<Exercise[]>(buildQuiz);
+  const { vocabulary, grammarTopics } = useLanguageData();
+  const [quiz] = useState<Exercise[]>(() => buildQuiz(vocabulary, grammarTopics));
   const [index, setIndex] = useState(0);
   const [correctCount, setCorrectCount] = useState(0);
   const [answered, setAnswered] = useState(false);

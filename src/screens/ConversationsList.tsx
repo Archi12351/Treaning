@@ -1,13 +1,14 @@
 import type { Route } from "../App";
 import { TopBar } from "../components/TopBar";
-import { CONVERSATIONS } from "../data/conversations";
 import { useProgress } from "../hooks/useProgress";
+import { useLanguageData } from "../hooks/useLanguageData";
 import { LEVEL_ORDER, levelIndex } from "../utils/studyPlan";
 
 export function ConversationsList({ nav }: { nav: (r: Route) => void }) {
   const progress = useProgress();
+  const { conversations } = useLanguageData();
   const maxUnlockedIdx = Math.min(levelIndex(progress.level) + 1, LEVEL_ORDER.length - 1);
-  const sorted = [...CONVERSATIONS].sort(
+  const sorted = [...conversations].sort(
     (a, b) => levelIndex(a.level) - levelIndex(b.level),
   );
 
@@ -30,7 +31,7 @@ export function ConversationsList({ nav }: { nav: (r: Route) => void }) {
         </button>
       </div>
       <p className="px-4 pb-2 pt-4 text-xs text-slate-500">
-        Или пройдите готовый сценарий: слушайте немецкую речь и отвечайте
+        Или пройдите готовый сценарий: слушайте речь и отвечайте
         голосом или выбором фразы.
       </p>
       <p className="px-4 pb-1 pt-3 text-[11px] text-slate-500">

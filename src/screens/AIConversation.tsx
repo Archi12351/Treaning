@@ -7,12 +7,12 @@ import { canUseAI } from "../utils/aiBackend";
 import { useSpeechRecognition, useTextToSpeech } from "../hooks/useSpeech";
 
 const TOPICS = [
-  "Alltag & Small Talk",
-  "Reisen & Urlaub",
-  "Arbeit & Karriere",
-  "Hobbys & Freizeit",
-  "Essen & Restaurant",
-  "Freie Unterhaltung",
+  "Повседневность и small talk",
+  "Путешествия и отпуск",
+  "Работа и карьера",
+  "Хобби и досуг",
+  "Еда и рестораны",
+  "Свободная тема",
 ];
 
 export function AIConversation({ nav }: { nav: (r: Route) => void }) {
@@ -31,8 +31,9 @@ export function AIConversation({ nav }: { nav: (r: Route) => void }) {
     model: progress.aiModel,
     geminiApiKey: progress.geminiApiKey,
     geminiModel: progress.geminiModel,
+    language: progress.language,
     level: progress.level,
-    topic: topic ?? "Alltag",
+    topic: topic ?? "everyday life",
   });
 
   useEffect(() => {

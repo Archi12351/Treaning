@@ -3,9 +3,8 @@ import type { Route } from "../App";
 import { TopBar } from "../components/TopBar";
 import { SpeakButton } from "../components/SpeakButton";
 import { ExerciseCard } from "../components/ExerciseCard";
-import { VOCABULARY } from "../data/vocabulary";
-import { GRAMMAR_TOPICS } from "../data/grammar";
 import { useProgress } from "../hooks/useProgress";
+import { useLanguageData } from "../hooks/useLanguageData";
 import { isDue } from "../utils/srs";
 import type { Exercise, VocabItem } from "../types";
 
@@ -32,18 +31,19 @@ function formatTime(s: number) {
 
 export function ExpressMode({ nav }: { nav: (r: Route) => void }) {
   const progress = useProgress();
+  const { vocabulary, grammarTopics } = useLanguageData();
 
   const items = useMemo<Item[]>(() => {
-    const dueVocab = VOCABULARY.filter((v) => {
+    const dueVocab = vocabulary.filter((v) => {
       const card = progress.vocabCards[v.id];
       return !card || isDue(card);
     });
-    const pool = dueVocab.length >= 6 ? dueVocab : VOCABULARY;
+    const pool = dueVocab.length >= 6 ? dueVocab : vocabulary;
     const vocabItems: Item[] = shuffle(pool)
       .slice(0, 6)
       .map((data) => ({ kind: "vocab" as const, data }));
 
-    const grammarPool = GRAMMAR_TOPICS.flatMap((t) => t.exercises);
+    const grammarPool = grammarTopics.flatMap((t) => t.exercises);
     const grammarItems: Item[] = shuffle(grammarPool)
       .slice(0, 4)
       .map((data) => ({ kind: "grammar" as const, data }));

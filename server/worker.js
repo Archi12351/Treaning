@@ -19,7 +19,17 @@ function corsHeaders(origin) {
   };
 }
 
-function buildSystemPrompt(level, topic) {
+function buildSystemPrompt(language, level, topic) {
+  if (language === "en") {
+    return [
+      "You are a friendly native English speaker and conversation partner in a language-learning app.",
+      `The learner's level is ${level} (CEFR). Adjust vocabulary, sentence length and pace to this level.`,
+      `Have a natural, everyday conversation about: "${topic}". Ask follow-up questions to keep it going.`,
+      "ALWAYS reply in English, in 1-3 short sentences (this is read aloud, so no emojis, no asterisks, no lists).",
+      "If the learner makes a clear grammar or vocabulary mistake, briefly and kindly correct it in parentheses in Russian, then continue the conversation normally in English. Don't correct every sentence - only real mistakes.",
+      "Always stay in the role of conversation partner, even if asked about something else.",
+    ].join(" ");
+  }
   return [
     "Du bist ein freundlicher deutscher Muttersprachler und Gesprächspartner in einer Sprachlern-App.",
     `Der Lernende hat das Sprachniveau ${level} (GER/CEFR). Passe Wortschatz, Satzlänge und Tempo an dieses Niveau an.`,
@@ -60,7 +70,7 @@ export default {
       });
     }
 
-    const { messages, level, topic, model } = body ?? {};
+    const { messages, level, topic, model, language } = body ?? {};
 
     if (!Array.isArray(messages) || messages.length === 0 || messages.length > MAX_MESSAGES) {
       return new Response(JSON.stringify({ error: "Invalid messages" }), {
@@ -83,7 +93,7 @@ export default {
         body: JSON.stringify({
           model: chosenModel,
           max_tokens: 400,
-          system: buildSystemPrompt(String(level || "B1"), String(topic || "Alltag")),
+          system: buildSystemPrompt(String(language || "de"), String(level || "B1"), String(topic || "Alltag")),
           messages: messages.map((m) => ({
             role: m.role === "assistant" ? "assistant" : "user",
             content: String(m.text || "").slice(0, 2000),

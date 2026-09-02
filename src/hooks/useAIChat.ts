@@ -1,6 +1,6 @@
 import { useCallback, useRef, useState } from "react";
 import Anthropic from "@anthropic-ai/sdk";
-import type { AIChatMessage, CEFRLevel } from "../types";
+import type { AIChatMessage, CEFRLevel, Language } from "../types";
 
 // When set (build-time env var), the app talks to a server-side proxy
 // instead of calling the Anthropic API directly from the browser — no
@@ -10,14 +10,34 @@ const BACKEND_URL = import.meta.env.VITE_AI_BACKEND_URL;
 
 const GEMINI_URL = "https://generativelanguage.googleapis.com/v1beta/models";
 
-function buildSystemPrompt(level: CEFRLevel, topic: string): string {
+function buildSystemPrompt(language: Language, level: CEFRLevel, topic: string): string {
+  if (language === "de") {
+    return [
+      `Du bist ein freundlicher deutscher Muttersprachler und Gesprächspartner in einer Sprachlern-App.`,
+      `Der Lernende hat das Sprachniveau ${level} (GER/CEFR). Passe Wortschatz, Satzlänge und Tempo an dieses Niveau an.`,
+      `Führe ein natürliches, alltagsnahes Gespräch zum Thema: "${topic}". Stelle Rückfragen, damit das Gespräch weitergeht.`,
+      `Antworte IMMER auf Deutsch, in 1-3 kurzen Sätzen (das wird laut vorgelesen, also keine Emojis, keine Sternchen, keine Aufzählungen).`,
+      `Wenn der Lernende einen klaren Grammatik- oder Wortfehler macht, korrigiere ihn kurz und freundlich in Klammern auf Russisch, dann führe das Gespräch normal auf Deutsch weiter. Korrigiere nicht bei jedem Satz - nur bei echten Fehlern.`,
+      `Bleib immer in der Rolle des Gesprächspartners, auch wenn nach etwas anderem gefragt wird.`,
+    ].join(" ");
+  }
+  if (language === "en") {
+    return [
+      `You are a friendly native English speaker and conversation partner in a language-learning app.`,
+      `The learner's level is ${level} (CEFR). Adjust vocabulary, sentence length and pace to this level.`,
+      `Have a natural, everyday conversation about: "${topic}". Ask follow-up questions to keep it going.`,
+      `ALWAYS reply in English, in 1-3 short sentences (this is read aloud, so no emojis, no asterisks, no lists).`,
+      `If the learner makes a clear grammar or vocabulary mistake, briefly and kindly correct it in parentheses in Russian, then continue the conversation normally in English. Don't correct every sentence - only real mistakes.`,
+      `Always stay in the role of conversation partner, even if asked about something else.`,
+    ].join(" ");
+  }
+  // Fallback for a language that doesn't have a dedicated template yet.
   return [
-    `Du bist ein freundlicher deutscher Muttersprachler und Gesprächspartner in einer Sprachlern-App.`,
-    `Der Lernende hat das Sprachniveau ${level} (GER/CEFR). Passe Wortschatz, Satzlänge und Tempo an dieses Niveau an.`,
-    `Führe ein natürliches, alltagsnahes Gespräch zum Thema: "${topic}". Stelle Rückfragen, damit das Gespräch weitergeht.`,
-    `Antworte IMMER auf Deutsch, in 1-3 kurzen Sätzen (das wird laut vorgelesen, also keine Emojis, keine Sternchen, keine Aufzählungen).`,
-    `Wenn der Lernende einen klaren Grammatik- oder Wortfehler macht, korrigiere ihn kurz und freundlich in Klammern auf Russisch, dann führe das Gespräch normal auf Deutsch weiter. Korrigiere nicht bei jedem Satz - nur bei echten Fehlern.`,
-    `Bleib immer in der Rolle des Gesprächspartners, auch wenn nach etwas anderem gefragt wird.`,
+    `You are a friendly native speaker of ${language} and conversation partner in a language-learning app.`,
+    `The learner's level is ${level} (CEFR). Adjust vocabulary, sentence length and pace to this level.`,
+    `Have a natural, everyday conversation about: "${topic}". Ask follow-up questions to keep it going.`,
+    `ALWAYS reply in ${language}, in 1-3 short sentences (this is read aloud, so no emojis, no asterisks, no lists).`,
+    `If the learner makes a mistake, briefly correct it in parentheses in Russian, then continue in ${language}.`,
   ].join(" ");
 }
 
@@ -34,6 +54,7 @@ interface UseAIChatConfig {
   model: string;
   geminiApiKey: string;
   geminiModel: string;
+  language: Language;
   level: CEFRLevel;
   topic: string;
 }
@@ -44,6 +65,7 @@ export function useAIChat({
   model,
   geminiApiKey,
   geminiModel,
+  language,
   level,
   topic,
 }: UseAIChatConfig) {
@@ -64,7 +86,7 @@ export function useAIChat({
         const res = await fetch(BACKEND_URL as string, {
           method: "POST",
           headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({ messages: history, level, topic, model }),
+          body: JSON.stringify({ messages: history, language, level, topic, model }),
         });
         const data: { text?: string; error?: string } = await res.json();
         if (!res.ok) {
@@ -76,7 +98,7 @@ export function useAIChat({
         return { ok: false, error: "Не удалось подключиться к серверу." };
       }
     },
-    [level, model, topic],
+    [language, level, model, topic],
   );
 
   const sendViaOwnKey = useCallback(
@@ -87,7 +109,7 @@ export function useAIChat({
         const response = await client.messages.create({
           model,
           max_tokens: 400,
-          system: buildSystemPrompt(level, topic),
+          system: buildSystemPrompt(language, level, topic),
           messages: history.map((m) => ({ role: m.role, content: m.text })),
         });
         const textBlock = response.content.find((b) => b.type === "text");
@@ -110,7 +132,7 @@ export function useAIChat({
         return { ok: false, error };
       }
     },
-    [apiKey, getClient, level, topic, model],
+    [apiKey, getClient, language, level, topic, model],
   );
 
   const sendViaGemini = useCallback(
@@ -124,7 +146,7 @@ export function useAIChat({
             "x-goog-api-key": geminiApiKey,
           },
           body: JSON.stringify({
-            systemInstruction: { parts: [{ text: buildSystemPrompt(level, topic) }] },
+            systemInstruction: { parts: [{ text: buildSystemPrompt(language, level, topic) }] },
             contents: history.map((m) => ({
               role: m.role === "assistant" ? "model" : "user",
               parts: [{ text: m.text }],
@@ -147,7 +169,7 @@ export function useAIChat({
         return { ok: false, error: "Не удалось подключиться к Gemini API. Проверьте интернет-соединение." };
       }
     },
-    [geminiApiKey, geminiModel, level, topic],
+    [geminiApiKey, geminiModel, language, level, topic],
   );
 
   const send = useCallback(

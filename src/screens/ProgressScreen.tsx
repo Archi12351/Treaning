@@ -1,17 +1,16 @@
 import type { Route } from "../App";
 import { TopBar } from "../components/TopBar";
 import { useProgress } from "../hooks/useProgress";
-import { VOCABULARY } from "../data/vocabulary";
-import { GRAMMAR_TOPICS } from "../data/grammar";
-import { CONVERSATIONS } from "../data/conversations";
+import { useLanguageData } from "../hooks/useLanguageData";
 import { masteryPercent, MASTERY_THRESHOLD } from "../utils/srs";
 import { isRunningAsInstalledApp } from "../hooks/useIsInstalled";
 import { canUseAI } from "../utils/aiBackend";
 
 export function ProgressScreen({ nav }: { nav: (r: Route) => void }) {
   const progress = useProgress();
+  const { vocabulary, grammarTopics, conversations } = useLanguageData();
 
-  const vocabMastered = VOCABULARY.filter(
+  const vocabMastered = vocabulary.filter(
     (v) => masteryPercent(progress.vocabCards[v.id]) >= MASTERY_THRESHOLD,
   ).length;
   const vocabStarted = Object.keys(progress.vocabCards).length;
@@ -19,7 +18,7 @@ export function ProgressScreen({ nav }: { nav: (r: Route) => void }) {
     (sum, g) => sum + g.completed.length,
     0,
   );
-  const grammarTotal = GRAMMAR_TOPICS.reduce((s, t) => s + t.exercises.length, 0);
+  const grammarTotal = grammarTopics.reduce((s, t) => s + t.exercises.length, 0);
   const last7 = last7Days();
   const alreadyInstalled = isRunningAsInstalledApp();
 
@@ -46,8 +45,8 @@ export function ProgressScreen({ nav }: { nav: (r: Route) => void }) {
         <div className="grid grid-cols-2 gap-3">
           <Stat label="🔥 Дней подряд" value={String(progress.streakCount)} />
           <Stat label="⭐ Опыт (XP)" value={String(progress.xp)} />
-          <Stat label="📚 Слов усвоено" value={`${vocabMastered}/${VOCABULARY.length}`} />
-          <Stat label="🗣️ Диалогов" value={`${progress.conversationsDone.length}/${CONVERSATIONS.length}`} />
+          <Stat label="📚 Слов усвоено" value={`${vocabMastered}/${vocabulary.length}`} />
+          <Stat label="🗣️ Диалогов" value={`${progress.conversationsDone.length}/${conversations.length}`} />
         </div>
 
         {!alreadyInstalled && (
@@ -108,7 +107,7 @@ export function ProgressScreen({ nav }: { nav: (r: Route) => void }) {
 
         <div className="rounded-2xl bg-slate-900 p-4">
           <p className="text-sm font-semibold text-slate-300">Лексика</p>
-          <ProgressBar value={vocabMastered} total={VOCABULARY.length} color="accent-bg" />
+          <ProgressBar value={vocabMastered} total={vocabulary.length} color="accent-bg" />
           <p className="mt-1 text-xs text-slate-500">
             Изучается: {vocabStarted}, усвоено прочно: {vocabMastered}
           </p>

@@ -1,15 +1,17 @@
+import { useMemo } from "react";
 import type { Route } from "../App";
 import { TopBar } from "../components/TopBar";
-import { GRAMMAR_TOPICS } from "../data/grammar";
 import { useProgress } from "../hooks/useProgress";
+import { useLanguageData } from "../hooks/useLanguageData";
 import { levelIndex } from "../utils/studyPlan";
-
-const SORTED_TOPICS = [...GRAMMAR_TOPICS].sort(
-  (a, b) => levelIndex(a.level) - levelIndex(b.level),
-);
 
 export function GrammarTopics({ nav }: { nav: (r: Route) => void }) {
   const progress = useProgress();
+  const { grammarTopics } = useLanguageData();
+  const sortedTopics = useMemo(
+    () => [...grammarTopics].sort((a, b) => levelIndex(a.level) - levelIndex(b.level)),
+    [grammarTopics],
+  );
 
   return (
     <div>
@@ -33,7 +35,7 @@ export function GrammarTopics({ nav }: { nav: (r: Route) => void }) {
         Или отрабатывайте темы упражнениями, по уровням от A1 до C1:
       </p>
       <div className="space-y-3 px-4 py-3">
-        {SORTED_TOPICS.map((topic) => {
+        {sortedTopics.map((topic) => {
           const done = progress.grammarProgress[topic.id]?.completed.length ?? 0;
           const total = topic.exercises.length;
           const pct = Math.round((done / total) * 100);

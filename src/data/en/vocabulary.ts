@@ -1,0 +1,135 @@
+import type { CEFRLevel, VocabItem } from "../../types";
+
+export const TOPICS: { id: string; title: string; ru: string; level: CEFRLevel }[] = [
+  { id: "en-greetings", title: "Greetings & Introductions", ru: "Приветствие и знакомство", level: "A1" },
+  { id: "en-family", title: "Family & People", ru: "Семья и люди", level: "A1" },
+  { id: "en-numbers", title: "Numbers, Colors & Time", ru: "Числа, цвета, время", level: "A1" },
+  { id: "en-food", title: "Food & Drink", ru: "Еда и напитки", level: "A1" },
+  { id: "en-home", title: "Home & Daily Life", ru: "Дом и повседневность", level: "A2" },
+  { id: "en-shopping", title: "Shopping & Town", ru: "Покупки и город", level: "A2" },
+  { id: "en-body", title: "Body & Clothes", ru: "Тело и одежда", level: "A2" },
+  { id: "en-school", title: "School & Work", ru: "Учёба и работа", level: "B1" },
+  { id: "en-hobbies", title: "Hobbies & Free Time", ru: "Хобби и досуг", level: "B1" },
+  { id: "en-weather", title: "Weather & Nature", ru: "Погода и природа", level: "B1" },
+];
+
+export const VOCABULARY: VocabItem[] = [
+  // Greetings & Introductions
+  { id: "eg1", de: "hello", ru: "привет", exampleDe: "Hello! How are you?", exampleRu: "Привет! Как дела?", topic: "en-greetings", level: "A1", emoji: "👋" },
+  { id: "eg2", de: "goodbye", ru: "до свидания", exampleDe: "Goodbye, see you tomorrow!", exampleRu: "До свидания, увидимся завтра!", topic: "en-greetings", level: "A1" },
+  { id: "eg3", de: "please", ru: "пожалуйста", exampleDe: "Could you help me, please?", exampleRu: "Не могли бы вы мне помочь, пожалуйста?", topic: "en-greetings", level: "A1" },
+  { id: "eg4", de: "thank you", ru: "спасибо", exampleDe: "Thank you very much!", exampleRu: "Большое спасибо!", topic: "en-greetings", level: "A1" },
+  { id: "eg5", de: "my name is...", ru: "меня зовут...", exampleDe: "My name is Anna.", exampleRu: "Меня зовут Анна.", topic: "en-greetings", level: "A1" },
+  { id: "eg6", de: "nice to meet you", ru: "приятно познакомиться", exampleDe: "Nice to meet you too!", exampleRu: "Мне тоже приятно познакомиться!", topic: "en-greetings", level: "A1" },
+  { id: "eg7", de: "excuse me", ru: "извините", exampleDe: "Excuse me, where is the station?", exampleRu: "Извините, где вокзал?", topic: "en-greetings", level: "A1" },
+  { id: "eg8", de: "sorry", ru: "простите", exampleDe: "Sorry, I'm late.", exampleRu: "Простите, я опоздал.", topic: "en-greetings", level: "A1" },
+  { id: "eg9", de: "the first name", ru: "имя", exampleDe: "What is your first name?", exampleRu: "Как твоё имя?", topic: "en-greetings", level: "A1" },
+  { id: "eg10", de: "the last name", ru: "фамилия", exampleDe: "Please write your last name here.", exampleRu: "Напишите здесь вашу фамилию.", topic: "en-greetings", level: "A1" },
+  { id: "eg11", de: "how old are you?", ru: "сколько тебе лет?", exampleDe: "How old are you? — I'm 25.", exampleRu: "Сколько тебе лет? — Мне 25.", topic: "en-greetings", level: "A1" },
+  { id: "eg12", de: "where are you from?", ru: "откуда ты?", exampleDe: "Where are you from? — I'm from Russia.", exampleRu: "Откуда ты? — Я из России.", topic: "en-greetings", level: "A1" },
+
+  // Family & People
+  { id: "ef1", de: "mother", ru: "мать", exampleDe: "My mother works as a doctor.", exampleRu: "Моя мама работает врачом.", topic: "en-family", level: "A1", emoji: "👩" },
+  { id: "ef2", de: "father", ru: "отец", exampleDe: "My father likes fishing.", exampleRu: "Мой отец любит рыбалку.", topic: "en-family", level: "A1", emoji: "👨" },
+  { id: "ef3", de: "brother", ru: "брат", exampleDe: "I have one brother.", exampleRu: "У меня есть один брат.", topic: "en-family", level: "A1" },
+  { id: "ef4", de: "sister", ru: "сестра", exampleDe: "My sister lives in London.", exampleRu: "Моя сестра живёт в Лондоне.", topic: "en-family", level: "A1" },
+  { id: "ef5", de: "son", ru: "сын", exampleDe: "Their son is five years old.", exampleRu: "Их сыну пять лет.", topic: "en-family", level: "A1" },
+  { id: "ef6", de: "daughter", ru: "дочь", exampleDe: "Her daughter goes to school.", exampleRu: "Её дочь ходит в школу.", topic: "en-family", level: "A1" },
+  { id: "ef7", de: "husband", ru: "муж", exampleDe: "Her husband works abroad.", exampleRu: "Её муж работает за границей.", topic: "en-family", level: "A1" },
+  { id: "ef8", de: "wife", ru: "жена", exampleDe: "His wife is a teacher.", exampleRu: "Его жена — учительница.", topic: "en-family", level: "A1" },
+  { id: "ef9", de: "friend", ru: "друг", exampleDe: "He is my best friend.", exampleRu: "Он мой лучший друг.", topic: "en-family", level: "A1" },
+  { id: "ef10", de: "grandparents", ru: "бабушка и дедушка", exampleDe: "I visit my grandparents every summer.", exampleRu: "Я навещаю бабушку и дедушку каждое лето.", topic: "en-family", level: "A1" },
+  { id: "ef11", de: "married", ru: "женат / замужем", exampleDe: "They have been married for ten years.", exampleRu: "Они женаты уже десять лет.", topic: "en-family", level: "A1" },
+  { id: "ef12", de: "neighbor", ru: "сосед", exampleDe: "Our neighbor is very friendly.", exampleRu: "Наш сосед очень дружелюбный.", topic: "en-family", level: "A1" },
+
+  // Numbers, Colors & Time
+  { id: "en1", de: "one, two, three", ru: "один, два, три", exampleDe: "I have three brothers.", exampleRu: "У меня три брата.", topic: "en-numbers", level: "A1" },
+  { id: "en2", de: "hundred", ru: "сто", exampleDe: "The book has two hundred pages.", exampleRu: "В книге двести страниц.", topic: "en-numbers", level: "A1" },
+  { id: "en3", de: "red", ru: "красный", exampleDe: "She is wearing a red dress.", exampleRu: "На ней красное платье.", topic: "en-numbers", level: "A1", emoji: "🔴" },
+  { id: "en4", de: "blue", ru: "синий", exampleDe: "The sky is blue today.", exampleRu: "Сегодня небо синее.", topic: "en-numbers", level: "A1", emoji: "🔵" },
+  { id: "en5", de: "green", ru: "зелёный", exampleDe: "I like the green color.", exampleRu: "Мне нравится зелёный цвет.", topic: "en-numbers", level: "A1", emoji: "🟢" },
+  { id: "en6", de: "today", ru: "сегодня", exampleDe: "What are you doing today?", exampleRu: "Что ты делаешь сегодня?", topic: "en-numbers", level: "A1" },
+  { id: "en7", de: "tomorrow", ru: "завтра", exampleDe: "See you tomorrow!", exampleRu: "Увидимся завтра!", topic: "en-numbers", level: "A1" },
+  { id: "en8", de: "yesterday", ru: "вчера", exampleDe: "I called her yesterday.", exampleRu: "Я звонил ей вчера.", topic: "en-numbers", level: "A1" },
+  { id: "en9", de: "the week", ru: "неделя", exampleDe: "I work five days a week.", exampleRu: "Я работаю пять дней в неделю.", topic: "en-numbers", level: "A1" },
+  { id: "en10", de: "the month", ru: "месяц", exampleDe: "Next month I'm going on vacation.", exampleRu: "В следующем месяце я иду в отпуск.", topic: "en-numbers", level: "A1" },
+  { id: "en11", de: "Monday", ru: "понедельник", exampleDe: "I start work on Monday.", exampleRu: "Я начинаю работу в понедельник.", topic: "en-numbers", level: "A1" },
+  { id: "en12", de: "the time", ru: "время", exampleDe: "What time is it?", exampleRu: "Который час?", topic: "en-numbers", level: "A1" },
+
+  // Food & Drink
+  { id: "efd1", de: "bread", ru: "хлеб", exampleDe: "Can I have some bread, please?", exampleRu: "Можно мне немного хлеба, пожалуйста?", topic: "en-food", level: "A1", emoji: "🍞" },
+  { id: "efd2", de: "water", ru: "вода", exampleDe: "I drink a lot of water.", exampleRu: "Я пью много воды.", topic: "en-food", level: "A1", emoji: "💧" },
+  { id: "efd3", de: "apple", ru: "яблоко", exampleDe: "An apple a day keeps the doctor away.", exampleRu: "Одно яблоко в день — и доктор не нужен.", topic: "en-food", level: "A1", emoji: "🍎" },
+  { id: "efd4", de: "meat", ru: "мясо", exampleDe: "I don't eat meat.", exampleRu: "Я не ем мясо.", topic: "en-food", level: "A1" },
+  { id: "efd5", de: "breakfast", ru: "завтрак", exampleDe: "I usually skip breakfast.", exampleRu: "Я обычно пропускаю завтрак.", topic: "en-food", level: "A1" },
+  { id: "efd6", de: "hungry", ru: "голодный", exampleDe: "I'm really hungry right now.", exampleRu: "Я сейчас очень голоден.", topic: "en-food", level: "A1" },
+  { id: "efd7", de: "to order", ru: "заказывать", exampleDe: "Shall we order pizza tonight?", exampleRu: "Закажем сегодня пиццу?", topic: "en-food", level: "A1" },
+  { id: "efd8", de: "delicious", ru: "вкусный", exampleDe: "This soup is delicious.", exampleRu: "Этот суп очень вкусный.", topic: "en-food", level: "A1" },
+  { id: "efd9", de: "coffee", ru: "кофе", exampleDe: "I need a coffee in the morning.", exampleRu: "Утром мне нужен кофе.", topic: "en-food", level: "A1", emoji: "☕" },
+  { id: "efd10", de: "vegetables", ru: "овощи", exampleDe: "Eat more vegetables and fruit.", exampleRu: "Ешь больше овощей и фруктов.", topic: "en-food", level: "A1", emoji: "🥦" },
+  { id: "efd11", de: "milk", ru: "молоко", exampleDe: "Do you take milk in your tea?", exampleRu: "Ты пьёшь чай с молоком?", topic: "en-food", level: "A1" },
+  { id: "efd12", de: "sugar", ru: "сахар", exampleDe: "No sugar in my coffee, please.", exampleRu: "Без сахара в кофе, пожалуйста.", topic: "en-food", level: "A1" },
+
+  // Home & Daily Life
+  { id: "eh1", de: "the flat / apartment", ru: "квартира", exampleDe: "We are looking for a new flat.", exampleRu: "Мы ищем новую квартиру.", topic: "en-home", level: "A2" },
+  { id: "eh2", de: "to get up", ru: "вставать", exampleDe: "I get up at seven every day.", exampleRu: "Я встаю в семь каждый день.", topic: "en-home", level: "A2" },
+  { id: "eh3", de: "to clean", ru: "убираться", exampleDe: "I clean the flat on Saturdays.", exampleRu: "Я убираюсь в квартире по субботам.", topic: "en-home", level: "A2" },
+  { id: "eh4", de: "the kitchen", ru: "кухня", exampleDe: "The kitchen smells like fresh bread.", exampleRu: "На кухне пахнет свежим хлебом.", topic: "en-home", level: "A2" },
+  { id: "eh5", de: "to cook", ru: "готовить", exampleDe: "I like cooking on weekends.", exampleRu: "Мне нравится готовить по выходным.", topic: "en-home", level: "A2" },
+  { id: "eh6", de: "the rent", ru: "аренда", exampleDe: "The rent goes up every year.", exampleRu: "Аренда растёт каждый год.", topic: "en-home", level: "A2" },
+  { id: "eh7", de: "to relax", ru: "отдыхать", exampleDe: "I just want to relax tonight.", exampleRu: "Сегодня вечером я просто хочу отдохнуть.", topic: "en-home", level: "A2" },
+  { id: "eh8", de: "the living room", ru: "гостиная", exampleDe: "We watch TV in the living room.", exampleRu: "Мы смотрим телевизор в гостиной.", topic: "en-home", level: "A2" },
+  { id: "eh9", de: "the bedroom", ru: "спальня", exampleDe: "My bedroom is quite small.", exampleRu: "Моя спальня довольно маленькая.", topic: "en-home", level: "A2" },
+  { id: "eh10", de: "the bathroom", ru: "ванная", exampleDe: "The bathroom is at the end of the hall.", exampleRu: "Ванная в конце коридора.", topic: "en-home", level: "A2" },
+
+  // Shopping & Town
+  { id: "esh1", de: "the shop / store", ru: "магазин", exampleDe: "The shop closes at nine.", exampleRu: "Магазин закрывается в девять.", topic: "en-shopping", level: "A2" },
+  { id: "esh2", de: "the price", ru: "цена", exampleDe: "What's the price of this jacket?", exampleRu: "Какая цена у этой куртки?", topic: "en-shopping", level: "A2" },
+  { id: "esh3", de: "to pay", ru: "платить", exampleDe: "Can I pay by card?", exampleRu: "Можно оплатить картой?", topic: "en-shopping", level: "A2" },
+  { id: "esh4", de: "cheap", ru: "дешёвый", exampleDe: "This restaurant is quite cheap.", exampleRu: "Этот ресторан довольно дешёвый.", topic: "en-shopping", level: "A2" },
+  { id: "esh5", de: "expensive", ru: "дорогой", exampleDe: "That hotel is too expensive for us.", exampleRu: "Тот отель слишком дорогой для нас.", topic: "en-shopping", level: "A2" },
+  { id: "esh6", de: "the receipt", ru: "чек", exampleDe: "Keep the receipt, just in case.", exampleRu: "Сохрани чек на всякий случай.", topic: "en-shopping", level: "A2" },
+  { id: "esh7", de: "the bank", ru: "банк", exampleDe: "I need to go to the bank.", exampleRu: "Мне нужно зайти в банк.", topic: "en-shopping", level: "A2" },
+  { id: "esh8", de: "the pharmacy", ru: "аптека", exampleDe: "Is there a pharmacy nearby?", exampleRu: "Здесь поблизости есть аптека?", topic: "en-shopping", level: "A2" },
+  { id: "esh9", de: "the street", ru: "улица", exampleDe: "Turn left on this street.", exampleRu: "Поверни налево на этой улице.", topic: "en-shopping", level: "A2" },
+  { id: "esh10", de: "the traffic light", ru: "светофор", exampleDe: "Wait until the traffic light turns green.", exampleRu: "Подожди, пока светофор загорится зелёным.", topic: "en-shopping", level: "A2" },
+
+  // Body & Clothes
+  { id: "eb1", de: "the head", ru: "голова", exampleDe: "My head hurts a bit.", exampleRu: "У меня немного болит голова.", topic: "en-body", level: "A2" },
+  { id: "eb2", de: "the hand", ru: "рука (кисть)", exampleDe: "She waved her hand at me.", exampleRu: "Она помахала мне рукой.", topic: "en-body", level: "A2" },
+  { id: "eb3", de: "the eye", ru: "глаз", exampleDe: "He has beautiful blue eyes.", exampleRu: "У него красивые голубые глаза.", topic: "en-body", level: "A2" },
+  { id: "eb4", de: "tired", ru: "уставший", exampleDe: "I feel really tired today.", exampleRu: "Сегодня я чувствую себя очень уставшим.", topic: "en-body", level: "A2" },
+  { id: "eb5", de: "sick / ill", ru: "больной", exampleDe: "She stayed home because she was sick.", exampleRu: "Она осталась дома, потому что была больна.", topic: "en-body", level: "A2" },
+  { id: "eb6", de: "the jacket", ru: "куртка", exampleDe: "Take a jacket, it's cold outside.", exampleRu: "Возьми куртку, на улице холодно.", topic: "en-body", level: "A2" },
+  { id: "eb7", de: "the shoes", ru: "обувь", exampleDe: "These shoes are very comfortable.", exampleRu: "Эта обувь очень удобная.", topic: "en-body", level: "A2" },
+  { id: "eb8", de: "to wear", ru: "носить (одежду)", exampleDe: "What are you going to wear tonight?", exampleRu: "Что ты собираешься надеть сегодня вечером?", topic: "en-body", level: "A2" },
+  { id: "eb9", de: "comfortable", ru: "удобный", exampleDe: "This chair is very comfortable.", exampleRu: "Этот стул очень удобный.", topic: "en-body", level: "A2" },
+  { id: "eb10", de: "the size", ru: "размер", exampleDe: "What size do you wear?", exampleRu: "Какой у тебя размер?", topic: "en-body", level: "A2" },
+
+  // School & Work
+  { id: "esc1", de: "the exam", ru: "экзамен", exampleDe: "I have an exam next week.", exampleRu: "У меня экзамен на следующей неделе.", topic: "en-school", level: "B1" },
+  { id: "esc2", de: "the homework", ru: "домашнее задание", exampleDe: "Have you done your homework?", exampleRu: "Ты сделал домашнее задание?", topic: "en-school", level: "B1" },
+  { id: "esc3", de: "to concentrate", ru: "концентрироваться", exampleDe: "I can't concentrate with all this noise.", exampleRu: "Я не могу сосредоточиться при таком шуме.", topic: "en-school", level: "B1" },
+  { id: "esc4", de: "the colleague", ru: "коллега", exampleDe: "My colleague helped me with the report.", exampleRu: "Мой коллега помог мне с отчётом.", topic: "en-school", level: "B1" },
+  { id: "esc5", de: "the salary", ru: "зарплата", exampleDe: "The salary here is quite good.", exampleRu: "Зарплата здесь довольно хорошая.", topic: "en-school", level: "B1" },
+  { id: "esc6", de: "the meeting", ru: "совещание", exampleDe: "The meeting starts at ten.", exampleRu: "Совещание начинается в десять.", topic: "en-school", level: "B1" },
+  { id: "esc7", de: "the deadline", ru: "срок сдачи", exampleDe: "We have a tight deadline this week.", exampleRu: "У нас жёсткий срок сдачи на этой неделе.", topic: "en-school", level: "B1" },
+  { id: "esc8", de: "the interview", ru: "собеседование", exampleDe: "I have a job interview tomorrow.", exampleRu: "У меня завтра собеседование.", topic: "en-school", level: "B1" },
+
+  // Hobbies & Free Time
+  { id: "eho1", de: "to read", ru: "читать", exampleDe: "I love reading before bed.", exampleRu: "Я люблю читать перед сном.", topic: "en-hobbies", level: "B1" },
+  { id: "eho2", de: "to travel", ru: "путешествовать", exampleDe: "We love traveling to new countries.", exampleRu: "Мы любим путешествовать в новые страны.", topic: "en-hobbies", level: "B1" },
+  { id: "eho3", de: "the film / movie", ru: "фильм", exampleDe: "Let's watch a film tonight.", exampleRu: "Давай посмотрим сегодня фильм.", topic: "en-hobbies", level: "B1" },
+  { id: "eho4", de: "to relax", ru: "расслабляться", exampleDe: "Music helps me relax.", exampleRu: "Музыка помогает мне расслабиться.", topic: "en-hobbies", level: "B1" },
+  { id: "eho5", de: "boring", ru: "скучный", exampleDe: "This lecture is really boring.", exampleRu: "Эта лекция действительно скучная.", topic: "en-hobbies", level: "B1" },
+  { id: "eho6", de: "exciting", ru: "захватывающий", exampleDe: "The match was really exciting.", exampleRu: "Матч был по-настоящему захватывающим.", topic: "en-hobbies", level: "B1" },
+  { id: "eho7", de: "the team", ru: "команда", exampleDe: "Our team won the game.", exampleRu: "Наша команда выиграла игру.", topic: "en-hobbies", level: "B1" },
+
+  // Weather & Nature
+  { id: "ew1", de: "the rain", ru: "дождь", exampleDe: "I forgot my umbrella and it started to rain.", exampleRu: "Я забыл зонт, а пошёл дождь.", topic: "en-weather", level: "B1" },
+  { id: "ew2", de: "the sun", ru: "солнце", exampleDe: "The sun is shining today.", exampleRu: "Сегодня светит солнце.", topic: "en-weather", level: "B1", emoji: "☀️" },
+  { id: "ew3", de: "warm", ru: "тёплый", exampleDe: "It's quite warm today.", exampleRu: "Сегодня довольно тепло.", topic: "en-weather", level: "B1" },
+  { id: "ew4", de: "cold", ru: "холодный", exampleDe: "It's very cold in winter here.", exampleRu: "Здесь зимой очень холодно.", topic: "en-weather", level: "B1" },
+  { id: "ew5", de: "the forest", ru: "лес", exampleDe: "We went for a walk in the forest.", exampleRu: "Мы гуляли в лесу.", topic: "en-weather", level: "B1" },
+  { id: "ew6", de: "the sea", ru: "море", exampleDe: "We spent our holiday by the sea.", exampleRu: "Мы провели отпуск у моря.", topic: "en-weather", level: "B1" },
+];

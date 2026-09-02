@@ -3,7 +3,8 @@ import type { Route } from "../App";
 import { TopBar } from "../components/TopBar";
 import { useProgress } from "../hooks/useProgress";
 import { useReminderPermission } from "../hooks/useReminders";
-import { useGermanVoices } from "../hooks/useSpeech";
+import { useVoicesForLanguage } from "../hooks/useSpeech";
+import { useLanguageData } from "../hooks/useLanguageData";
 import { GEMINI_VOICES, synthesizeSpeech } from "../utils/geminiTts";
 import { hasAIBackend } from "../utils/aiBackend";
 
@@ -35,14 +36,15 @@ export function Settings({ nav }: { nav: (r: Route) => void }) {
   const [saved, setSaved] = useState(false);
   const [geminiSaved, setGeminiSaved] = useState(false);
   const { supported: notifSupported, permission, requestPermission } = useReminderPermission();
-  const germanVoices = useGermanVoices();
+  const { meta } = useLanguageData();
+  const languageVoices = useVoicesForLanguage();
   const [aiPreviewLoading, setAiPreviewLoading] = useState<string | null>(null);
   const [aiPreviewError, setAiPreviewError] = useState<string | null>(null);
 
   const previewLocalVoice = (voice: SpeechSynthesisVoice) => {
     window.speechSynthesis.cancel();
-    const utter = new SpeechSynthesisUtterance("Hallo, so klingt diese Stimme.");
-    utter.lang = "de-DE";
+    const utter = new SpeechSynthesisUtterance(meta.previewPhrase);
+    utter.lang = meta.speechLang;
     utter.voice = voice;
     window.speechSynthesis.speak(utter);
   };
@@ -53,7 +55,7 @@ export function Settings({ nav }: { nav: (r: Route) => void }) {
     setAiPreviewLoading(voiceName);
     try {
       const blob = await synthesizeSpeech(
-        "Hallo, so klingt diese Stimme.",
+        meta.previewPhrase,
         progress.geminiApiKey,
         voiceName,
       );
@@ -204,9 +206,9 @@ export function Settings({ nav }: { nav: (r: Route) => void }) {
             установить дополнительные в Настройках → Языки и ввод → Синтез
             речи → Google → Установить голосовые данные.
           </p>
-          {germanVoices.length === 0 ? (
+          {languageVoices.length === 0 ? (
             <p className="mt-3 text-xs text-amber-400">
-              Немецкие голоса не найдены на этом устройстве.
+              Голоса для языка «{meta.label}» не найдены на этом устройстве.
             </p>
           ) : (
             <div className="mt-3 space-y-2">
@@ -220,7 +222,7 @@ export function Settings({ nav }: { nav: (r: Route) => void }) {
               >
                 Автоматически (лучший из доступных)
               </button>
-              {germanVoices.map((v) => (
+              {languageVoices.map((v) => (
                 <button
                   key={v.voiceURI}
                   onClick={() => {
