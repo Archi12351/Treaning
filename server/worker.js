@@ -6,13 +6,20 @@
  * Deploy: see server/README.md.
  */
 
-const ALLOWED_ORIGIN = "https://archi12351.github.io";
+// Web build (GitHub Pages) + the Capacitor WebView origins of the
+// Android ("https://localhost") and iOS ("capacitor://localhost") apps.
+const ALLOWED_ORIGINS = [
+  "https://archi12351.github.io",
+  "https://localhost",
+  "capacitor://localhost",
+];
+const ALLOWED_ORIGIN = ALLOWED_ORIGINS[0];
 const ALLOWED_MODELS = ["claude-opus-5", "claude-sonnet-5", "claude-haiku-4-5"];
 const MAX_MESSAGES = 40; // keep conversations bounded
 
 function corsHeaders(origin) {
   return {
-    "Access-Control-Allow-Origin": origin === ALLOWED_ORIGIN ? origin : ALLOWED_ORIGIN,
+    "Access-Control-Allow-Origin": ALLOWED_ORIGINS.includes(origin) ? origin : ALLOWED_ORIGIN,
     "Access-Control-Allow-Methods": "POST, OPTIONS",
     "Access-Control-Allow-Headers": "Content-Type",
     "Vary": "Origin",
@@ -96,7 +103,7 @@ export default {
     // the Origin header — this only blocks casual/browser-driven misuse,
     // not a determined attacker. Consider adding Cloudflare rate-limiting
     // rules on this route for stronger abuse protection.
-    if (origin !== ALLOWED_ORIGIN) {
+    if (!ALLOWED_ORIGINS.includes(origin)) {
       return new Response("Forbidden", { status: 403, headers: corsHeaders(origin) });
     }
 
