@@ -6,6 +6,8 @@ import { LANGUAGE_LIST } from "../data/languages";
 import { LEVEL_ORDER, levelIndex } from "../utils/studyPlan";
 import { masteryPercent, MASTERY_THRESHOLD } from "../utils/srs";
 import { buildStudyPlan, type PlanStep } from "../utils/studyPlan";
+import { useAIFacts } from "../hooks/useAIFacts";
+import { CULTURE_BY_LANGUAGE } from "../data/facts";
 
 export function HomeScreen({ nav }: { nav: (r: Route) => void }) {
   const progress = useProgress();
@@ -157,6 +159,8 @@ export function HomeScreen({ nav }: { nav: (r: Route) => void }) {
         </>
       )}
 
+      <FactOfTheDay onOpen={() => nav({ name: "culture" })} />
+
       <SectionTitle>Быстрый доступ</SectionTitle>
       <div className="grid grid-cols-2 gap-3">
         <QuickCard
@@ -195,14 +199,12 @@ export function HomeScreen({ nav }: { nav: (r: Route) => void }) {
           subtitle="Прогресс и настройки"
           onClick={() => nav({ name: "progress" })}
         />
-        {progress.language === "de" && (
-          <QuickCard
-            icon="🌍"
-            title="Культура и факты"
-            subtitle="Зарплаты, страны DACH"
-            onClick={() => nav({ name: "culture" })}
-          />
-        )}
+        <QuickCard
+          icon="🌍"
+          title="Культура и факты"
+          subtitle={`Факты от ИИ, ${CULTURE_BY_LANGUAGE[progress.language].regionLabel}`}
+          onClick={() => nav({ name: "culture" })}
+        />
       </div>
 
       <SectionTitle>Разговорные темы</SectionTitle>
@@ -226,6 +228,37 @@ export function HomeScreen({ nav }: { nav: (r: Route) => void }) {
       </div>
       <div className="h-4" />
     </div>
+  );
+}
+
+// «Факт дня» на главной: берёт факт из общего пула (ручные + накопленные от
+// ИИ) по номеру дня и в фоне подкачивает новую порцию от ИИ, если пора.
+function FactOfTheDay({ onOpen }: { onOpen: () => void }) {
+  const progress = useProgress();
+  const { aiFacts } = useAIFacts(progress.language, { autoRefresh: true });
+  const pool = useMemo(
+    () => [...aiFacts, ...CULTURE_BY_LANGUAGE[progress.language].facts],
+    [aiFacts, progress.language],
+  );
+  if (pool.length === 0) return null;
+  const day = Math.floor(Date.now() / 86_400_000);
+  // По кругу по всему пулу; новые факты от ИИ попадают в начало пула.
+  const fact = pool[day % pool.length];
+  return (
+    <button
+      onClick={onOpen}
+      className="mt-6 w-full rounded-2xl bg-slate-900 p-4 text-left active:bg-slate-800"
+    >
+      <p className="flex items-center justify-between text-xs font-semibold uppercase tracking-wide text-slate-400">
+        <span>🌍 Факт дня</span>
+        <span className="normal-case tracking-normal text-slate-500">
+          {fact.flag} {fact.country}
+          {fact.ai && <span className="ml-1 text-violet-300">✨</span>}
+        </span>
+      </p>
+      <p className="mt-2 text-sm font-semibold text-slate-100">{fact.title}</p>
+      <p className="mt-1 line-clamp-3 text-xs leading-relaxed text-slate-400">{fact.text}</p>
+    </button>
   );
 }
 
