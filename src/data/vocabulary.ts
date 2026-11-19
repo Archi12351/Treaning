@@ -1,6 +1,8 @@
 import type { CEFRLevel, VocabItem } from "../types";
+import { mergeVocab } from "./vocabParse";
+import { EXTRA_TOPICS, EXTRA_VOCABULARY } from "./de-vocab";
 
-export const TOPICS: { id: string; title: string; ru: string; level: CEFRLevel }[] = [
+const BASE_TOPICS: { id: string; title: string; ru: string; level: CEFRLevel }[] = [
   // A1 — самые основы
   { id: "begruessung", title: "Begrüßung & Vorstellung", ru: "Приветствие и знакомство", level: "A1" },
   { id: "familie", title: "Familie & Menschen", ru: "Семья и люди", level: "A1" },
@@ -35,7 +37,7 @@ export const TOPICS: { id: string; title: string; ru: string; level: CEFRLevel }
   { id: "adjektive_wichtig", title: "Wichtige Adjektive", ru: "Важные прилагательные", level: "A1" },
 ];
 
-export const VOCABULARY: VocabItem[] = [
+const BASE_VOCABULARY: VocabItem[] = [
   // Charakter & Persönlichkeit
   { id: "ch1", de: "die Zuverlässigkeit", ru: "надёжность", exampleDe: "Seine Zuverlässigkeit macht ihn zu einem geschätzten Kollegen.", exampleRu: "Его надёжность делает его ценным коллегой.", topic: "charakter", level: "B2" },
   { id: "ch2", de: "hartnäckig", ru: "упорный, настойчивый", exampleDe: "Sie verfolgt ihre Ziele sehr hartnäckig.", exampleRu: "Она очень упорно преследует свои цели.", topic: "charakter", level: "B2" },
@@ -566,3 +568,9 @@ export const VOCABULARY: VocabItem[] = [
   { id: "aw15", de: "interessant", ru: "интересный", exampleDe: "Das Buch klingt wirklich interessant.", exampleRu: "Книга звучит действительно интересно.", topic: "adjektive_wichtig", level: "A2" },
   { id: "aw16", de: "langweilig", ru: "скучный", exampleDe: "Der Vortrag war leider ziemlich langweilig.", exampleRu: "К сожалению, доклад был довольно скучным.", topic: "adjektive_wichtig", level: "A2" },
 ];
+
+export const TOPICS = [...BASE_TOPICS, ...EXTRA_TOPICS];
+
+// Hand-curated base list first, so its entries (and their SRS ids) win over
+// any duplicate headword in the bulk lists.
+export const VOCABULARY: VocabItem[] = mergeVocab(BASE_VOCABULARY, EXTRA_VOCABULARY);
