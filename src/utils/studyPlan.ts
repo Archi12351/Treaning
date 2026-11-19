@@ -26,6 +26,21 @@ interface BuildPlanParams {
   vocabulary: VocabItem[];
   conversations: ConversationTopic[];
   limit?: number;
+  // The learner's goal from onboarding: shifts the plan toward topics and
+  // scenarios that matter for it (e.g. bureaucracy for relocation).
+  goal?: string;
+}
+
+const GOAL_KEYWORDS: Record<string, string[]> = {
+  relocation: ["behoerden", "aufenthalt", "wohnen", "miete", "bank", "geld", "arzt", "steuern", "notfall", "official", "money", "health", "administration", "argent", "sante", "urgences", "maison", "zuhause", "home"],
+  work: ["arbeit", "buero", "briefe", "berufe", "work", "office", "jobs", "travail", "metiers", "numerique", "computer", "tech"],
+  exam: ["konnektoren", "akademisch", "nomen_verb", "verben_praep", "academic", "connecteurs", "soutenu", "adverb", "redewendungen", "idioms", "expressions"],
+  travel: ["reise", "travel", "voyage", "verkehr", "transport", "essen", "food", "nourriture", "stadt", "ville", "hotel", "restaurant"],
+};
+
+export function goalBoost(goal: string | undefined, id: string): number {
+  if (!goal) return 0;
+  return (GOAL_KEYWORDS[goal] ?? []).some((k) => id.includes(k)) ? 1 : 0;
 }
 
 // Recommends the next things to study: unfinished grammar topics and
@@ -41,6 +56,7 @@ export function buildStudyPlan({
   vocabulary,
   conversations,
   limit = 5,
+  goal,
 }: BuildPlanParams): PlanStep[] {
   const maxIdx = Math.min(levelIndex(level) + 1, LEVEL_ORDER.length - 1);
 
@@ -61,11 +77,18 @@ export function buildStudyPlan({
       return { ...t, mastered, total: words.length };
     })
     .filter((t) => t.mastered < t.total)
-    .sort((a, b) => levelIndex(a.level) - levelIndex(b.level));
+    .sort(
+      (a, b) =>
+        levelIndex(a.level) - levelIndex(b.level) || goalBoost(goal, b.id) - goalBoost(goal, a.id),
+    );
 
   const conversationCandidates = conversations
     .filter((c) => levelIndex(c.level) <= maxIdx && !conversationsDone.includes(c.id))
-    .sort((a, b) => levelIndex(a.level) - levelIndex(b.level));
+    .sort((a, b) => {
+      const boost = (c: typeof a) =>
+        goal === "relocation" && c.category === "official" ? 1 : goalBoost(goal, c.id);
+      return boost(b) - boost(a) || levelIndex(a.level) - levelIndex(b.level);
+    });
 
   const steps: PlanStep[] = [];
   let gi = 0;

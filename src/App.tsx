@@ -32,6 +32,7 @@ import { AchievementWatcher } from "./components/AchievementWatcher";
 import { MistakesReview } from "./screens/MistakesReview";
 import { ReadingList, ReadingTextScreen, TEXTS_BY_LANGUAGE } from "./screens/Reading";
 import { WritingCoach } from "./screens/WritingCoach";
+import { Welcome } from "./screens/Welcome";
 import { getReminderConsent } from "./utils/notifications";
 import type { CEFRLevel } from "./types";
 
@@ -58,7 +59,8 @@ export type Route =
   | { name: "mistakes" }
   | { name: "reading" }
   | { name: "reading-text"; id: string }
-  | { name: "writing" };
+  | { name: "writing" }
+  | { name: "welcome" };
 
 const TAB_ROOTS: Record<string, Route> = {
   home: { name: "home" },
@@ -110,7 +112,7 @@ function LoadingScreen() {
 function AppShell() {
   const progress = useProgress();
   const [route, setRoute] = useState<Route>(() =>
-    progress.onboarded ? { name: "home" } : { name: "placement" },
+    progress.onboarded ? { name: "home" } : progress.learnerGoal ? { name: "placement" } : { name: "welcome" },
   );
 
   useEffect(() => {
@@ -229,6 +231,7 @@ function AppShell() {
         {route.name === "reading" && <ReadingList nav={nav} />}
         {route.name === "reading-text" && <ReadingTextScreen id={route.id} nav={nav} />}
         {route.name === "writing" && <WritingCoach nav={nav} />}
+        {route.name === "welcome" && <Welcome nav={nav} />}
           </>
         )}
       </div>

@@ -79,6 +79,14 @@ export function TodayPanel({ nav }: { nav: (r: Route) => void }) {
             🔥 {progress.streakCount} {progress.streakCount === 1 ? "день" : "дн."} подряд
             {(progress.bestStreak ?? 0) > progress.streakCount && ` · рекорд ${progress.bestStreak}`}
           </p>
+          {(progress.streakFreezes ?? 0) > 0 && (
+            <p className="mt-0.5 text-[11px] text-sky-300">
+              🧊 Заморозок серии: {progress.streakFreezes} — пропуск одного дня не сбросит серию
+            </p>
+          )}
+          {progress.lastFreezeUsed === new Date().toISOString().slice(0, 10) && (
+            <p className="mt-0.5 text-[11px] text-sky-300">🧊 Вчерашний пропуск прикрыт заморозкой — серия сохранена!</p>
+          )}
           <p className="mt-0.5 text-xs text-slate-500">Задания: {doneQuests}/3 выполнено</p>
         </div>
       </div>

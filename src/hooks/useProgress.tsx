@@ -86,6 +86,10 @@ interface ProgressState {
   learnerGoal: string;
   daily: DailyStats;
   bestStreak: number;
+  // «Заморозка серии»: одна пропущенная дата не обнуляет серию. Выдаётся за
+  // каждые 7 дней подряд, максимум 2 в запасе.
+  streakFreezes: number;
+  lastFreezeUsed: string | null;
 }
 
 export type DailyKey = "vocab" | "grammar" | "reading" | "dialog" | "writing" | "mistakes";
@@ -125,6 +129,8 @@ const defaultState: ProgressState = {
   learnerGoal: "",
   daily: { date: "", counts: {} },
   bestStreak: 0,
+  streakFreezes: 0,
+  lastFreezeUsed: null,
 };
 
 const VALID_LANGUAGES: Language[] = ["de", "en", "fr"];
@@ -248,12 +254,19 @@ export function ProgressProvider({ children }: { children: ReactNode }) {
       const yesterday = new Date();
       yesterday.setDate(yesterday.getDate() - 1);
       const wasYesterday = s.lastActiveDate === yesterday.toISOString().slice(0, 10);
-      const streakCount = wasYesterday ? s.streakCount + 1 : 1;
+      const dayBefore = new Date();
+      dayBefore.setDate(dayBefore.getDate() - 2);
+      const missedOneDay = s.lastActiveDate === dayBefore.toISOString().slice(0, 10);
+      const useFreeze = !wasYesterday && missedOneDay && (s.streakFreezes ?? 0) > 0 && s.streakCount > 0;
+      const streakCount = wasYesterday || useFreeze ? s.streakCount + 1 : 1;
+      let streakFreezes = (s.streakFreezes ?? 0) - (useFreeze ? 1 : 0);
+      if (streakCount % 7 === 0) streakFreezes = Math.min(2, streakFreezes + 1);
+      const lastFreezeUsed = useFreeze ? today : s.lastFreezeUsed ?? null;
       const bestStreak = Math.max(s.bestStreak ?? 0, streakCount);
       const activeDates = s.activeDates.includes(today)
         ? s.activeDates
         : [...s.activeDates, today].slice(-90);
-      return { ...s, lastActiveDate: today, streakCount, activeDates, bestStreak };
+      return { ...s, lastActiveDate: today, streakCount, activeDates, bestStreak, streakFreezes, lastFreezeUsed };
     });
   }, []);
 

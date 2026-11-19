@@ -11,7 +11,8 @@
     "build:native": "tsc -b && vite build --mode native",
     "cap:sync": "npm run build:native && cap sync",
     "android": "npm run cap:sync && cap open android",
-    "ios": "npm run cap:sync && cap open ios"
+    "ios": "npm run cap:sync && cap open ios",
+    "export:content": "node --import ./scripts/ts-resolve.mjs --experimental-strip-types --no-warnings scripts/export-content.ts"
   },
   "dependencies": {
     "@anthropic-ai/sdk": "^0.122.0",

@@ -6,6 +6,7 @@ import { masteryPercent, MASTERY_THRESHOLD } from "../utils/srs";
 import { isRunningAsInstalledApp } from "../hooks/useIsInstalled";
 import { canUseAI } from "../utils/aiBackend";
 import { ACHIEVEMENTS } from "../utils/engagement";
+import { GOALS as LEARNER_GOALS } from "./Welcome";
 
 const GOALS = [
   { xp: 15, label: "Лёгкий", note: "~5 мин" },
@@ -127,6 +128,22 @@ export function ProgressScreen({ nav }: { nav: (r: Route) => void }) {
               >
                 <p className="text-xs font-semibold">{g.label}</p>
                 <p className="text-[10px] opacity-70">{g.xp} XP · {g.note}</p>
+              </button>
+            ))}
+          </div>
+        </div>
+
+        <div className="rounded-2xl bg-slate-900 p-4">
+          <p className="text-sm font-semibold text-slate-300">🧭 Моя цель</p>
+          <p className="mt-1 text-xs text-slate-500">Программа на главном экране подстраивается под неё.</p>
+          <div className="mt-3 flex flex-wrap gap-2">
+            {LEARNER_GOALS.map((g) => (
+              <button
+                key={g.id}
+                onClick={() => progress.setLearnerGoal(g.id)}
+                className={`rounded-full px-3 py-1.5 text-xs ${progress.learnerGoal === g.id ? "accent-bg" : "bg-slate-800 text-slate-300"}`}
+              >
+                {g.icon} {g.title}
               </button>
             ))}
           </div>
