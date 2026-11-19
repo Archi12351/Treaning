@@ -4,7 +4,10 @@ import { TopBar } from "../components/TopBar";
 import { ExerciseCard } from "../components/ExerciseCard";
 import { useProgress } from "../hooks/useProgress";
 import { useLanguageData } from "../hooks/useLanguageData";
-import type { Exercise, GrammarTopic, VocabItem } from "../types";
+import type { CEFRLevel, Exercise, GrammarTopic, VocabItem } from "../types";
+import { usePremium } from "../hooks/usePremium";
+import { LEVEL_ORDER, levelIndex } from "../utils/studyPlan";
+import { distractors as pickDistractors } from "../utils/answerCheck";
 
 function shuffle<T>(arr: T[]): T[] {
   const a = [...arr];
@@ -15,12 +18,20 @@ function shuffle<T>(arr: T[]): T[] {
   return a;
 }
 
-function buildQuiz(vocabulary: VocabItem[], grammarTopics: GrammarTopic[]): Exercise[] {
+// Quiz exercise id → grammar topic, so wrong answers land in «Мои ошибки».
+const topicOf = new Map<string, string>();
+
+function buildQuiz(
+  allVocabulary: VocabItem[],
+  allTopics: GrammarTopic[],
+  fits: (lvl: CEFRLevel) => boolean,
+): Exercise[] {
+  const vocabulary = allVocabulary.filter((v) => fits(v.level));
+  const grammarTopics = allTopics.filter((t) => fits(t.level));
+  for (const t of grammarTopics) for (const e of t.exercises) topicOf.set(e.id, t.id);
   const vocabPicks = shuffle(vocabulary).slice(0, 8);
   const vocabExercises: Exercise[] = vocabPicks.map((v) => {
-    const distractors = shuffle(
-      vocabulary.filter((o) => o.id !== v.id).map((o) => o.ru),
-    ).slice(0, 3);
+    const distractors = pickDistractors(v, vocabulary, "ru");
     return {
       id: `quiz-vocab-${v.id}`,
       type: "choice",
@@ -42,7 +53,11 @@ function buildQuiz(vocabulary: VocabItem[], grammarTopics: GrammarTopic[]): Exer
 export function QuizMode({ nav }: { nav: (r: Route) => void }) {
   const progress = useProgress();
   const { vocabulary, grammarTopics } = useLanguageData();
-  const [quiz] = useState<Exercise[]>(() => buildQuiz(vocabulary, grammarTopics));
+  const { isLevelLocked } = usePremium();
+  const [quiz] = useState<Exercise[]>(() => {
+    const maxIdx = Math.min(levelIndex(progress.level) + 1, LEVEL_ORDER.length - 1);
+    return buildQuiz(vocabulary, grammarTopics, (lvl) => levelIndex(lvl) <= maxIdx && !isLevelLocked(lvl));
+  });
   const [index, setIndex] = useState(0);
   const [correctCount, setCorrectCount] = useState(0);
   const [answered, setAnswered] = useState(false);
@@ -51,6 +66,13 @@ export function QuizMode({ nav }: { nav: (r: Route) => void }) {
   const current = quiz[index];
 
   const handleAnswered = (correct: boolean) => {
+    const topicId = topicOf.get(current.id);
+    if (topicId) progress.recordGrammarAttempt(topicId, current.id, correct);
+    else if (current.id.startsWith("quiz-vocab-")) {
+      const id = current.id.slice("quiz-vocab-".length);
+      const w = vocabulary.find((v) => v.id === id);
+      if (w) progress.recordVocabResult(w.id, w.topic, correct);
+    }
     if (correct) {
       setCorrectCount((c) => c + 1);
       progress.addXp(2);

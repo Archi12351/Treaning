@@ -6,13 +6,16 @@ import { ExerciseCard } from "../components/ExerciseCard";
 import { useProgress } from "../hooks/useProgress";
 import { useLanguageData } from "../hooks/useLanguageData";
 import { isDue } from "../utils/srs";
-import type { Exercise, VocabItem } from "../types";
+import type { CEFRLevel, Exercise, VocabItem } from "../types";
+import { usePremium } from "../hooks/usePremium";
+import { LEVEL_ORDER, levelIndex } from "../utils/studyPlan";
+import { Typing } from "./VocabTrainer";
 
 const SESSION_SECONDS = 5 * 60;
 
 type Item =
   | { kind: "vocab"; data: VocabItem }
-  | { kind: "grammar"; data: Exercise };
+  | { kind: "grammar"; data: Exercise; topicId: string };
 
 function shuffle<T>(arr: T[]): T[] {
   const a = [...arr];
@@ -32,21 +35,28 @@ function formatTime(s: number) {
 export function ExpressMode({ nav }: { nav: (r: Route) => void }) {
   const progress = useProgress();
   const { vocabulary, grammarTopics } = useLanguageData();
+  const { isLevelLocked } = usePremium();
 
   const items = useMemo<Item[]>(() => {
-    const dueVocab = vocabulary.filter((v) => {
+    // Only material at the learner's level (+1) and not behind the paywall —
+    // a 5-minute session must feel doable, not throw C2 words at a beginner.
+    const maxIdx = Math.min(levelIndex(progress.level) + 1, LEVEL_ORDER.length - 1);
+    const fits = (lvl: CEFRLevel) => levelIndex(lvl) <= maxIdx && !isLevelLocked(lvl);
+    const levelWords = vocabulary.filter((v) => fits(v.level));
+    const dueVocab = levelWords.filter((v) => {
       const card = progress.vocabCards[v.id];
-      return !card || isDue(card);
+      return card && isDue(card);
     });
-    const pool = dueVocab.length >= 6 ? dueVocab : vocabulary;
-    const vocabItems: Item[] = shuffle(pool)
-      .slice(0, 6)
-      .map((data) => ({ kind: "vocab" as const, data }));
+    const freshVocab = levelWords.filter((v) => !progress.vocabCards[v.id]);
+    const pool = [...shuffle(dueVocab), ...shuffle(freshVocab)];
+    const vocabItems: Item[] = pool.slice(0, 6).map((data) => ({ kind: "vocab" as const, data }));
 
-    const grammarPool = grammarTopics.flatMap((t) => t.exercises);
+    const grammarPool = grammarTopics
+      .filter((t) => fits(t.level))
+      .flatMap((t) => t.exercises.map((data) => ({ data, topicId: t.id })));
     const grammarItems: Item[] = shuffle(grammarPool)
       .slice(0, 4)
-      .map((data) => ({ kind: "grammar" as const, data }));
+      .map(({ data, topicId }) => ({ kind: "grammar" as const, data, topicId }));
 
     return shuffle([...vocabItems, ...grammarItems]);
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -92,18 +102,24 @@ export function ExpressMode({ nav }: { nav: (r: Route) => void }) {
   const advance = () => {
     setFlipped(false);
     setAnswered(false);
+    setTypedResult(null);
     setIndex((i) => i + 1);
   };
 
   const gradeVocab = (knew: boolean) => {
     if (current?.kind !== "vocab") return;
     progress.reviewVocab(current.data.id, knew ? 3 : 0);
+    progress.recordVocabResult(current.data.id, current.data.topic, knew);
     if (knew) setCorrect((c) => c + 1);
     advance();
   };
 
+  const [typedResult, setTypedResult] = useState<null | boolean>(null);
+  const isKnownWord = current?.kind === "vocab" && Boolean(progress.vocabCards[current.data.id]);
+
   const handleGrammarAnswered = (isCorrect: boolean) => {
     if (current?.kind !== "grammar") return;
+    progress.recordGrammarAttempt(current.topicId, current.data.id, isCorrect);
     if (isCorrect) setCorrect((c) => c + 1);
     setAnswered(true);
   };
@@ -160,7 +176,34 @@ export function ExpressMode({ nav }: { nav: (r: Route) => void }) {
           />
         </div>
 
-        {current.kind === "vocab" && (
+        {current.kind === "vocab" && isKnownWord && (
+          <div className="mt-6 space-y-3">
+            <Typing
+              key={current.data.id}
+              word={current.data}
+              listen={false}
+              answered={typedResult === null ? null : { ok: typedResult }}
+              onAnswer={(r) => {
+                const ok = r !== "wrong";
+                progress.reviewVocab(current.data.id, r === "correct" ? 3 : ok ? 2 : 0);
+                progress.recordVocabResult(current.data.id, current.data.topic, ok);
+                if (ok) setCorrect((c) => c + 1);
+                setTypedResult(ok);
+              }}
+            />
+            {typedResult !== null && (
+              <div className={`rounded-xl p-3 ${typedResult ? "bg-emerald-500/15" : "bg-red-500/15"}`}>
+                <p className="text-sm font-semibold text-slate-100">{current.data.de}</p>
+                <p className="text-xs text-slate-400">{current.data.ru}</p>
+                <button onClick={advance} className="accent-bg mt-2 w-full rounded-lg py-2.5 text-sm font-semibold">
+                  Далее →
+                </button>
+              </div>
+            )}
+          </div>
+        )}
+
+        {current.kind === "vocab" && !isKnownWord && (
           <div className="mt-6">
             <div
               className={`flip-card h-56 w-full cursor-pointer ${flipped ? "flipped" : ""}`}
