@@ -1,6 +1,7 @@
 import type { ConversationTopic } from "../types";
+import { BEHOERDEN_CONVERSATIONS } from "./conversations-behoerden";
 
-export const CONVERSATIONS: ConversationTopic[] = [
+const BASE_CONVERSATIONS: ConversationTopic[] = [
   {
     id: "restaurant",
     title: "Im Restaurant",
@@ -328,3 +329,5 @@ export const CONVERSATIONS: ConversationTopic[] = [
     ],
   },
 ];
+
+export const CONVERSATIONS: ConversationTopic[] = [...BASE_CONVERSATIONS, ...BEHOERDEN_CONVERSATIONS];

@@ -62,6 +62,9 @@ export interface ConversationTopic {
   level: CEFRLevel;
   icon: string;
   avatar: string;
+  // "official" — диалоги в госучреждениях/инстанциях (ведомства, банк,
+  // полиция и т.п.); отдельный фильтр в списке диалогов. Без поля — бытовой.
+  category?: "everyday" | "official";
   lines: DialogueLine[];
 }
 
