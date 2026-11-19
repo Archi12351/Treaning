@@ -3,9 +3,7 @@ import type { Route } from "../App";
 import { TopBar } from "../components/TopBar";
 import { useProgress } from "../hooks/useProgress";
 import { normalize } from "../utils/text";
-import { IRREGULAR_VERBS, NOUN_PLURALS, ADJ_COMPARISON } from "../data/forms";
-
-type Mode = "verben" | "nomen" | "adjektive";
+import { FORMS_BY_LANGUAGE, type FormsDeck } from "../data/formsDecks";
 
 function shuffle<T>(arr: T[]): T[] {
   const a = [...arr];
@@ -16,35 +14,34 @@ function shuffle<T>(arr: T[]): T[] {
   return a;
 }
 
-const MODES: { id: Mode; label: string; icon: string }[] = [
-  { id: "verben", label: "Глаголы", icon: "🏃" },
-  { id: "nomen", label: "Существительные", icon: "📦" },
-  { id: "adjektive", label: "Прилагательные", icon: "📏" },
-];
-
 export function FormsTrainer({ nav }: { nav: (r: Route) => void }) {
   const progress = useProgress();
-  const [mode, setMode] = useState<Mode | null>(null);
+  const decks = FORMS_BY_LANGUAGE[progress.language];
+  const [deckId, setDeckId] = useState<string | null>(null);
+  const deck = decks.find((d) => d.id === deckId);
 
-  if (!mode) {
+  if (!deck) {
     return (
       <div>
         <TopBar title="Тренажёр форм слов" onBack={() => nav({ name: "vocab-topics" })} />
         <div className="px-4 py-4">
           <p className="text-sm text-slate-400">
-            Отрабатывайте разные грамматические формы слов: спряжение
-            неправильных глаголов, множественное число существительных,
-            степени сравнения прилагательных.
+            Отрабатывайте грамматические формы слов: неправильные глаголы,
+            множественное число, степени сравнения и другие формы, которые
+            приходится просто запомнить.
           </p>
           <div className="mt-4 space-y-2.5">
-            {MODES.map((m) => (
+            {decks.map((d) => (
               <button
-                key={m.id}
-                onClick={() => setMode(m.id)}
+                key={d.id}
+                onClick={() => setDeckId(d.id)}
                 className="flex w-full items-center gap-3 rounded-xl bg-slate-900 p-4 text-left active:bg-slate-800"
               >
-                <span className="text-2xl">{m.icon}</span>
-                <span className="text-sm font-semibold text-slate-100">{m.label}</span>
+                <span className="text-2xl">{d.icon}</span>
+                <div className="min-w-0 flex-1">
+                  <p className="text-sm font-semibold text-slate-100">{d.label}</p>
+                  <p className="text-[11px] text-slate-500">{d.items.length} слов</p>
+                </div>
               </button>
             ))}
           </div>
@@ -53,50 +50,35 @@ export function FormsTrainer({ nav }: { nav: (r: Route) => void }) {
     );
   }
 
-  return <Session mode={mode} onExit={() => setMode(null)} addXp={progress.addXp} />;
+  return <Session key={deck.id} deck={deck} onExit={() => setDeckId(null)} addXp={progress.addXp} />;
 }
 
 function Session({
-  mode,
+  deck,
   onExit,
   addXp,
 }: {
-  mode: Mode;
+  deck: FormsDeck;
   onExit: () => void;
   addXp: (n: number) => void;
 }) {
-  const items = useMemo(() => {
-    if (mode === "verben") return shuffle(IRREGULAR_VERBS).slice(0, 10);
-    if (mode === "nomen") return shuffle(NOUN_PLURALS).slice(0, 10);
-    return shuffle(ADJ_COMPARISON).slice(0, 10);
-  }, [mode]);
+  const items = useMemo(() => shuffle(deck.items).slice(0, 10), [deck]);
+  const fieldCount = deck.fieldLabels.length;
 
   const [index, setIndex] = useState(0);
   const [checked, setChecked] = useState(false);
   const [correctCount, setCorrectCount] = useState(0);
-  const [inputs, setInputs] = useState<string[]>(["", ""]);
+  const [inputs, setInputs] = useState<string[]>(() => Array(fieldCount).fill(""));
   const [results, setResults] = useState<boolean[]>([]);
   const [done, setDone] = useState(false);
 
-  const current = items[index] as (typeof items)[number] | undefined;
+  const current = items[index];
 
   const check = () => {
     if (!current) return;
-    let expected: string[] = [];
-    if (mode === "verben") {
-      const v = current as (typeof IRREGULAR_VERBS)[number];
-      expected = [v.praeteritum, v.partizip2];
-    } else if (mode === "nomen") {
-      const n = current as (typeof NOUN_PLURALS)[number];
-      expected = [n.plural];
-    } else {
-      const a = current as (typeof ADJ_COMPARISON)[number];
-      expected = [a.komparativ, a.superlativ];
-    }
-    const res = expected.map((exp, i) => normalize(inputs[i] || "") === normalize(exp));
+    const res = current.forms.map((exp, i) => normalize(inputs[i] || "") === normalize(exp));
     setResults(res);
-    const allCorrect = res.every(Boolean);
-    if (allCorrect) {
+    if (res.every(Boolean)) {
       setCorrectCount((c) => c + 1);
       addXp(2);
     }
@@ -108,7 +90,7 @@ function Session({
       setDone(true);
     } else {
       setIndex((i) => i + 1);
-      setInputs(["", ""]);
+      setInputs(Array(fieldCount).fill(""));
       setChecked(false);
       setResults([]);
     }
@@ -136,7 +118,7 @@ function Session({
   return (
     <div>
       <TopBar
-        title="Тренажёр форм слов"
+        title={deck.label}
         onBack={onExit}
         right={
           <span className="text-xs text-slate-500">
@@ -153,87 +135,22 @@ function Session({
         </div>
 
         <div className="mt-6 rounded-2xl bg-slate-900 p-5 text-center">
-          {mode === "verben" && (
-            <>
-              <p className="text-2xl font-bold text-slate-50">
-                {(current as (typeof IRREGULAR_VERBS)[number]).infinitiv}
-              </p>
-              <p className="mt-1 text-sm text-slate-500">
-                {(current as (typeof IRREGULAR_VERBS)[number]).ru}
-              </p>
-              <div className="mt-5 space-y-3 text-left">
-                <Field
-                  label="Präteritum (ich/er...)"
-                  value={inputs[0]}
-                  onChange={(v) => setInputs([v, inputs[1]])}
-                  disabled={checked}
-                  correct={results[0]}
-                  answer={(current as (typeof IRREGULAR_VERBS)[number]).praeteritum}
-                  checked={checked}
-                />
-                <Field
-                  label="Partizip II (haben/sein + ...)"
-                  value={inputs[1]}
-                  onChange={(v) => setInputs([inputs[0], v])}
-                  disabled={checked}
-                  correct={results[1]}
-                  answer={(current as (typeof IRREGULAR_VERBS)[number]).partizip2}
-                  checked={checked}
-                />
-              </div>
-            </>
-          )}
-          {mode === "nomen" && (
-            <>
-              <p className="text-2xl font-bold text-slate-50">
-                {(current as (typeof NOUN_PLURALS)[number]).singular}
-              </p>
-              <p className="mt-1 text-sm text-slate-500">
-                {(current as (typeof NOUN_PLURALS)[number]).ru}
-              </p>
-              <div className="mt-5 space-y-3 text-left">
-                <Field
-                  label="Plural (die ...)"
-                  value={inputs[0]}
-                  onChange={(v) => setInputs([v, inputs[1]])}
-                  disabled={checked}
-                  correct={results[0]}
-                  answer={(current as (typeof NOUN_PLURALS)[number]).plural}
-                  checked={checked}
-                />
-              </div>
-            </>
-          )}
-          {mode === "adjektive" && (
-            <>
-              <p className="text-2xl font-bold text-slate-50">
-                {(current as (typeof ADJ_COMPARISON)[number]).positive}
-              </p>
-              <p className="mt-1 text-sm text-slate-500">
-                {(current as (typeof ADJ_COMPARISON)[number]).ru}
-              </p>
-              <div className="mt-5 space-y-3 text-left">
-                <Field
-                  label="Komparativ"
-                  value={inputs[0]}
-                  onChange={(v) => setInputs([v, inputs[1]])}
-                  disabled={checked}
-                  correct={results[0]}
-                  answer={(current as (typeof ADJ_COMPARISON)[number]).komparativ}
-                  checked={checked}
-                />
-                <Field
-                  label="Superlativ (am ...)"
-                  value={inputs[1]}
-                  onChange={(v) => setInputs([inputs[0], v])}
-                  disabled={checked}
-                  correct={results[1]}
-                  answer={(current as (typeof ADJ_COMPARISON)[number]).superlativ}
-                  checked={checked}
-                />
-              </div>
-            </>
-          )}
+          <p className="text-2xl font-bold text-slate-50">{current.base}</p>
+          <p className="mt-1 text-sm text-slate-500">{current.ru}</p>
+          <div className="mt-5 space-y-3 text-left">
+            {deck.fieldLabels.map((label, i) => (
+              <Field
+                key={label}
+                label={label}
+                value={inputs[i]}
+                onChange={(v) => setInputs((prev) => prev.map((x, j) => (j === i ? v : x)))}
+                disabled={checked}
+                correct={results[i]}
+                answer={current.forms[i]}
+                checked={checked}
+              />
+            ))}
+          </div>
         </div>
 
         {!checked ? (

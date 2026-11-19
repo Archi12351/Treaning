@@ -14,7 +14,6 @@ export function VocabTopics({ nav }: { nav: (r: Route) => void }) {
   return (
     <div>
       <TopBar title="Лексика" />
-      {progress.language === "de" && (
         <div className="px-4 pt-2">
           <button
             onClick={() => nav({ name: "forms-trainer" })}
@@ -30,7 +29,6 @@ export function VocabTopics({ nav }: { nav: (r: Route) => void }) {
             <span className="text-xl text-white">→</span>
           </button>
         </div>
-      )}
       <p className="px-4 pb-1 pt-4 text-xs text-slate-500">Темы для карточек:</p>
       <div className="space-y-3 px-4 py-3">
         {[...vocabTopics].sort((a, b) => levelIndex(a.level) - levelIndex(b.level)).map((topic) => {
