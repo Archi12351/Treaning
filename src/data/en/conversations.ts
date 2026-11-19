@@ -1,6 +1,7 @@
 import type { ConversationTopic } from "../../types";
+import { EN_EXTRA_CONVERSATIONS } from "./conversations-extra";
 
-export const CONVERSATIONS: ConversationTopic[] = [
+const BASE_CONVERSATIONS: ConversationTopic[] = [
   {
     id: "en-introduce",
     title: "Introducing Yourself",
@@ -122,3 +123,5 @@ export const CONVERSATIONS: ConversationTopic[] = [
     ],
   },
 ];
+
+export const CONVERSATIONS: ConversationTopic[] = [...BASE_CONVERSATIONS, ...EN_EXTRA_CONVERSATIONS];

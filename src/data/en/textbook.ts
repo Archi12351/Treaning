@@ -1,6 +1,7 @@
 import type { TextbookChapter, TextbookParagraph } from "../../types";
+import { EN_EXTRA_CHAPTERS, EN_EXTRA_PARAGRAPHS } from "./textbook-extra";
 
-export const TEXTBOOK_CHAPTERS: TextbookChapter[] = [
+const BASE_CHAPTERS: TextbookChapter[] = [
   { id: "en-ch-verbs-present", number: 1, title: "Present Tenses", levelRange: "A1" },
   { id: "en-ch-articles", number: 2, title: "Articles: a, an, the", levelRange: "A1" },
   { id: "en-ch-plurals", number: 3, title: "Plural Nouns", levelRange: "A1" },
@@ -11,7 +12,7 @@ export const TEXTBOOK_CHAPTERS: TextbookChapter[] = [
   { id: "en-ch-conditionals", number: 8, title: "Conditional Sentences", levelRange: "B1" },
 ];
 
-export const TEXTBOOK_PARAGRAPHS: TextbookParagraph[] = [
+const BASE_PARAGRAPHS: TextbookParagraph[] = [
   {
     id: "en-p1",
     number: "1.1",
@@ -171,3 +172,6 @@ export const TEXTBOOK_PARAGRAPHS: TextbookParagraph[] = [
     ],
   },
 ];
+
+export const TEXTBOOK_CHAPTERS: TextbookChapter[] = [...BASE_CHAPTERS, ...EN_EXTRA_CHAPTERS];
+export const TEXTBOOK_PARAGRAPHS: TextbookParagraph[] = [...BASE_PARAGRAPHS, ...EN_EXTRA_PARAGRAPHS];

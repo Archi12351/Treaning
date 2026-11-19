@@ -31,4 +31,11 @@ export const PLACEMENT_QUESTIONS: PlacementQuestion[] = [
   { id: "epl-c2-2", level: "C2", prompt: "Little ___ he know what awaited him.", options: ["did", "does", "he did", "he does"], answer: "did" },
   { id: "epl-c2-3", level: "C2", prompt: "She is said ___ (be) the best candidate.", options: ["to be", "being", "be", "been"], answer: "to be" },
   { id: "epl-c2-4", level: "C2", prompt: "No sooner ___ home than the phone rang.", options: ["had I arrived", "I had arrived", "I arrived", "did I arrive"], answer: "had I arrived" },
+  // Дополнительные вопросы (по одному на уровень)
+  { id: "epl-a1-5", level: "A1", prompt: "There ___ two banks in my street.", options: ["are", "is", "be", "have"], answer: "are" },
+  { id: "epl-a2-5", level: "A2", prompt: "How ___ money do you have?", options: ["much", "many", "few", "lot"], answer: "much" },
+  { id: "epl-b1-5", level: "B1", prompt: "I was cooking when the doorbell ___.", options: ["rang", "was ringing", "rings", "has rung"], answer: "rang" },
+  { id: "epl-b2-5", level: "B2", prompt: "If I had known, I ___ you.", options: ["would have told", "would tell", "told", "had told"], answer: "would have told" },
+  { id: "epl-c1-5", level: "C1", prompt: "Should you ___ any questions, please contact us.", options: ["have", "had", "having", "to have"], answer: "have" },
+  { id: "epl-c2-5", level: "C2", prompt: "The minister's remarks served only to ___ the crisis.", options: ["exacerbate", "alleviate", "mitigate", "allay"], answer: "exacerbate" },
 ];

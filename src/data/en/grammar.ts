@@ -1,6 +1,7 @@
 import type { GrammarTopic } from "../../types";
+import { EN_EXTRA_EXERCISES, EN_NEW_TOPICS } from "./grammar-extra";
 
-export const GRAMMAR_TOPICS: GrammarTopic[] = [
+const BASE_TOPICS: GrammarTopic[] = [
   {
     id: "en-present-simple",
     title: "Present Simple",
@@ -201,4 +202,12 @@ export const GRAMMAR_TOPICS: GrammarTopic[] = [
       { id: "econd-6", type: "transform", level: "B1", prompt: "I don't have wings, so I can't fly. — rewrite with Second Conditional.", answer: "If I had wings, I could fly.", explanation: "Нереальная ситуация — Second Conditional: If + Past Simple, could + инфинитив." },
     ],
   },
+];
+
+export const GRAMMAR_TOPICS: GrammarTopic[] = [
+  ...BASE_TOPICS.map((t) => ({
+    ...t,
+    exercises: [...t.exercises, ...(EN_EXTRA_EXERCISES[t.id] ?? [])],
+  })),
+  ...EN_NEW_TOPICS,
 ];
