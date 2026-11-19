@@ -4,10 +4,12 @@ import { TopBar } from "../components/TopBar";
 import { useProgress } from "../hooks/useProgress";
 import { useLanguageData } from "../hooks/useLanguageData";
 import { levelIndex } from "../utils/studyPlan";
+import { usePremium } from "../hooks/usePremium";
 
 export function GrammarTopics({ nav }: { nav: (r: Route) => void }) {
   const progress = useProgress();
   const { grammarTopics } = useLanguageData();
+  const { isLevelLocked } = usePremium();
   const sortedTopics = useMemo(
     () => [...grammarTopics].sort((a, b) => levelIndex(a.level) - levelIndex(b.level)),
     [grammarTopics],
@@ -47,7 +49,10 @@ export function GrammarTopics({ nav }: { nav: (r: Route) => void }) {
             >
               <div className="flex items-center justify-between gap-3">
                 <div className="min-w-0">
-                  <p className="truncate font-semibold text-slate-100">{topic.title}</p>
+                  <p className="truncate font-semibold text-slate-100">
+                    {isLevelLocked(topic.level) && <span className="mr-1">💎</span>}
+                    {topic.title}
+                  </p>
                   <p className="text-xs text-slate-500">{topic.summary}</p>
                 </div>
                 <span className="shrink-0 rounded-full bg-slate-800 px-2 py-0.5 text-[11px] text-slate-400">

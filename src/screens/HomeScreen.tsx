@@ -8,10 +8,13 @@ import { masteryPercent, MASTERY_THRESHOLD } from "../utils/srs";
 import { buildStudyPlan, type PlanStep } from "../utils/studyPlan";
 import { useAIFacts } from "../hooks/useAIFacts";
 import { CULTURE_BY_LANGUAGE } from "../data/facts";
+import { BRAND } from "../config/brand";
+import { usePremium } from "../hooks/usePremium";
 
 export function HomeScreen({ nav }: { nav: (r: Route) => void }) {
   const progress = useProgress();
   const { grammarTopics, vocabTopics, vocabulary, conversations } = useLanguageData();
+  const premium = usePremium();
 
   const vocabMastered = vocabulary.filter(
     (v) => masteryPercent(progress.vocabCards[v.id]) >= MASTERY_THRESHOLD,
@@ -61,7 +64,7 @@ export function HomeScreen({ nav }: { nav: (r: Route) => void }) {
       <div className="flex items-center justify-between">
         <div>
           <p className="text-sm text-slate-400">С возвращением 👋</p>
-          <h1 className="text-2xl font-bold text-slate-50">Tutorem</h1>
+          <h1 className="text-2xl font-bold text-slate-50">{BRAND.name}</h1>
         </div>
         <div className="flex flex-col items-end">
           <span className="accent-soft-bg rounded-full px-3 py-1 text-sm font-semibold">
@@ -97,6 +100,18 @@ export function HomeScreen({ nav }: { nav: (r: Route) => void }) {
           </p>
           <p className="mt-0.5 text-xs opacity-80">
             Короткий тест (5 минут) — от A1 до C2, чтобы начать с нужного уровня
+          </p>
+        </button>
+      )}
+
+      {premium.paywallEnabled && !premium.isPremium && (
+        <button
+          onClick={() => nav({ name: "paywall" })}
+          className="mt-4 w-full rounded-2xl bg-gradient-to-r from-fuchsia-600 via-violet-600 to-amber-500 p-4 text-left shadow-lg shadow-fuchsia-500/20 active:scale-[0.99]"
+        >
+          <p className="text-sm font-semibold text-white">💎 Premium: все уровни до C2 и AI-репетитор</p>
+          <p className="mt-0.5 text-xs text-white/85">
+            Диалоги в госучреждениях, голосовой AI-собеседник, факты от ИИ — попробуйте бесплатно
           </p>
         </button>
       )}

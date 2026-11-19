@@ -1,0 +1,68 @@
+name: Android build
+
+# Builds the Capacitor Android app. Produces:
+#   - app-debug.apk      — install directly on a phone for testing
+#   - app-release.aab    — upload to Google Play (signed when the keystore
+#                          secrets below are configured, unsigned otherwise)
+#
+# Secrets (Settings → Secrets and variables → Actions):
+#   ANDROID_KEYSTORE_BASE64   base64 of your upload keystore (.jks)
+#   ANDROID_KEYSTORE_PASSWORD keystore password
+#   ANDROID_KEY_ALIAS         key alias
+#   ANDROID_KEY_PASSWORD      key password
+# Variables:
+#   VITE_RC_ANDROID_KEY       RevenueCat public Android SDK key (goog_...)
+#   VITE_AI_BACKEND_URL       URL of the Cloudflare Worker AI proxy
+
+on:
+  workflow_dispatch:
+  push:
+    tags:
+      - "v*"
+
+jobs:
+  android:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: 21
+      - run: npm ci
+      - run: npm run build:native
+        env:
+          VITE_RC_ANDROID_KEY: ${{ vars.VITE_RC_ANDROID_KEY }}
+          VITE_AI_BACKEND_URL: ${{ vars.VITE_AI_BACKEND_URL }}
+      - run: npx cap sync android
+      - name: Build debug APK
+        working-directory: android
+        run: ./gradlew assembleDebug
+      - name: Build release bundle
+        working-directory: android
+        env:
+          KEYSTORE_B64: ${{ secrets.ANDROID_KEYSTORE_BASE64 }}
+          KEYSTORE_PASSWORD: ${{ secrets.ANDROID_KEYSTORE_PASSWORD }}
+          KEY_ALIAS: ${{ secrets.ANDROID_KEY_ALIAS }}
+          KEY_PASSWORD: ${{ secrets.ANDROID_KEY_PASSWORD }}
+        run: |
+          if [ -n "$KEYSTORE_B64" ]; then
+            echo "$KEYSTORE_B64" | base64 -d > "$RUNNER_TEMP/upload.jks"
+            ./gradlew bundleRelease \
+              -Pandroid.injected.signing.store.file="$RUNNER_TEMP/upload.jks" \
+              -Pandroid.injected.signing.store.password="$KEYSTORE_PASSWORD" \
+              -Pandroid.injected.signing.key.alias="$KEY_ALIAS" \
+              -Pandroid.injected.signing.key.password="$KEY_PASSWORD"
+          else
+            ./gradlew bundleRelease
+          fi
+      - uses: actions/upload-artifact@v4
+        with:
+          name: movingua-android
+          path: |
+            android/app/build/outputs/apk/debug/app-debug.apk
+            android/app/build/outputs/bundle/release/app-release.aab

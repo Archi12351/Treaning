@@ -4,6 +4,7 @@ import { CULTURE_BY_LANGUAGE, type CultureFact } from "../data/facts";
 import { generateFacts } from "../utils/aiFacts";
 import { canUseAI } from "../utils/aiBackend";
 import { useProgress } from "./useProgress";
+import { usePremium } from "./usePremium";
 
 // AI-generated facts are cached per language in localStorage so they survive
 // reloads and keep accumulating: every visit to the Culture screen (at most
@@ -46,7 +47,13 @@ export function useAIFacts(language: Language, { autoRefresh = false } = {}) {
   const [error, setError] = useState<string | null>(null);
   const inFlight = useRef(false);
 
-  const available = canUseAI(progress.aiProvider, progress.apiKey, progress.geminiApiKey);
+  const premium = usePremium();
+  const ownKey = progress.aiProvider === "gemini" ? progress.geminiApiKey : progress.apiKey;
+  // With the paywall on, the shared AI backend is a Premium perk; an own key always works.
+  const available =
+    canUseAI(progress.aiProvider, progress.apiKey, progress.geminiApiKey) &&
+    (!premium.paywallEnabled || premium.isPremium || Boolean(ownKey));
+  const needsPremium = !available && premium.paywallEnabled && !premium.isPremium;
 
   useEffect(() => {
     setAiFacts(getStoredAIFacts(language));
@@ -105,5 +112,5 @@ export function useAIFacts(language: Language, { autoRefresh = false } = {}) {
     setAiFacts([]);
   }, [language]);
 
-  return { aiFacts, loading, error, available, generate, clear };
+  return { aiFacts, loading, error, available, needsPremium, generate, clear };
 }

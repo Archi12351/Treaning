@@ -2,6 +2,11 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import { useProgress } from "./useProgress";
 import { getLanguageBundle } from "../data/languages";
 import { synthesizeSpeech } from "../utils/geminiTts";
+import { Capacitor } from "@capacitor/core";
+
+// In the iOS/Android apps the WebView has no (or an unreliable) Web Speech
+// API, so speech goes through native plugins there instead.
+const IS_NATIVE = Capacitor.isNativePlatform();
 
 let allVoices: SpeechSynthesisVoice[] = [];
 
@@ -64,7 +69,8 @@ export function useTextToSpeech() {
   const progress = useProgress();
   const speechLang = getLanguageBundle(progress.language).meta.speechLang;
   const audioRef = useRef<HTMLAudioElement | null>(null);
-  const supported = browserSupported || (progress.useAiVoice && Boolean(progress.geminiApiKey));
+  const supported =
+    IS_NATIVE || browserSupported || (progress.useAiVoice && Boolean(progress.geminiApiKey));
 
   useEffect(() => {
     if (!browserSupported) return;
@@ -76,6 +82,19 @@ export function useTextToSpeech() {
 
   const speakLocally = useCallback(
     (text: string, rate: number) => {
+      if (IS_NATIVE) {
+        void (async () => {
+          const { TextToSpeech } = await import("@capacitor-community/text-to-speech");
+          setSpeaking(true);
+          try {
+            await TextToSpeech.stop();
+            await TextToSpeech.speak({ text, lang: speechLang, rate, category: "playback" });
+          } finally {
+            setSpeaking(false);
+          }
+        })();
+        return;
+      }
       if (!browserSupported) return;
       window.speechSynthesis.cancel();
       const utter = new SpeechSynthesisUtterance(text);
@@ -127,6 +146,9 @@ export function useTextToSpeech() {
   );
 
   const stop = useCallback(() => {
+    if (IS_NATIVE) {
+      void import("@capacitor-community/text-to-speech").then(({ TextToSpeech }) => TextToSpeech.stop());
+    }
     if (browserSupported) window.speechSynthesis.cancel();
     audioRef.current?.pause();
     setSpeaking(false);
@@ -146,8 +168,8 @@ function getRecognitionCtor(): SpeechRecognitionCtor | null {
 }
 
 export function useSpeechRecognition() {
-  const Ctor = getRecognitionCtor();
-  const supported = !!Ctor;
+  const Ctor = IS_NATIVE ? null : getRecognitionCtor();
+  const supported = IS_NATIVE || !!Ctor;
   const progress = useProgress();
   const speechLang = getLanguageBundle(progress.language).meta.speechLang;
   const [listening, setListening] = useState(false);
@@ -156,6 +178,33 @@ export function useSpeechRecognition() {
   const recognitionRef = useRef<SpeechRecognition | null>(null);
 
   const start = useCallback(() => {
+    if (IS_NATIVE) {
+      setError(null);
+      setTranscript("");
+      setListening(true);
+      void (async () => {
+        try {
+          const { SpeechRecognition: NativeSR } = await import("@capacitor-community/speech-recognition");
+          const perm = await NativeSR.requestPermissions();
+          if (perm.speechRecognition !== "granted") {
+            setError("not-allowed");
+            return;
+          }
+          const res = await NativeSR.start({
+            language: speechLang,
+            maxResults: 3,
+            partialResults: false,
+            popup: false,
+          });
+          setTranscript(res.matches?.[0] ?? "");
+        } catch {
+          setError("no-speech");
+        } finally {
+          setListening(false);
+        }
+      })();
+      return;
+    }
     if (!Ctor) return;
     setError(null);
     setTranscript("");
@@ -184,6 +233,11 @@ export function useSpeechRecognition() {
   }, [Ctor, speechLang]);
 
   const stop = useCallback(() => {
+    if (IS_NATIVE) {
+      void import("@capacitor-community/speech-recognition").then(({ SpeechRecognition: NativeSR }) =>
+        NativeSR.stop(),
+      );
+    }
     recognitionRef.current?.stop();
     setListening(false);
   }, []);

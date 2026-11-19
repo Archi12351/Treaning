@@ -12,7 +12,7 @@ export function Culture({ nav }: { nav: (r: Route) => void }) {
   const bundle = CULTURE_BY_LANGUAGE[progress.language];
   // Каждый заход на экран (не чаще раза в несколько часов) подгружает свежую
   // порцию фактов от ИИ — так раздел пополняется сам, без кнопок.
-  const { aiFacts, loading, error, available, generate } = useAIFacts(progress.language, {
+  const { aiFacts, loading, error, available, needsPremium, generate } = useAIFacts(progress.language, {
     autoRefresh: true,
   });
   const [countryFilter, setCountryFilter] = useState<string>(ALL);
@@ -58,14 +58,15 @@ export function Culture({ nav }: { nav: (r: Route) => void }) {
           ) : (
             <>
               <p className="mt-1 text-xs leading-relaxed text-slate-300">
-                Подключите ИИ (ключ Claude или бесплатный ключ Gemini) — и
-                раздел будет сам пополняться новыми фактами при каждом заходе.
+                {needsPremium
+                  ? "С Premium раздел сам пополняется новыми фактами от ИИ при каждом заходе."
+                  : "Подключите ИИ (ключ Claude или бесплатный ключ Gemini) — и раздел будет сам пополняться новыми фактами при каждом заходе."}
               </p>
               <button
-                onClick={() => nav({ name: "settings" })}
+                onClick={() => nav({ name: needsPremium ? "paywall" : "settings" })}
                 className="mt-3 rounded-lg bg-slate-800 px-4 py-2 text-sm font-semibold text-slate-100"
               >
-                Открыть настройки
+                {needsPremium ? "💎 Узнать о Premium" : "Открыть настройки"}
               </button>
             </>
           )}

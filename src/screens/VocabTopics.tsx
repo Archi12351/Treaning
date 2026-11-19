@@ -2,11 +2,14 @@ import type { Route } from "../App";
 import { TopBar } from "../components/TopBar";
 import { useProgress } from "../hooks/useProgress";
 import { useLanguageData } from "../hooks/useLanguageData";
+import { usePremium } from "../hooks/usePremium";
+import { levelIndex } from "../utils/studyPlan";
 import { masteryPercent, MASTERY_THRESHOLD } from "../utils/srs";
 
 export function VocabTopics({ nav }: { nav: (r: Route) => void }) {
   const progress = useProgress();
   const { vocabTopics, vocabulary } = useLanguageData();
+  const { isLevelLocked } = usePremium();
 
   return (
     <div>
@@ -30,7 +33,8 @@ export function VocabTopics({ nav }: { nav: (r: Route) => void }) {
       )}
       <p className="px-4 pb-1 pt-4 text-xs text-slate-500">Темы для карточек:</p>
       <div className="space-y-3 px-4 py-3">
-        {vocabTopics.map((topic) => {
+        {[...vocabTopics].sort((a, b) => levelIndex(a.level) - levelIndex(b.level)).map((topic) => {
+          const premiumLocked = isLevelLocked(topic.level);
           const words = vocabulary.filter((v) => v.topic === topic.id);
           const mastered = words.filter(
             (w) => masteryPercent(progress.vocabCards[w.id]) >= MASTERY_THRESHOLD,
@@ -44,10 +48,14 @@ export function VocabTopics({ nav }: { nav: (r: Route) => void }) {
             >
               <div className="flex items-center justify-between">
                 <div>
-                  <p className="font-semibold text-slate-100">{topic.title}</p>
+                  <p className="font-semibold text-slate-100">
+                    {premiumLocked && <span className="mr-1">💎</span>}
+                    {topic.title}
+                  </p>
                   <p className="text-xs text-slate-500">{topic.ru}</p>
                 </div>
-                <span className="text-xs text-slate-500">
+                <span className="shrink-0 text-right text-xs text-slate-500">
+                  <span className="mr-1.5 rounded-full bg-slate-800 px-1.5 py-0.5 text-[10px]">{topic.level}</span>
                   {mastered}/{words.length}
                 </span>
               </div>

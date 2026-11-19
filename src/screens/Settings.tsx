@@ -7,6 +7,15 @@ import { useVoicesForLanguage } from "../hooks/useSpeech";
 import { useLanguageData } from "../hooks/useLanguageData";
 import { GEMINI_VOICES, synthesizeSpeech } from "../utils/geminiTts";
 import { hasAIBackend } from "../utils/aiBackend";
+import { usePremium } from "../hooks/usePremium";
+import { BRAND } from "../config/brand";
+import {
+  getReminderConsent,
+  grantReminderConsent,
+  setTrialReminder,
+  updateReminderTime,
+  withdrawReminderConsent,
+} from "../utils/notifications";
 
 const MODELS = [
   { id: "claude-opus-5", label: "Claude Opus 5", note: "Самый умный, дороже и чуть медленнее" },
@@ -81,18 +90,89 @@ export function Settings({ nav }: { nav: (r: Route) => void }) {
     setTimeout(() => setGeminiSaved(false), 1500);
   };
 
+  const premium = usePremium();
+  const [consent, setConsentState] = useState(() => getReminderConsent());
+  const [restoreMsg, setRestoreMsg] = useState<string | null>(null);
+  const reminderTime = consent
+    ? `${String(consent.hour).padStart(2, "0")}:${String(consent.minute).padStart(2, "0")}`
+    : "19:00";
+
+  // Включение — это и есть явное согласие: пользователь сам нажимает
+  // переключатель, только после этого показывается системный запрос.
   const toggleReminders = async () => {
     if (!progress.remindersEnabled) {
-      const granted = await requestPermission();
+      const [h, m] = reminderTime.split(":").map(Number);
+      const granted = premium.isNative
+        ? await grantReminderConsent(h, m, consent?.trialReminder ?? true)
+        : await requestPermission().then(async (ok) => {
+            if (ok) await grantReminderConsent(h, m, consent?.trialReminder ?? true);
+            return ok;
+          });
       if (granted) progress.setRemindersEnabled(true);
     } else {
+      await withdrawReminderConsent();
       progress.setRemindersEnabled(false);
     }
+    setConsentState(getReminderConsent());
+  };
+
+  const changeReminderTime = async (value: string) => {
+    const [h, m] = value.split(":").map(Number);
+    await updateReminderTime(h, m);
+    setConsentState(getReminderConsent());
   };
 
   return (
     <div>
       <TopBar title="Настройки" onBack={() => nav({ name: "progress" })} />
+      {premium.paywallEnabled && (
+        <div className="px-4 pt-4">
+          <div className="rounded-2xl bg-gradient-to-r from-fuchsia-600/30 to-violet-600/30 p-4">
+            <p className="text-sm font-semibold text-slate-100">
+              💎 {BRAND.name} Premium {premium.isPremium ? "— активен" : ""}
+            </p>
+            {premium.isPremium ? (
+              <>
+                {premium.expiresAt && (
+                  <p className="mt-1 text-xs text-slate-300">
+                    {premium.inTrial ? "Пробный период до " : premium.willRenew ? "Следующее продление: " : "Доступ до "}
+                    {new Date(premium.expiresAt).toLocaleDateString("ru-RU")}
+                  </p>
+                )}
+                {premium.managementUrl && (
+                  <a
+                    href={premium.managementUrl}
+                    target="_blank"
+                    rel="noreferrer"
+                    className="mt-3 inline-block rounded-lg bg-slate-800 px-3 py-2 text-xs text-slate-100"
+                  >
+                    Управлять подпиской / отменить
+                  </a>
+                )}
+              </>
+            ) : (
+              <button
+                onClick={() => nav({ name: "paywall" })}
+                className="mt-3 rounded-lg bg-gradient-to-r from-fuchsia-500 to-violet-500 px-4 py-2 text-sm font-semibold text-white"
+              >
+                Открыть все уровни и AI
+              </button>
+            )}
+            {premium.isNative && (
+              <button
+                onClick={async () => {
+                  const r = await premium.restore();
+                  setRestoreMsg(r.restored ? "Покупка восстановлена." : r.error || "Активных покупок не найдено.");
+                }}
+                className="mt-2 block text-xs text-slate-300 underline"
+              >
+                Восстановить покупки
+              </button>
+            )}
+            {restoreMsg && <p className="mt-1 text-xs text-slate-300">{restoreMsg}</p>}
+          </div>
+        </div>
+      )}
       <div className="space-y-5 px-4 py-4">
         <div className="rounded-2xl bg-slate-900 p-4">
           <p className="text-sm font-semibold text-slate-200">🎨 Внешний вид</p>
@@ -248,11 +328,16 @@ export function Settings({ nav }: { nav: (r: Route) => void }) {
             <div className="pr-3">
               <p className="text-sm font-semibold text-slate-200">🔔 Напоминания</p>
               <p className="mt-1 text-xs leading-relaxed text-slate-500">
-                Вечернее уведомление, если вы ещё не позанимались сегодня.
-                Работает, пока приложение открыто в браузере/на телефоне —
-                без своего сервера нет настоящих push-уведомлений при полностью
-                закрытом приложении.
+                {premium.isNative
+                  ? "Одно короткое напоминание в день в выбранное время. Только с вашего согласия — отключается здесь в любой момент."
+                  : "Вечернее уведомление, если вы ещё не позанимались сегодня. В браузере работает, пока приложение открыто; в приложении для телефона — по расписанию."}
               </p>
+              {consent && (
+                <p className="mt-1 text-[10px] text-slate-600">
+                  {consent.status === "granted" ? "Согласие дано" : "Вы отказались"}{" "}
+                  {new Date(consent.decidedAt).toLocaleDateString("ru-RU")}
+                </p>
+              )}
               {!notifSupported && (
                 <p className="mt-1 text-xs text-amber-400">Браузер не поддерживает уведомления.</p>
               )}
@@ -264,7 +349,7 @@ export function Settings({ nav }: { nav: (r: Route) => void }) {
             </div>
             <button
               onClick={toggleReminders}
-              disabled={!notifSupported || permission === "denied"}
+              disabled={!premium.isNative && (!notifSupported || permission === "denied")}
               className={`h-7 w-12 shrink-0 rounded-full transition-colors disabled:opacity-30 ${
                 progress.remindersEnabled ? "accent-bg" : "bg-slate-700"
               }`}
@@ -277,6 +362,35 @@ export function Settings({ nav }: { nav: (r: Route) => void }) {
               />
             </button>
           </div>
+          {progress.remindersEnabled && consent?.status === "granted" && (
+            <div className="mt-3 space-y-2">
+              {premium.isNative && (
+                <label className="flex items-center justify-between text-xs text-slate-300">
+                  Время напоминания
+                  <input
+                    type="time"
+                    value={reminderTime}
+                    onChange={(e) => void changeReminderTime(e.target.value)}
+                    className="rounded-md bg-slate-800 px-2 py-1 text-slate-100"
+                  />
+                </label>
+              )}
+              {premium.paywallEnabled && (
+                <label className="flex items-start gap-2 text-xs text-slate-400">
+                  <input
+                    type="checkbox"
+                    checked={consent.trialReminder}
+                    onChange={async (e) => {
+                      await setTrialReminder(e.target.checked);
+                      setConsentState(getReminderConsent());
+                    }}
+                    className="mt-0.5"
+                  />
+                  Предупредить до окончания пробного периода подписки
+                </label>
+              )}
+            </div>
+          )}
         </div>
 
         <div className="rounded-2xl bg-slate-900 p-4">
@@ -479,6 +593,18 @@ export function Settings({ nav }: { nav: (r: Route) => void }) {
             </div>
           </>
         )}
+
+        <div className="flex flex-wrap justify-center gap-4 pb-4 pt-2 text-[11px] text-slate-500">
+          <a href={BRAND.privacyUrl} target="_blank" rel="noreferrer" className="underline">
+            Политика конфиденциальности
+          </a>
+          <a href={BRAND.termsUrl} target="_blank" rel="noreferrer" className="underline">
+            Условия использования
+          </a>
+          <a href={`mailto:${BRAND.supportEmail}`} className="underline">
+            Поддержка
+          </a>
+        </div>
       </div>
     </div>
   );

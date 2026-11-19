@@ -4,6 +4,7 @@ import { TopBar } from "../components/TopBar";
 import { useProgress } from "../hooks/useProgress";
 import { useLanguageData } from "../hooks/useLanguageData";
 import { LEVEL_ORDER, levelIndex } from "../utils/studyPlan";
+import { usePremium } from "../hooks/usePremium";
 
 type Filter = "all" | "official" | "everyday";
 
@@ -16,6 +17,7 @@ const FILTERS: { id: Filter; label: string }[] = [
 export function ConversationsList({ nav }: { nav: (r: Route) => void }) {
   const progress = useProgress();
   const { conversations } = useLanguageData();
+  const { isLevelLocked } = usePremium();
   const maxUnlockedIdx = Math.min(levelIndex(progress.level) + 1, LEVEL_ORDER.length - 1);
   const [filter, setFilter] = useState<Filter>("all");
   const officialCount = conversations.filter((c) => c.category === "official").length;
@@ -96,6 +98,7 @@ export function ConversationsList({ nav }: { nav: (r: Route) => void }) {
               <span className="text-2xl">{locked ? "🔒" : c.icon}</span>
               <div className="min-w-0 flex-1">
                 <p className="truncate font-semibold text-slate-100">
+                  {isLevelLocked(c.level) && <span className="mr-1">💎</span>}
                   {c.category === "official" && <span className="mr-1 text-xs">🏛️</span>}
                   {c.title}
                 </p>

@@ -3,10 +3,13 @@ import type { Route } from "../App";
 import { TopBar } from "../components/TopBar";
 import { useProgress } from "../hooks/useProgress";
 import { useLanguageData } from "../hooks/useLanguageData";
+import { usePremium } from "../hooks/usePremium";
+import type { CEFRLevel } from "../types";
 
 export function TextbookIndex({ nav }: { nav: (r: Route) => void }) {
   const progress = useProgress();
   const { textbookChapters, textbookParagraphs } = useLanguageData();
+  const { isLevelLocked } = usePremium();
   const [query, setQuery] = useState("");
 
   const searchResults = useMemo(() => {
@@ -70,7 +73,10 @@ export function TextbookIndex({ nav }: { nav: (r: Route) => void }) {
                     {c.number}
                   </span>
                   <div className="min-w-0 flex-1">
-                    <p className="truncate text-sm font-semibold text-slate-100">{c.title}</p>
+                    <p className="truncate text-sm font-semibold text-slate-100">
+                      {isLevelLocked(c.levelRange.slice(0, 2) as CEFRLevel) && <span className="mr-1">💎</span>}
+                      {c.title}
+                    </p>
                     <p className="text-[11px] text-slate-500">
                       {c.levelRange} · {count} {count === 1 ? "параграф" : "параграфа"}
                     </p>

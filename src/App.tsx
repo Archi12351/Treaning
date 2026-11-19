@@ -24,6 +24,12 @@ import { Settings } from "./screens/Settings";
 import { Culture } from "./screens/Culture";
 import { FormsTrainer } from "./screens/FormsTrainer";
 import { StudyPath } from "./screens/StudyPath";
+import { Paywall, LockedScreen } from "./screens/Paywall";
+import { PremiumProvider, usePremium } from "./hooks/usePremium";
+import { useLanguageData } from "./hooks/useLanguageData";
+import { ReminderConsent } from "./components/ReminderConsent";
+import { getReminderConsent } from "./utils/notifications";
+import type { CEFRLevel } from "./types";
 
 export type Route =
   | { name: "home" }
@@ -43,7 +49,8 @@ export type Route =
   | { name: "settings" }
   | { name: "culture" }
   | { name: "forms-trainer" }
-  | { name: "study-path" };
+  | { name: "study-path" }
+  | { name: "paywall" };
 
 const TAB_ROOTS: Record<string, Route> = {
   home: { name: "home" },
@@ -105,7 +112,56 @@ function AppShell() {
 
   useStreakReminder(progress.remindersEnabled, progress.lastActiveDate, progress.streakCount);
 
-  const nav = (r: Route) => setRoute(r);
+  const premium = usePremium();
+  const bundle = useLanguageData();
+  const [paywallBack, setPaywallBack] = useState<Route>({ name: "home" });
+  const [prevRoute, setPrevRoute] = useState<Route>({ name: "home" });
+  const nav = (r: Route) => {
+    if (r.name === "paywall" && route.name !== "paywall") setPaywallBack(prevRouteFor(route));
+    setPrevRoute(route);
+    setRoute(r);
+  };
+  // Don't send "back" from the paywall into a screen that is itself locked.
+  const prevRouteFor = (r: Route): Route => {
+    const lvl = routeLevel(r);
+    return lvl && premium.isLevelLocked(lvl) ? prevRoute : r;
+  };
+
+  // Ask for reminder consent once, at a moment the learner has just seen
+  // value (after earning their first XP), never on first launch.
+  const [askConsent, setAskConsent] = useState(false);
+  useEffect(() => {
+    if (route.name === "home" && progress.xp >= 10 && getReminderConsent() === null) {
+      setAskConsent(true);
+    }
+  }, [route.name, progress.xp]);
+
+  // Which CEFR level the target screen belongs to — used to gate B1+ content.
+  const routeLevel = (r: Route): CEFRLevel | null => {
+    switch (r.name) {
+      case "vocab-trainer":
+        return bundle.vocabTopics.find((t) => t.id === r.topic)?.level ?? null;
+      case "grammar-detail":
+        return bundle.grammarTopics.find((t) => t.id === r.topicId)?.level ?? null;
+      case "conversation-player":
+        return bundle.conversations.find((c) => c.id === r.id)?.level ?? null;
+      case "textbook-chapter": {
+        const lr = bundle.textbookChapters.find((c) => c.id === r.chapterId)?.levelRange;
+        return lr ? (lr.slice(0, 2) as CEFRLevel) : null;
+      }
+      default:
+        return null;
+    }
+  };
+  const lockedLevel = routeLevel(route);
+  const contentLocked = lockedLevel !== null && premium.isLevelLocked(lockedLevel);
+  // The AI partner is included in Premium; learners who bring their own
+  // API key can keep using it for free.
+  const aiLocked =
+    route.name === "ai-conversation" &&
+    premium.paywallEnabled &&
+    !premium.isPremium &&
+    !(progress.aiProvider === "gemini" ? progress.geminiApiKey : progress.apiKey);
 
   return (
     <div
@@ -113,6 +169,21 @@ function AppShell() {
       data-theme={progress.accentTheme}
     >
       <div className="flex-1 overflow-y-auto pb-2">
+        {contentLocked ? (
+          <LockedScreen
+            level={lockedLevel ?? undefined}
+            what="Этот материал — в Premium"
+            nav={nav}
+            back={prevRoute}
+          />
+        ) : aiLocked ? (
+          <LockedScreen
+            what="AI-собеседник — в Premium"
+            nav={nav}
+            back={{ name: "conversations" }}
+          />
+        ) : (
+          <>
         {route.name === "home" && <HomeScreen nav={nav} />}
         {route.name === "vocab-topics" && <VocabTopics nav={nav} />}
         {route.name === "vocab-trainer" && (
@@ -143,7 +214,14 @@ function AppShell() {
         {route.name === "culture" && <Culture nav={nav} />}
         {route.name === "forms-trainer" && <FormsTrainer nav={nav} />}
         {route.name === "study-path" && <StudyPath nav={nav} />}
+        {route.name === "paywall" && <Paywall nav={nav} back={paywallBack} />}
+          </>
+        )}
       </div>
+      {askConsent && <ReminderConsent onDone={(granted) => {
+        setAskConsent(false);
+        if (granted) progress.setRemindersEnabled(true);
+      }} />}
       {showsBottomNav(route) && (
         <BottomNav
           active={routeToTab(route)}
@@ -157,7 +235,9 @@ function AppShell() {
 export default function App() {
   return (
     <ProgressProvider>
-      <AppShell />
+      <PremiumProvider>
+        <AppShell />
+      </PremiumProvider>
     </ProgressProvider>
   );
 }
