@@ -1,6 +1,8 @@
 import type { CEFRLevel, VocabItem } from "../../types";
+import { mergeVocab } from "../vocabParse";
+import { EN_EXTRA_TOPICS, EN_EXTRA_VOCABULARY } from "../en-vocab";
 
-export const TOPICS: { id: string; title: string; ru: string; level: CEFRLevel }[] = [
+const BASE_TOPICS: { id: string; title: string; ru: string; level: CEFRLevel }[] = [
   { id: "en-greetings", title: "Greetings & Introductions", ru: "Приветствие и знакомство", level: "A1" },
   { id: "en-family", title: "Family & People", ru: "Семья и люди", level: "A1" },
   { id: "en-numbers", title: "Numbers, Colors & Time", ru: "Числа, цвета, время", level: "A1" },
@@ -13,7 +15,7 @@ export const TOPICS: { id: string; title: string; ru: string; level: CEFRLevel }
   { id: "en-weather", title: "Weather & Nature", ru: "Погода и природа", level: "B1" },
 ];
 
-export const VOCABULARY: VocabItem[] = [
+const BASE_VOCABULARY: VocabItem[] = [
   // Greetings & Introductions
   { id: "eg1", de: "hello", ru: "привет", exampleDe: "Hello! How are you?", exampleRu: "Привет! Как дела?", topic: "en-greetings", level: "A1", emoji: "👋" },
   { id: "eg2", de: "goodbye", ru: "до свидания", exampleDe: "Goodbye, see you tomorrow!", exampleRu: "До свидания, увидимся завтра!", topic: "en-greetings", level: "A1" },
@@ -133,3 +135,7 @@ export const VOCABULARY: VocabItem[] = [
   { id: "ew5", de: "the forest", ru: "лес", exampleDe: "We went for a walk in the forest.", exampleRu: "Мы гуляли в лесу.", topic: "en-weather", level: "B1" },
   { id: "ew6", de: "the sea", ru: "море", exampleDe: "We spent our holiday by the sea.", exampleRu: "Мы провели отпуск у моря.", topic: "en-weather", level: "B1" },
 ];
+
+export const TOPICS = [...BASE_TOPICS, ...EN_EXTRA_TOPICS];
+
+export const VOCABULARY: VocabItem[] = mergeVocab(BASE_VOCABULARY, EN_EXTRA_VOCABULARY);
