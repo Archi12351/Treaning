@@ -122,3 +122,24 @@ export async function runAITask(
   if (!cfg.apiKey) throw new Error("Не задан API-ключ Anthropic.");
   return viaAnthropic(prompt, cfg, maxTokens);
 }
+
+export function conversationReviewPrompt(
+  language: Language,
+  level: CEFRLevel,
+  messages: { role: "user" | "assistant"; text: string }[],
+  objectives: string[],
+): string {
+  const transcript = messages
+    .slice(-40)
+    .map((m) => `${m.role === "assistant" ? "PARTNER" : "LEARNER"}: ${m.text.slice(0, 600)}`)
+    .join("\n");
+  return [
+    `You are a ${LANG_NAME[language]} teacher reviewing a learner's (level ${level}) conversation. Native language: Russian.`,
+    objectives.length ? `The learner's objectives were: ${objectives.join("; ")}` : "",
+    `Transcript:\n${transcript}`,
+    `Reply with ONLY JSON: {"score": <0-100>, "objectives": [<true|false for each objective, same order>], "praise": "<one sentence in Russian>", "mistakes": [{"wrong": "<learner fragment>", "right": "<correction>", "why": "<short explanation in Russian>"}], "tips": ["<up to 3 tips in Russian>"], "usefulPhrases": ["<up to 5 useful target-language phrases for this situation, with Russian translation after an em dash>"]}`,
+    `Only list mistakes made by the LEARNER, at most 8.`,
+  ]
+    .filter(Boolean)
+    .join("\n");
+}

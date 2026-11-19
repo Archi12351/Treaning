@@ -10,7 +10,19 @@ const BACKEND_URL = import.meta.env.VITE_AI_BACKEND_URL;
 
 const GEMINI_URL = "https://generativelanguage.googleapis.com/v1beta/models";
 
+// Role-play missions pass their scenario as `topic` prefixed with "ROLE:".
+function rolePlayLine(topic: string): string {
+  if (!topic.startsWith("ROLE:")) return "";
+  return `ROLE-PLAY: ${topic.slice(5).trim()} Stay in this role the whole time, behave like a real person in this situation (ask for documents, details, make small difficulties), keep replies short, and do not mention that this is an exercise.`;
+}
+
 function buildSystemPrompt(language: Language, level: CEFRLevel, topic: string): string {
+  const role = rolePlayLine(topic);
+  if (role) return [baseSystemPrompt(language, level, "the role-play situation below"), role].join(" ");
+  return baseSystemPrompt(language, level, topic);
+}
+
+function baseSystemPrompt(language: Language, level: CEFRLevel, topic: string): string {
   if (language === "de") {
     return [
       `Du bist ein freundlicher deutscher Muttersprachler und Gesprächspartner in einer Sprachlern-App.`,

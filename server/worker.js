@@ -81,6 +81,20 @@ function buildTaskPrompt(body) {
       "List at most 8 most important mistakes. If there are no mistakes, return an empty array.",
     ].join("\n");
   }
+  if (body.kind === "review") {
+    const transcript = (Array.isArray(body.messages) ? body.messages : [])
+      .slice(-40)
+      .map((m) => `${m.role === "assistant" ? "PARTNER" : "LEARNER"}: ${clip(m.text, 600)}`)
+      .join("\n");
+    const goals = (Array.isArray(body.objectives) ? body.objectives : []).slice(0, 5).map((g) => clip(g, 200));
+    return [
+      `You are a ${lang} teacher reviewing a learner's (level ${level}) conversation. Native language: Russian.`,
+      goals.length ? `The learner's objectives were: ${goals.join("; ")}` : "",
+      `Transcript:\n${transcript}`,
+      'Reply with ONLY JSON: {"score": <0-100>, "objectives": [<true|false for each objective, same order>], "praise": "<one sentence in Russian>", "mistakes": [{"wrong": "<learner fragment>", "right": "<correction>", "why": "<short explanation in Russian>"}], "tips": ["<up to 3 tips in Russian>"], "usefulPhrases": ["<up to 5 useful target-language phrases for this situation, with Russian translation after an em dash>"]}',
+      "Only list mistakes made by the LEARNER, at most 8.",
+    ].filter(Boolean).join("\n");
+  }
   if (body.kind === "answer") {
     return [
       `You check answers in a ${lang} speaking exercise for Russian-speaking learners.`,
@@ -95,6 +109,17 @@ function buildTaskPrompt(body) {
 }
 
 function buildSystemPrompt(language, level, topic) {
+  const t = String(topic || "");
+  if (t.startsWith("ROLE:")) {
+    return [
+      baseSystemPrompt(language, level, "the role-play situation below"),
+      `ROLE-PLAY: ${t.slice(5, 600).trim()} Stay in this role the whole time, behave like a real person in this situation (ask for documents, details, make small difficulties), keep replies short, and do not mention that this is an exercise.`,
+    ].join(" ");
+  }
+  return baseSystemPrompt(language, level, t);
+}
+
+function baseSystemPrompt(language, level, topic) {
   if (language === "fr") {
     return [
       "Tu es un locuteur natif francophone sympathique et un partenaire de conversation dans une application d'apprentissage des langues.",
@@ -177,7 +202,7 @@ export default {
           },
           body: JSON.stringify({
             model: taskModel,
-            max_tokens: body.kind === "writing" ? 2500 : 300,
+            max_tokens: body.kind === "answer" ? 300 : 2500,
             messages: [{ role: "user", content: prompt }],
           }),
         });
