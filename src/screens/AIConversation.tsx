@@ -12,11 +12,22 @@ const TOPICS = [
   "Работа и карьера",
   "Хобби и досуг",
   "Еда и рестораны",
+  "Визит в госучреждение (ВНЖ, налоги, регистрация)",
+  "Аренда квартиры и разговор с арендодателем",
+  "Собеседование на работу",
   "Свободная тема",
 ];
 
+// «на немецком» / «по-немецки» для подписей на текущем языке обучения.
+const LANG_WORDS: Record<string, { na: string; po: string }> = {
+  de: { na: "на немецком", po: "по-немецки" },
+  en: { na: "на английском", po: "по-английски" },
+  fr: { na: "на французском", po: "по-французски" },
+};
+
 export function AIConversation({ nav }: { nav: (r: Route) => void }) {
   const progress = useProgress();
+  const words = LANG_WORDS[progress.language] ?? LANG_WORDS.de;
   const [topic, setTopic] = useState<string | null>(null);
   const [started, setStarted] = useState(false);
   const [textInput, setTextInput] = useState("");
@@ -74,7 +85,7 @@ export function AIConversation({ nav }: { nav: (r: Route) => void }) {
         <div className="flex flex-col items-center px-6 pt-10 text-center">
           <span className="text-5xl">🤖</span>
           <h2 className="mt-4 text-lg font-bold text-slate-50">
-            Живой AI-собеседник на немецком
+            Живой AI-собеседник {words.na}
           </h2>
           <p className="mt-2 text-sm leading-relaxed text-slate-400">
             {progress.aiProvider === "gemini"
@@ -98,7 +109,7 @@ export function AIConversation({ nav }: { nav: (r: Route) => void }) {
         <TopBar title="AI-собеседник" onBack={() => nav({ name: "conversations" })} />
         <div className="px-4 py-4">
           <p className="text-sm text-slate-400">
-            Выберите тему для свободного разговора на немецком. Собеседник
+            Выберите тему для свободного разговора {words.na}. Собеседник
             подстроится под ваш уровень ({progress.level}).
           </p>
           <div className="mt-4 grid grid-cols-2 gap-2.5">
@@ -150,7 +161,7 @@ export function AIConversation({ nav }: { nav: (r: Route) => void }) {
       <div className="flex-1 space-y-3 px-4 py-4">
         {messages.length === 0 && (
           <p className="text-center text-xs text-slate-500">
-            Скажите что-нибудь по-немецки или напишите текстом, чтобы начать.
+            Скажите что-нибудь {words.po} или напишите текстом, чтобы начать.
           </p>
         )}
         {messages.map((m, i) => (
@@ -193,7 +204,7 @@ export function AIConversation({ nav }: { nav: (r: Route) => void }) {
             onKeyDown={(e) => {
               if (e.key === "Enter") submit(textInput);
             }}
-            placeholder="Напишите на немецком..."
+            placeholder={`Напишите ${words.na}...`}
             className="flex-1 rounded-full border border-slate-700 bg-slate-900 px-4 py-2.5 text-sm text-slate-100 outline-none focus:border-[color:var(--accent)]"
           />
           {sttSupported && (

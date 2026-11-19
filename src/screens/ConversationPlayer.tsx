@@ -120,7 +120,7 @@ export function ConversationPlayer({
         {!finished && current?.speaker === "user" && (
           <div className="rounded-2xl bg-slate-900 p-3.5">
             <p className="text-xs text-slate-400">
-              Ваша реплика ({current.ru}). Скажите вслух по-немецки или
+              Ваша реплика ({current.ru}). Скажите вслух {progress.language === "en" ? "по-английски" : progress.language === "fr" ? "по-французски" : "по-немецки"} или
               посмотрите ответ.
             </p>
             <div className="mt-3 flex flex-wrap items-center gap-2">

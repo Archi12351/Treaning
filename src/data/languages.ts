@@ -22,6 +22,12 @@ import { TEXTBOOK_CHAPTERS as TEXTBOOK_CHAPTERS_EN, TEXTBOOK_PARAGRAPHS as TEXTB
 import { CONVERSATIONS as CONVERSATIONS_EN } from "./en/conversations";
 import { PLACEMENT_QUESTIONS as PLACEMENT_EN } from "./en/placement";
 
+import { GRAMMAR_TOPICS as GRAMMAR_FR } from "./fr/grammar";
+import { TOPICS as VOCAB_TOPICS_FR, VOCABULARY as VOCABULARY_FR } from "./fr/vocabulary";
+import { TEXTBOOK_CHAPTERS as TEXTBOOK_CHAPTERS_FR, TEXTBOOK_PARAGRAPHS as TEXTBOOK_PARAGRAPHS_FR } from "./fr/textbook";
+import { CONVERSATIONS as CONVERSATIONS_FR } from "./fr/conversations";
+import { PLACEMENT_QUESTIONS as PLACEMENT_FR } from "./fr/placement";
+
 export interface VocabTopicMeta {
   id: string;
   title: string;
@@ -40,8 +46,8 @@ export interface LanguageBundle {
   placementQuestions: PlacementQuestion[];
 }
 
-// Partial: only languages with a real content bundle appear here. "fr" is
-// deliberately absent until its content is written — see LANGUAGE_LIST below.
+// Partial so a future language can be registered before its content exists —
+// the switcher only offers languages present in this record.
 export const LANGUAGES: Partial<Record<Language, LanguageBundle>> = {
   de: {
     meta: {
@@ -75,9 +81,22 @@ export const LANGUAGES: Partial<Record<Language, LanguageBundle>> = {
     conversations: CONVERSATIONS_EN,
     placementQuestions: PLACEMENT_EN,
   },
-  // French content is not written yet — the language switcher only offers
-  // languages present in this record, so "fr" simply won't show up in the
-  // UI until a bundle is added here.
+  fr: {
+    meta: {
+      code: "fr",
+      label: "Французский",
+      flag: "🇫🇷",
+      speechLang: "fr-FR",
+      previewPhrase: "Bonjour, voici comment sonne cette voix.",
+    },
+    grammarTopics: GRAMMAR_FR,
+    vocabTopics: VOCAB_TOPICS_FR,
+    vocabulary: VOCABULARY_FR,
+    textbookChapters: TEXTBOOK_CHAPTERS_FR,
+    textbookParagraphs: TEXTBOOK_PARAGRAPHS_FR,
+    conversations: CONVERSATIONS_FR,
+    placementQuestions: PLACEMENT_FR,
+  },
 };
 
 export const LANGUAGE_LIST: LanguageMeta[] = Object.values(LANGUAGES).map(

@@ -49,7 +49,7 @@ export function useStreakReminder(
       if (lastReminder === today) return;
       localStorage.setItem(LAST_REMINDER_KEY, today);
       notifyNow(
-        "Не бросай немецкий! 🇩🇪",
+        "Не бросай занятия! 🔥",
         streakCount > 0
           ? `Серия ${streakCount} дней подряд под угрозой — загляни хотя бы на 5 минут.`
           : "Сегодня ты ещё не занимался — пять минут экспресс-тренировки лучше, чем ничего.",
