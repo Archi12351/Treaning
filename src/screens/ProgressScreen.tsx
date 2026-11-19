@@ -5,6 +5,14 @@ import { useLanguageData } from "../hooks/useLanguageData";
 import { masteryPercent, MASTERY_THRESHOLD } from "../utils/srs";
 import { isRunningAsInstalledApp } from "../hooks/useIsInstalled";
 import { canUseAI } from "../utils/aiBackend";
+import { ACHIEVEMENTS } from "../utils/engagement";
+
+const GOALS = [
+  { xp: 15, label: "Лёгкий", note: "~5 мин" },
+  { xp: 30, label: "Обычный", note: "~10 мин" },
+  { xp: 60, label: "Серьёзный", note: "~20 мин" },
+  { xp: 100, label: "Интенсив", note: "~30 мин" },
+];
 
 export function ProgressScreen({ nav }: { nav: (r: Route) => void }) {
   const progress = useProgress();
@@ -19,7 +27,9 @@ export function ProgressScreen({ nav }: { nav: (r: Route) => void }) {
     0,
   );
   const grammarTotal = grammarTopics.reduce((s, t) => s + t.exercises.length, 0);
-  const last7 = last7Days();
+  const last14 = lastDays(14);
+  const lastTest = progress.placementHistory[progress.placementHistory.length - 1];
+  const daysSinceTest = lastTest ? Math.floor((Date.now() - new Date(lastTest.date).getTime()) / 86_400_000) : null;
   const alreadyInstalled = isRunningAsInstalledApp();
 
   return (
@@ -32,6 +42,11 @@ export function ProgressScreen({ nav }: { nav: (r: Route) => void }) {
           {progress.placementDone && (
             <p className="mt-1 text-xs text-slate-500">
               по результатам теста ({progress.levelConfidence}% точности)
+            </p>
+          )}
+          {daysSinceTest !== null && daysSinceTest >= 30 && (
+            <p className="mt-3 text-xs text-amber-300">
+              С последнего теста прошло {daysSinceTest} дн. — проверьте, насколько вы выросли!
             </p>
           )}
           <button
@@ -51,23 +66,10 @@ export function ProgressScreen({ nav }: { nav: (r: Route) => void }) {
 
         {!alreadyInstalled && (
           <div className="rounded-2xl bg-slate-900 p-4">
-            <p className="text-sm font-semibold text-slate-200">📲 Установить приложение</p>
-            <a
-              href="deutsch-a1-c2.apk"
-              download
-              className="accent-bg mt-3 flex items-center justify-between rounded-xl px-3.5 py-2.5"
-            >
-              <span className="text-sm font-semibold">Скачать APK для Android</span>
-              <span>⬇︎</span>
-            </a>
+            <p className="text-sm font-semibold text-slate-200">📲 Установить на телефон</p>
             <p className="mt-2 text-[11px] leading-relaxed text-slate-500">
-              После скачивания разрешите «Установку из неизвестных источников» —
-              это не магазин приложений, поэтому Android спросит подтверждение.
-            </p>
-            <p className="mt-3 text-[11px] leading-relaxed text-slate-500">
-              <span className="font-semibold text-slate-400">На iPhone:</span> откройте
-              эту страницу в Safari → кнопка «Поделиться» → «На экран «Домой»» —
-              приложение появится как обычная иконка.
+              <span className="font-semibold text-slate-400">Android (Chrome):</span> меню ⋮ → «Добавить на главный экран».{" "}
+              <span className="font-semibold text-slate-400">iPhone (Safari):</span> «Поделиться» → «На экран «Домой»».
             </p>
           </div>
         )}
@@ -88,20 +90,65 @@ export function ProgressScreen({ nav }: { nav: (r: Route) => void }) {
         </button>
 
         <div className="rounded-2xl bg-slate-900 p-4">
-          <p className="text-sm font-semibold text-slate-300">Активность за 7 дней</p>
-          <div className="mt-3 flex justify-between">
-            {last7.map((day) => (
-              <div key={day.date} className="flex flex-col items-center gap-1.5">
-                <div
-                  className={`h-8 w-8 rounded-lg ${
-                    progress.activeDates.includes(day.date)
-                      ? "accent-bg"
-                      : "bg-slate-800"
-                  }`}
-                />
-                <span className="text-[10px] text-slate-500">{day.label}</span>
-              </div>
+          <div className="flex items-baseline justify-between">
+            <p className="text-sm font-semibold text-slate-300">Опыт за 2 недели</p>
+            <p className="text-xs text-slate-500">
+              {last14.reduce((sum, d) => sum + (progress.xpByDay[d.date] ?? 0), 0)} XP
+            </p>
+          </div>
+          <div className="mt-3 flex h-24 items-end justify-between gap-1">
+            {last14.map((day) => {
+              const xp = progress.xpByDay[day.date] ?? 0;
+              const max = Math.max(progress.dailyGoalXp, ...last14.map((d) => progress.xpByDay[d.date] ?? 0));
+              const hitGoal = xp >= progress.dailyGoalXp;
+              return (
+                <div key={day.date} className="flex flex-1 flex-col items-center gap-1">
+                  <div
+                    className={`w-full rounded-t-md ${hitGoal ? "accent-bg" : xp > 0 ? "bg-slate-600" : "bg-slate-800"}`}
+                    style={{ height: `${Math.max(4, (xp / max) * 80)}px` }}
+                    title={`${xp} XP`}
+                  />
+                  <span className="text-[9px] text-slate-500">{day.label}</span>
+                </div>
+              );
+            })}
+          </div>
+          <p className="mt-2 text-[10px] text-slate-500">Цветные столбики — дни, когда выполнена цель дня.</p>
+        </div>
+
+        <div className="rounded-2xl bg-slate-900 p-4">
+          <p className="text-sm font-semibold text-slate-300">🎯 Цель дня</p>
+          <div className="mt-3 grid grid-cols-4 gap-2">
+            {GOALS.map((g) => (
+              <button
+                key={g.xp}
+                onClick={() => progress.setDailyGoalXp(g.xp)}
+                className={`rounded-xl px-1 py-2 text-center ${progress.dailyGoalXp === g.xp ? "accent-bg" : "bg-slate-800 text-slate-300"}`}
+              >
+                <p className="text-xs font-semibold">{g.label}</p>
+                <p className="text-[10px] opacity-70">{g.xp} XP · {g.note}</p>
+              </button>
             ))}
+          </div>
+        </div>
+
+        <div className="rounded-2xl bg-slate-900 p-4">
+          <div className="flex items-baseline justify-between">
+            <p className="text-sm font-semibold text-slate-300">🏅 Достижения</p>
+            <p className="text-xs text-slate-500">
+              {progress.achievements.length}/{ACHIEVEMENTS.length}
+            </p>
+          </div>
+          <div className="mt-3 grid grid-cols-4 gap-2">
+            {ACHIEVEMENTS.map((a) => {
+              const got = progress.achievements.includes(a.id);
+              return (
+                <div key={a.id} className={`rounded-xl p-2 text-center ${got ? "bg-amber-500/15" : "bg-slate-800/50 opacity-40"}`} title={a.text}>
+                  <p className="text-2xl">{got ? a.icon : "🔒"}</p>
+                  <p className="mt-1 text-[9px] leading-tight text-slate-300">{a.title}</p>
+                </div>
+              );
+            })}
           </div>
         </div>
 
@@ -180,10 +227,10 @@ function ProgressBar({
   );
 }
 
-function last7Days() {
+function lastDays(n: number) {
   const days = [];
   const labels = ["Вс", "Пн", "Вт", "Ср", "Чт", "Пт", "Сб"];
-  for (let i = 6; i >= 0; i--) {
+  for (let i = n - 1; i >= 0; i--) {
     const d = new Date();
     d.setDate(d.getDate() - i);
     days.push({ date: d.toISOString().slice(0, 10), label: labels[d.getDay()] });

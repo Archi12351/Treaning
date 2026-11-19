@@ -28,6 +28,10 @@ import { Paywall, LockedScreen } from "./screens/Paywall";
 import { PremiumProvider, usePremium } from "./hooks/usePremium";
 import { useLanguageData } from "./hooks/useLanguageData";
 import { ReminderConsent } from "./components/ReminderConsent";
+import { AchievementWatcher } from "./components/AchievementWatcher";
+import { MistakesReview } from "./screens/MistakesReview";
+import { ReadingList, ReadingTextScreen, TEXTS_BY_LANGUAGE } from "./screens/Reading";
+import { WritingCoach } from "./screens/WritingCoach";
 import { getReminderConsent } from "./utils/notifications";
 import type { CEFRLevel } from "./types";
 
@@ -50,7 +54,11 @@ export type Route =
   | { name: "culture" }
   | { name: "forms-trainer" }
   | { name: "study-path" }
-  | { name: "paywall" };
+  | { name: "paywall" }
+  | { name: "mistakes" }
+  | { name: "reading" }
+  | { name: "reading-text"; id: string }
+  | { name: "writing" };
 
 const TAB_ROOTS: Record<string, Route> = {
   home: { name: "home" },
@@ -145,6 +153,8 @@ function AppShell() {
         return bundle.grammarTopics.find((t) => t.id === r.topicId)?.level ?? null;
       case "conversation-player":
         return bundle.conversations.find((c) => c.id === r.id)?.level ?? null;
+      case "reading-text":
+        return TEXTS_BY_LANGUAGE[progress.language].find((t) => t.id === r.id)?.level ?? null;
       case "textbook-chapter": {
         const lr = bundle.textbookChapters.find((c) => c.id === r.chapterId)?.levelRange;
         return lr ? (lr.slice(0, 2) as CEFRLevel) : null;
@@ -215,9 +225,14 @@ function AppShell() {
         {route.name === "forms-trainer" && <FormsTrainer nav={nav} />}
         {route.name === "study-path" && <StudyPath nav={nav} />}
         {route.name === "paywall" && <Paywall nav={nav} back={paywallBack} />}
+        {route.name === "mistakes" && <MistakesReview nav={nav} />}
+        {route.name === "reading" && <ReadingList nav={nav} />}
+        {route.name === "reading-text" && <ReadingTextScreen id={route.id} nav={nav} />}
+        {route.name === "writing" && <WritingCoach nav={nav} />}
           </>
         )}
       </div>
+      <AchievementWatcher />
       {askConsent && <ReminderConsent onDone={(granted) => {
         setAskConsent(false);
         if (granted) progress.setRemindersEnabled(true);

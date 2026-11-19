@@ -10,6 +10,7 @@ import { useAIFacts } from "../hooks/useAIFacts";
 import { CULTURE_BY_LANGUAGE } from "../data/facts";
 import { BRAND } from "../config/brand";
 import { usePremium } from "../hooks/usePremium";
+import { TodayPanel } from "../components/TodayPanel";
 
 export function HomeScreen({ nav }: { nav: (r: Route) => void }) {
   const progress = useProgress();
@@ -89,6 +90,8 @@ export function HomeScreen({ nav }: { nav: (r: Route) => void }) {
           </button>
         ))}
       </div>
+
+      <TodayPanel nav={nav} />
 
       {!progress.placementDone && (
         <button
@@ -189,6 +192,24 @@ export function HomeScreen({ nav }: { nav: (r: Route) => void }) {
           title="Грамматика"
           subtitle={`${grammarTopics.length} тем, A1–C1`}
           onClick={() => nav({ name: "grammar-topics" })}
+        />
+        <QuickCard
+          icon="🎧"
+          title="Чтение и аудио"
+          subtitle="Тексты, письма из ведомств"
+          onClick={() => nav({ name: "reading" })}
+        />
+        <QuickCard
+          icon="✍️"
+          title="Письмо с ИИ"
+          subtitle="Проверка и разбор ошибок"
+          onClick={() => nav({ name: "writing" })}
+        />
+        <QuickCard
+          icon="🛠️"
+          title="Мои ошибки"
+          subtitle={`${Object.keys(progress.mistakes).length} на разбор`}
+          onClick={() => nav({ name: "mistakes" })}
         />
         <QuickCard
           icon="📖"

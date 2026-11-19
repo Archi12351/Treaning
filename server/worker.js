@@ -56,6 +56,44 @@ function buildFactsPrompt(language, existingTitles, count) {
     .join("\n");
 }
 
+// Prompts for one-shot learning tasks (mirrors src/utils/aiClient.ts). Built
+// here from structured fields so the proxy can't be used as a free-form LLM.
+const LANG_EN = { de: "German", en: "English", fr: "French" };
+const LEVELS = ["A1", "A2", "B1", "B2", "C1", "C2"];
+
+function buildTaskPrompt(body) {
+  const lang = LANG_EN[body.language] || "German";
+  const level = LEVELS.includes(body.level) ? body.level : "B1";
+  const clip = (v, n) => String(v || "").slice(0, n);
+  if (body.kind === "writing") {
+    return [
+      `You are an experienced, encouraging ${lang} teacher for Russian-speaking learners. The learner's level is ${level} (CEFR).`,
+      `Task given to the learner (in Russian): "${clip(body.task, 600)}"`,
+      `Learner's text:\n"""${clip(body.text, 2500)}"""`,
+      "Evaluate it. Reply with ONLY a JSON object, no markdown:",
+      `{"score": <0-100, how well the task is solved for level ${level}>,`,
+      ' "estimatedLevel": "<A1|A2|B1|B2|C1|C2>",',
+      ' "corrected": "<the learner\'s text with all mistakes corrected, minimal changes>",',
+      ' "mistakes": [{"wrong": "<fragment>", "right": "<correction>", "why": "<short explanation in Russian>"}],',
+      ' "praise": "<one sentence in Russian: what is good>",',
+      ' "tips": ["<up to 3 short tips in Russian how to improve>"],',
+      ` "model": "<a natural, native-like version of the text at level ${level}>"}`,
+      "List at most 8 most important mistakes. If there are no mistakes, return an empty array.",
+    ].join("\n");
+  }
+  if (body.kind === "answer") {
+    return [
+      `You check answers in a ${lang} speaking exercise for Russian-speaking learners.`,
+      `Dialogue context (previous line said to the learner): "${clip(body.context, 400)}"`,
+      `Model answer: "${clip(body.expected, 400)}"`,
+      `Learner said (speech-to-text, may lack punctuation): "${clip(body.answer, 500)}"`,
+      "Is the learner's answer an appropriate, understandable reply in this situation (it does NOT need to match the model answer word for word)?",
+      'Reply with ONLY JSON: {"ok": true|false, "feedback": "<one short sentence in Russian; if there is a grammar mistake, show the corrected sentence>"}',
+    ].join("\n");
+  }
+  return null;
+}
+
 function buildSystemPrompt(language, level, topic) {
   if (language === "fr") {
     return [
@@ -118,6 +156,50 @@ export default {
     }
 
     const { messages, level, topic, model, language, mode } = body ?? {};
+
+    if (mode === "task") {
+      const prompt = buildTaskPrompt(body);
+      if (!prompt) {
+        return new Response(JSON.stringify({ error: "Unknown task" }), {
+          status: 400,
+          headers: { ...corsHeaders(origin), "Content-Type": "application/json" },
+        });
+      }
+      const taskModel = ALLOWED_MODELS.includes(model) ? model : "claude-opus-5";
+      let r;
+      try {
+        r = await fetch("https://api.anthropic.com/v1/messages", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+            "x-api-key": env.ANTHROPIC_API_KEY,
+            "anthropic-version": "2023-06-01",
+          },
+          body: JSON.stringify({
+            model: taskModel,
+            max_tokens: body.kind === "writing" ? 2500 : 300,
+            messages: [{ role: "user", content: prompt }],
+          }),
+        });
+      } catch {
+        return new Response(JSON.stringify({ error: "Upstream connection failed" }), {
+          status: 502,
+          headers: { ...corsHeaders(origin), "Content-Type": "application/json" },
+        });
+      }
+      if (!r.ok) {
+        return new Response(JSON.stringify({ error: `Anthropic error: ${await r.text()}` }), {
+          status: r.status,
+          headers: { ...corsHeaders(origin), "Content-Type": "application/json" },
+        });
+      }
+      const d = await r.json();
+      const block = (d.content || []).find((b) => b.type === "text");
+      return new Response(JSON.stringify({ text: block?.text ?? "" }), {
+        status: 200,
+        headers: { ...corsHeaders(origin), "Content-Type": "application/json" },
+      });
+    }
 
     if (mode === "facts") {
       const lang = FACT_COUNTRIES[language] ? language : "de";

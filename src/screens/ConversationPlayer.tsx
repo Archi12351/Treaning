@@ -6,6 +6,8 @@ import { useProgress } from "../hooks/useProgress";
 import { useLanguageData } from "../hooks/useLanguageData";
 import { useSpeechRecognition, useTextToSpeech } from "../hooks/useSpeech";
 import { matchesAny } from "../utils/text";
+import { useAIAccess } from "../hooks/useAIAccess";
+import { answerCheckPrompt, parseJsonObject, runAITask } from "../utils/aiClient";
 
 export function ConversationPlayer({
   id,
@@ -24,6 +26,58 @@ export function ConversationPlayer({
   const [showAnswer, setShowAnswer] = useState(false);
   const [attemptResult, setAttemptResult] = useState<"ok" | "retry" | null>(null);
   const [showTranslations, setShowTranslations] = useState(true);
+  const [typed, setTyped] = useState("");
+  const [aiVerdict, setAiVerdict] = useState<null | "checking" | { ok: boolean; feedback: string }>(null);
+  const [correctLines, setCorrectLines] = useState(0);
+  const [creditedLine, setCreditedLine] = useState(-1);
+  const ai = useAIAccess();
+
+  const credit = () => {
+    if (creditedLine === currentIndex) return;
+    setCreditedLine(currentIndex);
+    setCorrectLines((c) => c + 1);
+    progress.addXp(3);
+  };
+
+  // Checks a spoken or typed answer: exact-ish match first, then — if it
+  // didn't match the scripted answer — asks the AI whether it is still an
+  // appropriate reply. Real conversations have many right answers.
+  const evaluate = async (answer: string) => {
+    if (!current || current.speaker !== "user" || !answer.trim()) return;
+    const candidates = [current.de, ...(current.alternatives ?? [])];
+    const { matched } = matchesAny(answer, candidates, 0.65);
+    if (matched) {
+      setAttemptResult("ok");
+      setShowAnswer(true);
+      setAiVerdict(null);
+      credit();
+      return;
+    }
+    if (!ai.available) {
+      setAttemptResult("retry");
+      return;
+    }
+    setAttemptResult(null);
+    setAiVerdict("checking");
+    try {
+      const context = lines[currentIndex - 1]?.de ?? "";
+      const raw = await runAITask(
+        ai.config,
+        answerCheckPrompt(progress.language, context, current.de, answer),
+        { kind: "answer", language: progress.language, context, expected: current.de, answer },
+        300,
+      );
+      const verdict = parseJsonObject<{ ok: boolean; feedback: string }>(raw);
+      setAiVerdict(verdict);
+      if (verdict.ok) {
+        setShowAnswer(true);
+        credit();
+      }
+    } catch {
+      setAiVerdict(null);
+      setAttemptResult("retry");
+    }
+  };
 
   const lines = conversation?.lines ?? [];
   const total = lines.length;
@@ -42,6 +96,7 @@ export function ConversationPlayer({
   useEffect(() => {
     if (finished) {
       progress.markConversationDone(id);
+      progress.bumpDaily("dialog");
       progress.addXp(10);
       progress.incrementSessions();
     }
@@ -49,12 +104,7 @@ export function ConversationPlayer({
   }, [finished]);
 
   useEffect(() => {
-    if (!listening && transcript && current?.speaker === "user") {
-      const candidates = [current.de, ...(current.alternatives ?? [])];
-      const { matched } = matchesAny(transcript, candidates, 0.65);
-      setAttemptResult(matched ? "ok" : "retry");
-      if (matched) setShowAnswer(true);
-    }
+    if (!listening && transcript && current?.speaker === "user") void evaluate(transcript);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [listening]);
 
@@ -63,6 +113,8 @@ export function ConversationPlayer({
   const next = () => {
     setShowAnswer(false);
     setAttemptResult(null);
+    setAiVerdict(null);
+    setTyped("");
     setRevealed((r) => Math.min(r + 1, total));
   };
 
@@ -70,6 +122,9 @@ export function ConversationPlayer({
     setRevealed(1);
     setShowAnswer(false);
     setAttemptResult(null);
+    setAiVerdict(null);
+    setCorrectLines(0);
+    setCreditedLine(-1);
   };
 
   return (
@@ -146,8 +201,35 @@ export function ConversationPlayer({
                 {showAnswer ? "Скрыть ответ" : "Показать ответ"}
               </button>
             </div>
+            <div className="mt-3 flex gap-2">
+              <input
+                value={typed}
+                onChange={(e) => setTyped(e.target.value)}
+                onKeyDown={(e) => e.key === "Enter" && void evaluate(typed)}
+                placeholder="…или напишите ответ"
+                autoCapitalize="off"
+                spellCheck={false}
+                className="min-w-0 flex-1 rounded-lg border border-slate-700 bg-slate-800/60 px-3 py-2 text-sm text-slate-100 outline-none focus:border-[color:var(--accent)]"
+              />
+              <button
+                onClick={() => void evaluate(typed)}
+                disabled={!typed.trim()}
+                className="accent-bg rounded-lg px-3 text-sm font-semibold disabled:opacity-40"
+              >
+                ✓
+              </button>
+            </div>
             {transcript && (
               <p className="mt-2 text-xs text-slate-500">Вы сказали: «{transcript}»</p>
+            )}
+            {aiVerdict === "checking" && (
+              <p className="mt-1 animate-pulse text-xs text-violet-300">✨ ИИ проверяет смысл ответа…</p>
+            )}
+            {aiVerdict && aiVerdict !== "checking" && (
+              <p className={`mt-1 text-xs font-medium ${aiVerdict.ok ? "text-emerald-400" : "text-amber-400"}`}>
+                {aiVerdict.ok ? "✨ Подходит! " : "✨ Не совсем: "}
+                <span className="font-normal text-slate-300">{aiVerdict.feedback}</span>
+              </p>
             )}
             {attemptResult === "ok" && (
               <p className="mt-1 text-xs font-medium text-emerald-400">Отлично! ✓</p>
@@ -173,6 +255,9 @@ export function ConversationPlayer({
           <div className="flex flex-col items-center gap-3 pt-4 text-center">
             <span className="text-4xl">🎉</span>
             <p className="font-semibold text-slate-100">Диалог завершён</p>
+            <p className="text-sm text-slate-400">
+              Сказано самостоятельно: {correctLines} из {lines.filter((l) => l.speaker === "user").length} реплик
+            </p>
             <div className="flex w-full flex-col gap-3">
               <button
                 onClick={restart}

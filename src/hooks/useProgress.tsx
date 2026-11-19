@@ -12,6 +12,17 @@ import { createCard, reviewCard } from "../utils/srs";
 
 const STORAGE_KEY = "deutsch-b2c1-progress-v1";
 
+// One entry per item the learner got wrong. It stays in the "Мои ошибки"
+// review queue until it's answered correctly twice in a row.
+export interface MistakeEntry {
+  kind: "grammar" | "vocab";
+  refId: string; // exercise id or vocab id
+  topicId: string;
+  wrongCount: number;
+  streak: number; // correct answers in a row since the last mistake
+  lastWrong: string;
+}
+
 interface GrammarProgress {
   completed: string[];
   correct: number;
@@ -29,6 +40,9 @@ interface LangProgress {
   grammarProgress: Record<string, GrammarProgress>;
   conversationsDone: string[];
   chaptersRead: string[];
+  mistakes: Record<string, MistakeEntry>;
+  textsRead: string[];
+  writingsDone: number;
 }
 
 const defaultLangProgress: LangProgress = {
@@ -40,6 +54,9 @@ const defaultLangProgress: LangProgress = {
   grammarProgress: {},
   conversationsDone: [],
   chaptersRead: [],
+  mistakes: {},
+  textsRead: [],
+  writingsDone: 0,
 };
 
 interface ProgressState {
@@ -63,6 +80,18 @@ interface ProgressState {
   ttsVoiceURI: string;
   useAiVoice: boolean;
   aiVoiceName: string;
+  dailyGoalXp: number;
+  xpByDay: Record<string, number>;
+  achievements: string[];
+  learnerGoal: string;
+  daily: DailyStats;
+  bestStreak: number;
+}
+
+export type DailyKey = "vocab" | "grammar" | "reading" | "dialog" | "writing" | "mistakes";
+export interface DailyStats {
+  date: string;
+  counts: Partial<Record<DailyKey, number>>;
 }
 
 const defaultState: ProgressState = {
@@ -90,6 +119,12 @@ const defaultState: ProgressState = {
   ttsVoiceURI: "",
   useAiVoice: false,
   aiVoiceName: "Kore",
+  dailyGoalXp: 30,
+  xpByDay: {},
+  achievements: [],
+  learnerGoal: "",
+  daily: { date: "", counts: {} },
+  bestStreak: 0,
 };
 
 const VALID_LANGUAGES: Language[] = ["de", "en", "fr"];
@@ -105,6 +140,7 @@ function loadState(): ProgressState {
     // existing user's data is loaded after this change.
     if (!parsed.byLanguage) {
       const migratedDe: LangProgress = {
+        ...defaultLangProgress,
         level: parsed.level ?? defaultLangProgress.level,
         levelConfidence: parsed.levelConfidence ?? defaultLangProgress.levelConfidence,
         placementDone: parsed.placementDone ?? defaultLangProgress.placementDone,
@@ -126,7 +162,12 @@ function loadState(): ProgressState {
     return {
       ...defaultState,
       ...parsed,
-      byLanguage: { ...defaultState.byLanguage, ...parsed.byLanguage },
+      byLanguage: Object.fromEntries(
+        (Object.keys(defaultState.byLanguage) as Language[]).map((k) => [
+          k,
+          { ...defaultLangProgress, ...(parsed.byLanguage?.[k] ?? {}) },
+        ]),
+      ) as Record<Language, LangProgress>,
     };
   } catch {
     return defaultState;
@@ -167,6 +208,15 @@ interface ProgressApi extends ProgressState, LangProgress {
   setUseAiVoice: (enabled: boolean) => void;
   setAiVoiceName: (name: string) => void;
   setLanguage: (language: Language) => void;
+  recordVocabResult: (id: string, topicId: string, correct: boolean) => void;
+  markTextRead: (id: string) => void;
+  recordWriting: () => void;
+  setDailyGoalXp: (xp: number) => void;
+  unlockAchievements: (ids: string[]) => void;
+  setLearnerGoal: (goal: string) => void;
+  bumpDaily: (key: DailyKey, n?: number) => void;
+  todayCounts: Partial<Record<DailyKey, number>>;
+  todayXp: number;
 }
 
 const ProgressContext = createContext<ProgressApi | null>(null);
@@ -199,15 +249,94 @@ export function ProgressProvider({ children }: { children: ReactNode }) {
       yesterday.setDate(yesterday.getDate() - 1);
       const wasYesterday = s.lastActiveDate === yesterday.toISOString().slice(0, 10);
       const streakCount = wasYesterday ? s.streakCount + 1 : 1;
+      const bestStreak = Math.max(s.bestStreak ?? 0, streakCount);
       const activeDates = s.activeDates.includes(today)
         ? s.activeDates
         : [...s.activeDates, today].slice(-90);
-      return { ...s, lastActiveDate: today, streakCount, activeDates };
+      return { ...s, lastActiveDate: today, streakCount, activeDates, bestStreak };
     });
   }, []);
 
   const addXp = useCallback((amount: number) => {
-    setState((s) => ({ ...s, xp: s.xp + amount }));
+    setState((s) => {
+      const today = todayStr();
+      const xpByDay = { ...s.xpByDay, [today]: (s.xpByDay[today] ?? 0) + amount };
+      // keep ~4 months of history
+      const keys = Object.keys(xpByDay).sort();
+      for (const k of keys.slice(0, Math.max(0, keys.length - 120))) delete xpByDay[k];
+      return { ...s, xp: s.xp + amount, xpByDay };
+    });
+  }, []);
+
+  // Shared bookkeeping for the mistakes queue.
+  const trackResult = useCallback(
+    (kind: "grammar" | "vocab", refId: string, topicId: string, correct: boolean) => {
+      updateLang((l) => {
+        const key = `${kind}:${refId}`;
+        const prev = l.mistakes[key];
+        const mistakes = { ...l.mistakes };
+        if (!correct) {
+          mistakes[key] = {
+            kind,
+            refId,
+            topicId,
+            wrongCount: (prev?.wrongCount ?? 0) + 1,
+            streak: 0,
+            lastWrong: todayStr(),
+          };
+        } else if (prev) {
+          if (prev.streak + 1 >= 2) delete mistakes[key];
+          else mistakes[key] = { ...prev, streak: prev.streak + 1 };
+        } else {
+          return l;
+        }
+        return { ...l, mistakes };
+      });
+    },
+    [updateLang],
+  );
+
+  const bumpDaily = useCallback((key: DailyKey, n = 1) => {
+    setState((s) => {
+      const today = todayStr();
+      const base = s.daily?.date === today ? s.daily.counts : {};
+      return { ...s, daily: { date: today, counts: { ...base, [key]: (base[key] ?? 0) + n } } };
+    });
+  }, []);
+
+  const recordVocabResult = useCallback(
+    (id: string, topicId: string, correct: boolean) => {
+      trackResult("vocab", id, topicId, correct);
+      bumpDaily("vocab");
+    },
+    [trackResult, bumpDaily],
+  );
+
+  const markTextRead = useCallback(
+    (id: string) => {
+      updateLang((l) => (l.textsRead.includes(id) ? l : { ...l, textsRead: [...l.textsRead, id] }));
+    },
+    [updateLang],
+  );
+
+  const recordWriting = useCallback(() => {
+    updateLang((l) => ({ ...l, writingsDone: l.writingsDone + 1 }));
+    bumpDaily("writing");
+  }, [updateLang, bumpDaily]);
+
+  const setDailyGoalXp = useCallback((xp: number) => {
+    setState((s) => ({ ...s, dailyGoalXp: xp }));
+  }, []);
+
+  const unlockAchievements = useCallback((ids: string[]) => {
+    setState((s) => {
+      const fresh = ids.filter((id) => !s.achievements.includes(id));
+      return fresh.length ? { ...s, achievements: [...s.achievements, ...fresh] } : s;
+    });
+  }, []);
+
+  const setLearnerGoal = useCallback((goal: string) => {
+    setState((s) => ({ ...s, learnerGoal: goal }));
   }, []);
 
   const reviewVocab = useCallback(
@@ -225,6 +354,8 @@ export function ProgressProvider({ children }: { children: ReactNode }) {
 
   const recordGrammarAttempt = useCallback(
     (topicId: string, exerciseId: string, correct: boolean) => {
+      trackResult("grammar", exerciseId, topicId, correct);
+      bumpDaily("grammar");
       updateLang((l) => {
         const prev = l.grammarProgress[topicId] ?? {
           completed: [],
@@ -249,7 +380,7 @@ export function ProgressProvider({ children }: { children: ReactNode }) {
         };
       });
     },
-    [updateLang],
+    [updateLang, trackResult, bumpDaily],
   );
 
   const setLevel = useCallback(
@@ -387,6 +518,15 @@ export function ProgressProvider({ children }: { children: ReactNode }) {
       setUseAiVoice,
       setAiVoiceName,
       setLanguage,
+      recordVocabResult,
+      markTextRead,
+      recordWriting,
+      setDailyGoalXp,
+      unlockAchievements,
+      setLearnerGoal,
+      bumpDaily,
+      todayCounts: state.daily?.date === todayStr() ? state.daily.counts : {},
+      todayXp: state.xpByDay[todayStr()] ?? 0,
     }),
     [
       state,
@@ -416,6 +556,13 @@ export function ProgressProvider({ children }: { children: ReactNode }) {
       setUseAiVoice,
       setAiVoiceName,
       setLanguage,
+      recordVocabResult,
+      markTextRead,
+      recordWriting,
+      setDailyGoalXp,
+      unlockAchievements,
+      setLearnerGoal,
+      bumpDaily,
     ],
   );
 
